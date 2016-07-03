@@ -3,10 +3,14 @@ var test = require('tape');
 var fs = require('fs');
 
 test('Simple Duality', function(t) {
-    var res = buffer({
-        type: 'LineString',
-        coordinates: [ [ 153.02594661712646, -27.391440164073067 ], [ 153.0263113975525, -27.389068173784242 ] ]
-    }, 0.1);
+    var res = duality({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+            type: 'MultiLineString',
+            coordinates: [[[ 151.2131541967392, -33.909451060139666 ], [ 151.2134063243866, -33.908088725234904 ] ],[ [ 151.213296353817, -33.90809095129009 ], [ 151.21302545070645, -33.90940653973529 ]]] 
+        }
+    });
 
     if (process.env.UPDATE) {
         fs.writeFileSync(__dirname + '/fixtures/duality.simple.json', JSON.stringify(res, null, 4));
