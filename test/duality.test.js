@@ -2,6 +2,22 @@ var duality = require('../lib/duality');
 var test = require('tape');
 var fs = require('fs');
 
+test('checks types', function(t) {
+    t.throws(function() {
+        duality({ type: 'LineString' })
+    }, 'Must be Feature');
+
+    t.throws(function() {
+        duality({ type: 'Feature' })
+    }, 'Must have geometry');
+
+    t.throws(function() {
+        duality({ type: 'Feature', geometry: { type: 'Point' } })
+    }, 'Must be MultiLineString');
+
+    t.end();
+});
+
 test('Simple Duality', function(t) {
     var res = duality({
         type: 'Feature',
