@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v6.0.0
+
+- :rocket: Update to Node 6.x.x
+- :arrow_up: Update all deps to latest versions
+
 ### v5.1.0
 
 - :bug: Rework internals to never defer an entire id stack to avoid callback overflow on large sources
