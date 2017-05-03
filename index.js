@@ -3,6 +3,7 @@
 const help = require('./lib/help');
 const test = require('./lib/test');
 const map = require('./lib/map');
+const stat = require('./lib/stat');
 const debug = require('./lib/debug');
 const convert = require('./lib/convert');
 const settings = require('./package.json');
@@ -42,6 +43,15 @@ switch (argv._[2]) {
                 process.exit(1);
             }
             console.log('ok - processing complete');
+            process.exit(0);
+        });
+        break;
+    case ('stat'):
+        stat(process.argv, (err) => {
+            if (err) {
+                console.error(err.stack);
+                process.exit(1);
+            }
             process.exit(0);
         });
         break;

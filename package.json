@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "9.9.0",
+  "version": "9.10.1",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
   "bin": {
@@ -16,10 +16,10 @@
   "author": "Nicholas Ingalls <nicholas.ingalls@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "@mapbox/carmen": "22.1.0",
+    "@mapbox/carmen": "^22.1.3",
     "@mapbox/tile-cover": "^3.0.2",
     "@mapbox/tilebelt": "^1.0.1",
-    "@turf/turf": "4.1.0",
+    "@turf/turf": "^4.2.0",
     "d3-queue": "3.0.5",
     "express": "^4.15.2",
     "lodash": "^4.2.0",
