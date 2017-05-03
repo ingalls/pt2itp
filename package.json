@@ -7,6 +7,7 @@
     "pt2itp": "./index.js"
   },
   "scripts": {
+    "doc": "./node_modules/documentation/bin/documentation.js lint lib/** && ./node_modules/documentation/bin/documentation.js build lib/** -f html -o docs",
     "lint": "eslint index.js test/* lib/*",
     "coverage": "istanbul cover tape test/*.js && coveralls < ./coverage/lcov.info",
     "test": "tape test/*.test.js",
@@ -34,6 +35,7 @@
     "tape": "^4.2.0",
     "eslint": "^3.19.0",
     "coveralls": "^2.11.4",
+    "documentation": "^4.0.0-rc.1",
     "istanbul": "^0.4.0"
   },
   "eslintConfig": {
