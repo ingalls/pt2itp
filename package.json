@@ -23,7 +23,6 @@
     "d3-queue": "3.0.5",
     "express": "^4.15.2",
     "lodash": "^4.2.0",
-    "mbtiles": "^0.9.0",
     "minimist": "^1.2.0",
     "pg": "^6.1.0",
     "pg-cursor": "^1.0.1",
@@ -33,6 +32,7 @@
   },
   "devDependencies": {
     "tape": "^4.2.0",
+    "@mapbox/mbtiles": "^0.9.0",
     "eslint": "^3.19.0",
     "coveralls": "^2.11.4",
     "documentation": "^4.0.0-rc.1",
