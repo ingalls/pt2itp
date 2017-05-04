@@ -13,7 +13,7 @@ test('explode', (t) => {
                 "coordinates": [1,1]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates,  [ 1, 1 ] , 'Non linestrings are ignored');
+    }).features[0].geometry.coordinates,  [ 1, 1 ] , 'Non linestrings are ignored');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -25,7 +25,7 @@ test('explode', (t) => {
                 "coordinates": [[[0,0],[0,1]], [[0,1],[1,1]]]
             }
         }]
-    }, { degTolerance: 100, noDistance: true }).features[0].geometry.coordinates,  [ [ 0, 0 ], [ 0, 1 ], [ 1, 1 ] ], '90 deg angle');
+    }, { degTolerance: 100 }).features[0].geometry.coordinates,  [ [ 0, 0 ], [ 0, 1 ], [ 1, 1 ] ], '90 deg angle');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -37,7 +37,7 @@ test('explode', (t) => {
                 "coordinates": [[[0,0],[0,1]], [[0,1],[1,1]]]
             }
         }]
-    }, { degTolerance: 30, noDistance: true }).features[0].geometry.coordinates, [ [ 0, 0 ], [ 0, 1 ] ], '90 deg angle cutoff');
+    }, { degTolerance: 30 }).features[0].geometry.coordinates, [ [ 0, 0 ], [ 0, 1 ] ], '90 deg angle cutoff');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -49,7 +49,7 @@ test('explode', (t) => {
                 "coordinates": [[[0,0],[1,1]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates,  [ [ 0, 0 ], [ 1, 1 ] ] , '-1->');
+    }).features[0].geometry.coordinates,  [ [ 0, 0 ], [ 1, 1 ] ] , '-1->');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -61,7 +61,7 @@ test('explode', (t) => {
                 "coordinates": [[[-1,-1],[0,0]],[[0,0],[1,1]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '-1-> -2->');
+    }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '-1-> -2->');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -73,7 +73,7 @@ test('explode', (t) => {
                 "coordinates": [[[0,0],[1,1]], [[-1,-1],[0,0]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '-2-> -1->');
+    }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '-2-> -1->');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -85,7 +85,7 @@ test('explode', (t) => {
                 "coordinates": [[[-1,-1],[0,0]],[[1,1],[0,0]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '-1-> <-2-');
+    }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '-1-> <-2-');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -97,7 +97,7 @@ test('explode', (t) => {
                 "coordinates": [[[1,1],[0,0]], [[-1,-1],[0,0]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [[1,1],[0,0],[-1,-1 ]], '-2-> <-1-');
+    }).features[0].geometry.coordinates, [[1,1],[0,0],[-1,-1 ]], '-2-> <-1-');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -109,7 +109,7 @@ test('explode', (t) => {
                 "coordinates": [[[-1,-1],[0,0]],[[2,2], [1,1]],[[0,0],[1,1]], [[3,3], [2,2]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1],[2,2],[3,3]], '-1-> -3-> <-2- <-4-');
+    }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1],[2,2],[3,3]], '-1-> -3-> <-2- <-4-');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -121,7 +121,7 @@ test('explode', (t) => {
                 "coordinates": [[[3,3], [2,2]], [[4,4], [3,3]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [ [ 4, 4 ], [ 3, 3 ], [ 2, 2 ] ], '<-1- <-2-');
+    }).features[0].geometry.coordinates, [ [ 4, 4 ], [ 3, 3 ], [ 2, 2 ] ], '<-1- <-2-');
 
     let res = explode({
         "type": "FeatureCollection",
@@ -133,7 +133,7 @@ test('explode', (t) => {
                 "coordinates": [[[4,4],[3,3]], [[3,3],[2,2]]]
             }
         }]
-    }, { noDistance: true });
+    });
     t.pass('<-2- <-1-');
     t.deepEquals(res.features[0].geometry.coordinates, [ [ 4, 4 ], [ 3, 3 ], [ 2, 2 ] ]);
     t.deepEquals(res.features.length, 1);
@@ -148,7 +148,7 @@ test('explode', (t) => {
                 "coordinates": [[[-1,-1],[0,0]],[[3,3], [2,2]],[[0,0],[1,1]], [[4,4], [3,3]]]
             }
         }]
-    }, { noDistance: true });
+    });
     t.ok(true, '-1-> -3->   <-2- <-4-');
     t.deepEquals(res.features[0].geometry.coordinates, [ [ -1, -1 ], [ 0, 0 ], [ 1, 1 ] ]);
     t.deepEquals(res.features[1].geometry.coordinates, [ [ 4, 4 ], [ 3, 3 ], [ 2, 2 ]]);
@@ -183,7 +183,7 @@ test('explode', (t) => {
                 "coordinates": [[[0,0],[1,1]],[[0,0],[-1,-1]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '<-2- -1->');
+    }).features[0].geometry.coordinates, [[-1,-1,], [0,0], [1,1]], '<-2- -1->');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -195,7 +195,7 @@ test('explode', (t) => {
                 "coordinates": [[[0,0],[-1,-1]],[[0,0],[1,1]]]
             }
         }]
-    }, { noDistance: true }).features[0].geometry.coordinates, [[1,1,], [0,0], [-1,-1]], '<-1- -2->');
+    }).features[0].geometry.coordinates, [[1,1,], [0,0], [-1,-1]], '<-1- -2->');
 
     t.deepEquals(explode({
         "type": "FeatureCollection",
@@ -242,7 +242,7 @@ test('explode', (t) => {
             }
         }]
     });
-    t.deepEquals(res.features.length, 3);
+    t.deepEquals(res.features.length, 2);
 
     t.end();
 });
