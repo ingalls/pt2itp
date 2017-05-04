@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v9.11.0
+
+- `strip-unit` also strips out addresses with invalid coords (OA Australia)
+
 ### v9.10.1
 
 - :arrow_up: Update `carmen@22.1.3` and `turf@4.2.0`
