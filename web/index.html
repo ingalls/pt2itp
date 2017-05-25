@@ -29,18 +29,42 @@
             bottom: 0;
             width: 100%;
         }
+
+        .left-pane {
+            position: absolute;
+            right: 0;
+            top: 60px;
+            height: calc(100% - 60px);
+            overflow: scroll;
+            z-index: 10;
+            background: #f8f8f8;
+            padding: 1%;
+        }
     </style>
 </head>
-<body class="relative">
+<body class='relative'>
     <div class='grid grid--gut12 p12 bg-purple'>
-        <div class="col col--8 col--6-mm col--4-ml pr12 z1 bg-purple">
-            <div class='col col--12 relative'>
-                <div class='absolute flex-parent flex-parent--center-cross flex-parent--center-main w36 h36'><svg class='icon'><use xlink:href='#icon-search'></use></svg></div>
-                <input class='search input bg-white px36' placeholder='Search By ID'>
-                <div class='action-search-clear cursor-pointer absolute top right flex-parent flex-parent--center-cross flex-parent--center-main w36 h36'><svg class='icon'><use xlink:href='#icon-close'></use></svg></div>
-            </div>
+        <div class='col col--8 col--4-mm relative'>
+            <div class='absolute flex-parent flex-parent--center-cross flex-parent--center-main w36 h36'><svg class='icon'><use xlink:href='#icon-search'></use></svg></div>
+            <input class='search input bg-white px36' placeholder='Search By ID or Coordinates'>
+            <div class='action-search-clear cursor-pointer absolute top right flex-parent flex-parent--center-cross flex-parent--center-main w36 h36'><svg class='icon'><use xlink:href='#icon-close'></use></svg></div>
+        </div>
+
+        <div class='col col--4 col--8-mm'>
+            <button id='jsonButton' class='fr btn h36 round bg-purple transition bg-purple-dark-on-hover'><svg class='icon'><use xlink:href='#icon-code'/></svg></button>
         </div>
     </div>
+
+    <!-- JSON Response -->
+    <div id='json' class='left-pane w-full w480-mm none'>
+        <div class='fill-light pad4'>
+            <div id='json-default' class='pad4'>
+                Select a feature on the map search or search for a feature ID to see the geoJSON
+            </div>
+            <div id='json-result'></div>
+        </div>
+    </div>
+
     <div id='map'></div>
     <script>
         let $search = $('.search');
@@ -141,17 +165,7 @@
         });
 
         map.on('click', (e) => {
-            $.get('/api/coords/'+e.lngLat.lng+','+e.lngLat.lat, (res) => {
-                if (!res) {
-                    $search.val('');
-                    return alert('No feature found!');
-                }
-
-                set(res);            
-            }).fail(() => {
-                $search.val('');
-                return alert('Error fetching clicked feature!');
-            });
+            getCoords([e.lngLat.lng, e.lngLat.lat]);
         });
 
         $('.action-search-clear').on('click', (e) => {
@@ -162,9 +176,29 @@
         $search.on('keyup', function(event) {
             if (event.keyCode === 13) {
                 clear();
-                getID($search.val());
+
+                if ($search.val().split(',').length === 2) {
+                    getCoords($search.val().split(','), {
+                        fit: true
+                    });
+                } else {
+                    getID($search.val());
+                }
             }
         });
+
+        function getCoords(coords, opts) {
+            $.get('/api/coords/'+coords[0]+','+coords[1], (res) => {
+                if (!res) {
+                    $search.val('');
+                    return alert('No feature found!');
+                }
+                set(res, opts);
+            }).fail(() => {
+                $search.val('');
+                return alert('Error fetching clicked feature!');
+            });
+        }
 
         function getID(val) {
             if (isNaN(Number(val))) {
@@ -180,7 +214,7 @@
 
                 set(res, {
                     fit: true
-                });            
+                });
             }).fail(() => {
                 $search.val('');
                 return alert('Error fetching id!');
@@ -188,8 +222,10 @@
         }
 
         function set(res, opts = {}) {
-            $search.val(res.id);
+            showJson(res);
             window.location.hash = String(res.id);
+
+            $search.val(res.properties['carmen:text']);
 
             let segs = res.geometry.geometries[0].coordinates.map((line, it) => {
                 return turf.lineString(line, {
@@ -277,7 +313,29 @@
             map.getSource('addr').setData(empty);
             map.getSource('addr-debug').setData(empty);
             map.getSource('itp-debug').setData(empty);
+            $('#json-result').html('');
+            $('#json-default').removeClass('none');
         }
+
+        //JSON Dialogue
+        $('#jsonButton').on('click', function(event) {
+            if ($(this).hasClass('bg-purple')) {
+                $(this).addClass('bg-purple-dark');
+                $(this).removeClass('bg-purple');
+                $('#json').removeClass('none');
+            } else {
+                $(this).removeClass('bg-purple-dark');
+                $(this).addClass('bg-purple');
+                $('#json').addClass('none');
+            }
+        });
+
+        function showJson(result) {
+            let prettyResult = JSON.stringify(result, null, 2);
+            $('#json-result').html('<pre>' + prettyResult + '</pre>');
+            $('#json-default').addClass('none');
+        }
+
     </script>
 </body>
 </html>

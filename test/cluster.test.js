@@ -1,5 +1,4 @@
-const cluster = require('../lib/cluster');
-const freq = require('../lib/freq');
+const Cluster = require('../lib/cluster');
 
 const test = require('tape');
 const fs = require('fs');
@@ -12,6 +11,8 @@ const pool = new pg.Pool({
     database: 'pt_test',
     idleTimeoutMillis: 30000
 });
+
+const cluster = new Cluster(pool);
 
 test('cluster.name', (t) => {
     const popQ = Queue(1);
@@ -59,7 +60,7 @@ test('cluster.name', (t) => {
     });
 
     popQ.defer((done) => {
-        cluster.name(1, pool, (err) => {
+        cluster.name(1, (err) => {
             t.error(err);
             return done();
         });
@@ -141,9 +142,7 @@ test('cluster.match', (t) => {
     });
 
     popQ.defer((done) => {
-        let calc = freq(['main st'], ['main st', 'fake av'])
-
-        cluster.match(1, calc, pool, (err) => {
+        cluster.match(1, (err) => {
             t.error(err);
             return done();
         });
@@ -211,7 +210,7 @@ test('cluster.address', (t) => {
     });
 
     popQ.defer((done) => {
-        cluster.address(pool, (err) => {
+        cluster.address((err) => {
             t.error(err);
             return done();
         });
@@ -277,7 +276,7 @@ test('cluster.network', (t) => {
     });
 
     popQ.defer((done) => {
-        cluster.network(pool, (err) => {
+        cluster.network((err) => {
             t.error(err);
             return done();
         });

@@ -260,3 +260,62 @@ test('Interpolize - Addr past line end - bend - reverse', (t) => {
     t.deepEquals(res, require('./fixtures/itp-pastline-bend-rev.json'));
     t.end();
 });
+
+/*
+ * . |--
+ *   | .
+ * . |
+ *   | .
+ * . |
+ */
+test('Interpolize - Hooked Road', (t) => {
+    let street = {
+        type: "Feature",
+        properties: {
+            'carmen:text': 'Tommy Bell Pl'
+        },
+        geometry: {
+            type: "LineString",
+            coordinates: [
+                [ -77.19249486923218, 39.090421398604306 ],
+                [ -77.19209790229797, 39.09155388949448 ],
+                [ -77.19150245189667, 39.091428983303274 ]
+            ]
+        }
+    }
+
+    let address = {
+        type: "Feature",
+        properties: {
+            'carmen:text': 'Tommy Bell Pl',
+            numbers: [ "2", "4", "6", "8", "10", "12", "1", "3", "5", "7", "9" ]
+        },
+        geometry: {
+            type: "MultiPoint",
+            coordinates: [
+                [-77.19264507293701,39.090575451742545],
+                [-77.19256460666656,39.09079612186787],
+                [-77.19247877597809,39.09103344557164],
+                [-77.19239830970764,39.0912208058263],
+                [-77.19228029251099,39.091412329127714],
+                [-77.19221591949463,39.09162466957128],
+                [-77.19157218933105,39.090342290105255],
+                [-77.19144344329834,39.090587942522795],
+                [-77.19135761260986,39.09077946754287],
+                [-77.19130396842955,39.09100430059841],
+                [-77.19125032424927,39.09124995071007]
+            ]
+        }
+    }
+
+    let res = interpolize(street, address, { debug: true });
+
+    if (process.env.UPDATE) {
+        fs.writeFileSync(__dirname + '/fixtures/left-hook.json', JSON.stringify(res, null, 4));
+        t.fail('had to update fixture');
+    }
+
+    t.deepEquals(res, require('./fixtures/left-hook.json'));
+    t.end();
+});
+

@@ -1,0 +1,95 @@
+{
+    "type": "Feature",
+    "properties": {
+        "carmen:text": "Tommy Bell Pl",
+        "carmen:parityl": "E",
+        "carmen:lfromhn": "2",
+        "carmen:ltohn": "12",
+        "carmen:parityr": "O",
+        "carmen:rfromhn": "1",
+        "carmen:rtohn": "9",
+        "carmen:center": [
+            -77.19209790229797,
+            39.09155388949448
+        ],
+        "carmen:rangetype": "tiger"
+    },
+    "geometry": {
+        "type": "LineString",
+        "coordinates": [
+            [
+                -77.19249486923218,
+                39.090421398604306
+            ],
+            [
+                -77.19209790229797,
+                39.09155388949448
+            ],
+            [
+                -77.19150245189667,
+                39.091428983303274
+            ]
+        ]
+    },
+    "debug": {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "start": true,
+                    "left": true
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        -77.19264507293701,
+                        39.090575451742545
+                    ]
+                }
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "end": true,
+                    "left": true
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        -77.19221591949463,
+                        39.09162466957128
+                    ]
+                }
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "start": true,
+                    "right": true
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        -77.19157218933105,
+                        39.090342290105255
+                    ]
+                }
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "end": true,
+                    "right": true
+                },
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        -77.19125032424927,
+                        39.09124995071007
+                    ]
+                }
+            }
+        ]
+    }
+}

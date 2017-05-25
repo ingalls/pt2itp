@@ -10,6 +10,97 @@
 
 ## Version History
 
+### v9.23.1
+
+- :bug: Using global tokens would break `test` mode
+
+### v9.23.0
+- :tada: Added support for global tokens, for e.g. talstrasse -> tal str, tal strasse
+- :white_check_mark: Added tests to make sure this behaviour is followed
+
+### v9.22.1
+
+- :rocket: Remove outdated getNames() call
+
+### v9.22.0
+
+- :rocket: Show street name of viewed feature
+- :rocket: Allow searching by lat/lng in search box
+
+### v9.21.1
+
+- :bug: bugfix for zero-distance results in `test.js` mode
+
+### v9.21.0
+- :rocket: Reduced the value of the distance in ST_clusterWithin used for network and address clusters, to prevent roads and points far away from each other from being clustered together
+- :white_check_mark: added tests to make sure this behaviour is followed
+
+### v9.20.0
+
+- :white_check_mark: Add tests for hooked roads
+- :rocket: Take highest/lowest number off end of road into consideration when generating ITP
+
+### v9.19.1
+
+- :rocket: Clean up strip-unit (dup code)
+- :rocket: Add in memory number limits
+
+### v9.19.0
+
+- :rocket: Limit precision of coordinates to avoid `NUMERIC` overflows
+- :rocket: `number` (civic address) are only allowed to be 10 chars long to reduce bad data - can bump in the future if needed
+- :rocket: Unnamed large streets are allowed
+- :tada: Add CONTRIBUTING doc to ensure versions are bumped
+- :bug: Ensure output of test is prefixed to working dir
+
+### v9.18.0
+
+- :tada: Add diacritic handling to both the test mode & std. `street` field
+- rocket: Use `address._text` as definitive name and add `network._text` as syn when they differ
+- :bug: Make `psv` files in `lib/copy` have unique names so pt2itp can run in parallel
+- :rocket: `test` mode now outputs when network and address text differ as an error
+
+### v9.17.1
+
+- :bug: Don't alter `_text` value with tokens as it is displayed to the user
+- :pencil2: Fix `test` mode docs with new options
+
+### v9.17.0
+
+- :rocket: Moves token management to a central shared repo
+
+### v9.16.1
+
+- :bug: Fix bug where assignment wouldn't happen even if score > .4
+
+### v9.16.0
+
+- :bug: Allow `debug` mode from any relative path - use to break as `./web` was hardcoded as static dir
+- :tada: remove all `freq` calculations and replace with a much more accurate Liechtenstein distance percent.
+  - This change is pretty large and will drastically affect matches in all countries.
+  - Before matches were calculated by sorting potentials with the calculated frequency of token matches. This worked well if everything was spelled correctly and helped ensure `st` vs `av` errors still lead to a match. It did however also allow things like `Margaret St` and `Shepherd St` to match on the `ST` token alone.
+  - This uses lev. dist to generate a percent with a hard cutoff on if the match can take place or not. From a lot of groking the results 40% matches and above seem like a good first start.
+
+### v9.15.0
+
+- :rocket: Show unmatched addresses in `test` output - these are all bugs/data problems
+- :tada: Title case all `street` props
+- :rocket: Allow named `highway=service` features in minjur map module.
+- :rocket: Use proto to avoid having to pass pool in each time
+
+### v9.14.0
+
+- :rocket: Improved testing mode using database as source for matched addresses
+- :rocket: Queue addresses to allow control of # of requests against carmen
+- :rocket: Better token support
+- :tada: Add `meta` table to allow subsequent modes to access initial metadata
+- :arrow_up: Update carmen & d3-queue to latest versions
+- :tada: Add large number of new `id` tokens
+
+### v9.13.0
+
+- :tada: Add geojson viewer to the visual debugger
+
 ### v9.12.2
 
 - :bug: Fix coord that could become `NaN`
