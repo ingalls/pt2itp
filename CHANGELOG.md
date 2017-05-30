@@ -10,6 +10,17 @@
 
 ## Version History
 
+### v9.24.0
+
+- :rocket: adds a `lib/geocode.js` that takes `lib/test.js`-like set of parameters to geocode a single query
+- :rocket: modularizes geocoding capability too
+- :tada: adds `--limit` param to `test.js`
+- :rocket: weight linker comparisons to deemphasize mismatches based purely on tokens
+    - adds `text_tokenless` column to `address_cluster` & `network_cluster` tables
+    - handle all-token special case by checking for substring status
+- :rocket: detection of candidate address_clusters now uses `ST_Intersects` instead of `ST_Contains`
+- :bug: fix JS error in web interface related to features w/o itp data
+
 ### v9.23.1
 
 - :bug: Using global tokens would break `test` mode
