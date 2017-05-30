@@ -227,23 +227,25 @@
 
             $search.val(res.properties['carmen:text']);
 
-            let segs = res.geometry.geometries[0].coordinates.map((line, it) => {
-                return turf.lineString(line, {
-                    colour: Math.floor(Math.random() * 11),
-                    lfromhn: res.properties['carmen:lfromhn'][0][it],
-                    ltohn: res.properties['carmen:ltohn'][0][it],
-                    rfromhn: res.properties['carmen:rfromhn'][0][it],
-                    rtohn: res.properties['carmen:rtohn'][0][it],
-                    parityl: res.properties['carmen:parityl'][0][it],
-                    parityr: res.properties['carmen:parityr'][0][it]
-                });
-            });
+	    if (res.properties['carmen:lfromhn']) {
+		let segs = res.geometry.geometries[0].coordinates.map((line, it) => {
+		    return turf.lineString(line, {
+			colour: Math.floor(Math.random() * 11),
+			lfromhn: res.properties['carmen:lfromhn'][0][it],
+			ltohn: res.properties['carmen:ltohn'][0][it],
+			rfromhn: res.properties['carmen:rfromhn'][0][it],
+			rtohn: res.properties['carmen:rtohn'][0][it],
+			parityl: res.properties['carmen:parityl'][0][it],
+			parityr: res.properties['carmen:parityr'][0][it]
+		    });
+		});
+		//Process ITP Geom
+		map.getSource('itp').setData({
+		    type: 'FeatureCollection',
+		    features: segs
+		});
+	    }
 
-            //Process ITP Geom
-            map.getSource('itp').setData({
-                type: 'FeatureCollection',
-                features: segs
-            });
 
             if (res.debug) {
                 let debug = [];

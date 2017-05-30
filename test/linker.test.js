@@ -36,6 +36,22 @@ test('Passing Linker Matches', (t) => {
         { id: 1, text: 'main st' },
     'diff name');
 
+    t.deepEquals(
+        linker({ text: 'ola ave', text_tokenless: 'ola' }, [
+            { id: 1, text: 'ola', text_tokenless: 'ola'},
+            { id: 2, text: 'ola avg', text_tokenless: 'ola avg'}
+        ]),
+        { id: 1, text: 'ola', text_tokenless: 'ola'},
+    'short names, tokens deweighted');
+
+    t.deepEquals(
+        linker({ text: 'ave st', text_tokenless: '' }, [
+            { id: 1, text: 'ave', text_tokenless: ''},
+            { id: 2, text: 'avenida', text_tokenless: 'avenida'}
+        ]),
+        { id: 1, text: 'ave', text_tokenless: ''},
+    'all-token scenario (e.g. avenue street)');
+
     t.end();
 });
 
