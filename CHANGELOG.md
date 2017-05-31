@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v9.24.1
+
+- :bug: Change `test` mode to new tokenize fxn - previsouly caused test mode to fatally err.
+
 ### v9.24.0
 
 - :rocket: adds a `lib/geocode.js` that takes `lib/test.js`-like set of parameters to geocode a single query
