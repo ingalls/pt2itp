@@ -17,7 +17,6 @@ tape('copy.js output', (t) => {
         error: false,
         tokens: tokenize.createReplacer(['et'])
     });
-	console.log(copy.init.read);
     copy.start(() => {
         if (process.env.UPDATE) {
             fs.rename(tempFile, __dirname + '/fixtures/copy.sample-geojson-output.psv');
