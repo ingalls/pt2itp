@@ -6,7 +6,27 @@ const copy = require('../lib/copy');
 const index = require('../lib/index');
 const tokenize = require('../lib/tokenize');
 
-tape('copy.js output', (t) => {
-    let file = tmp.tmpNameSync();
-    index.copy(file, type, opts, cb);
+const pool = new pg.Pool({
+    max: 10,
+    user: 'postgres',
+    database: 'pt_test',
+    idleTimeoutMillis: 30000
+});
+
+test('Init Database', (t) => {
+    const index = new Index(pool);
+
+    index.init((err) => {
+        t.error(err);
+        t.end();
+    });
+});
+
+tape('index.js output', (t) => {
+    let file = __dirname + '/fixtures/copy.sample-geojson-input.geojson';
+    index.copy(file, 'address', {
+        tokens: tokens,
+        map: argv['map-address'],
+        error: argv['error-address']
+    }, done);
 });
