@@ -1,10 +1,12 @@
 const tape = require('tape');
 const tmp = require('tmp');
+const tokens = require('@mapbox/geocoder-abbreviations')
 const os = require('os');
 const fs = require('fs');
 const copy = require('../lib/copy');
-const index = require('../lib/index');
+const Index = require('../lib/index');
 const tokenize = require('../lib/tokenize');
+const pg = require('pg');
 
 const pool = new pg.Pool({
     max: 10,
@@ -13,8 +15,9 @@ const pool = new pg.Pool({
     idleTimeoutMillis: 30000
 });
 
-test('Init Database', (t) => {
-    const index = new Index(pool);
+const index = new Index(pool);
+
+tape('Init Database', (t) => {
 
     index.init((err) => {
         t.error(err);
