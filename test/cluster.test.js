@@ -274,6 +274,8 @@ test('cluster.adoption', (t) => {
             UPDATE network_cluster SET buffer=ST_Buffer(ST_Envelope(geom), 0.01);
             INSERT INTO address_cluster (id, _text, geom) VALUES (1, 'Pollard St', ST_SetSRID(ST_GeomFromGeoJSON('{"type":"MultiPoint","coordinates":[[-77.06468224525452,38.87007783654626],[-77.06486463546752,38.86984394766712],[-77.06496119499207,38.86961005801844]]}'), 4326));
             INSERT INTO address_cluster (id, _text, geom) VALUES (2, 'Pollard St', ST_SetSRID(ST_GeomFromGeoJSON('{"type":"MultiPoint","coordinates":[[-77.22588300704956,38.710068850025856],[-77.22571134567261,38.710269776085525],[-77.22553968429565,38.710504189108065]]}'), 4326));
+            INSERT INTO address_cluster (id, _text, geom) VALUES (3, 'Inviolable Ave', ST_SetSRID(ST_GeomFromGeoJSON('{"type":"MultiPoint","coordinates":[[-77.32588300704956,38.810068850025856],[-77.32571134567261,38.810269776085525],[-77.32553968429565,38.810504189108065]]}'), 4326));
+            INSERT INTO address_cluster (id, _text, geom) VALUES (4, 'Immutable Rd', ST_SetSRID(ST_GeomFromGeoJSON('{"type":"MultiPoint","coordinates":[[-77.16273,38.80371],[-77.16373,38.80371],[-77.16473,38.80371]]}'), 4326));
             COMMIT;
         `, (err, res) => {
             t.error(err);
@@ -290,12 +292,14 @@ test('cluster.adoption', (t) => {
 
     popQ.defer((done) => {
         pool.query(`
-            SELECT id, _text, ST_NPoints(geom) AS npoints FROM address_cluster;
+            SELECT id, _text, ST_NPoints(geom) AS npoints FROM address_cluster ORDER BY id;
         `, (err, res) => {
             t.error(err);
 
-            t.equals(res.rows.length, 1);
+            t.equals(res.rows.length, 3);
             t.deepEquals(res.rows[0], { id: '1', _text: 'Pollard St', npoints: 6 });
+            t.deepEquals(res.rows[1], { id: '3', _text: 'Inviolable Ave', npoints: 3 });
+            t.deepEquals(res.rows[2], { id: '4', _text: 'Immutable Rd', npoints: 3 });
             return done();
         });
     });

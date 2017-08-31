@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "11.20.2",
+  "version": "11.20.5",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
   "bin": {

@@ -10,6 +10,19 @@
 
 ## Version History
 
+### v11.20.5
+
+- :bug: fix & further optimize adoption code
+- :white_check_mark: add more adoption tests to cluster
+
+### v11.20.4
+
+- :rocket: Optimize cluster#adoption query with `name_uniqueness` WHERE clause
+
+### v11.20.3
+
+- :white_check_mark: Added Unit module tests
+
 ### v11.20.2
 
 - :bug: Tilebelt function name needs to be capitalized.
