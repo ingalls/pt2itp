@@ -35,6 +35,7 @@
     "progress": "^2.0.0",
     "simple-statistics": "^4.1.1",
     "split": "^1.0.0",
+    "sqlite3": "^3.1.8",
     "turf-line-slice-at-intersection": "^1.0.1",
     "wellknown": "^0.5.0"
   },
