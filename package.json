@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "11.20.5",
+  "version": "11.20.7",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
   "bin": {
@@ -32,10 +32,12 @@
     "minimist": "^1.2.0",
     "pg": "^7.1.2",
     "pg-cursor": "^1.2.0",
+    "pluralize": "^7.0.0",
     "progress": "^2.0.0",
     "simple-statistics": "^4.1.1",
     "split": "^1.0.0",
-    "sqlite3": "^3.1.8",
+    "sqlite3": "3.1.8",
+    "talisman": "^0.19.1",
     "turf-line-slice-at-intersection": "^1.0.1",
     "wellknown": "^0.5.0"
   },
