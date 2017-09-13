@@ -1,7 +1,7 @@
-const map = require('../lib/map/minjur').map;
+const map = require('../lib/map/osmium').map;
 const test = require('tape');
 
-test('Minjur', (t) => {
+test('Osmium', (t) => {
     t.equals(map({
         type: 'Feature',
         geometry: {

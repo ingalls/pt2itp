@@ -43,7 +43,7 @@ switch (argv._[2]) {
         });
         break;
     case ('stat'):
-        stat(process.argv, (err) => {
+        require('./lib/stat')(process.argv, (err) => {
             if (err) {
                 console.error(err.stack);
                 process.exit(1);

@@ -10,9 +10,17 @@
 
 ## Version History
 
+### v11.20.10
+
+- :bug: Fix broken `stat` mode
+
+### v11.20.8/v11.20.9
+
+- :rocket: `minjur` => `osmium` conversion
+
 ### v11.20.7
 
-- :bug: fix `N` results in test mode (thx @boblannon!) 
+- :bug: fix `N` results in test mode (thx @boblannon!)
 
 ### v11.20.6
 
