@@ -573,4 +573,3 @@ test('Interpolize - Hooked Road', (t) => {
     t.deepEquals(res, require('./fixtures/left-hook.json'));
     t.end();
 });
-
