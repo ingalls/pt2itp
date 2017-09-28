@@ -1,0 +1,22 @@
+version: 2
+jobs:
+    build:
+        docker:
+            - image: circleci/node:6.10.2
+              environment:
+                - PG_HOST=localhost
+                - PG_USER=postgres
+        working_directory: ~/repo
+        steps:
+            - checkout
+            - run: sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" >> /etc/apt/sources.list.d/pgdg.list'
+            - run: wget -q https://www.postgresql.org/media/keys/ACCC4CF8.asc -O - | sudo apt-key add -
+            - run: sudo apt-get update && sudo apt-get install -y postgresql postgis postgresql-client
+            - run:
+                name: Wait for DB
+                command: dockerize -wait tcp://localhost:5432 -timeout 1m
+            - run: yarn install
+            - run: yarn run lint
+            - run: yarn run doc
+            - run: yarn run pretest
+            - run: yarn run coverage
