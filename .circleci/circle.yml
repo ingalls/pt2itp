@@ -1,0 +1,13 @@
+version: 2
+jobs:
+    build:
+        docker:
+            - image: circleci/node:6.10.2
+        working_directory: ~/repo
+        steps:
+            - checkout
+            - yarn install
+            - npm run lint
+            - npm run doc
+            - npm run pretest
+            - npm run coverage
