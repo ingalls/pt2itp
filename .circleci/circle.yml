@@ -7,7 +7,7 @@ jobs:
         steps:
             - checkout
             - yarn install
-            - npm run lint
-            - npm run doc
-            - npm run pretest
-            - npm run coverage
+            - yarn run lint
+            - yarn run doc
+            - yarn run pretest
+            - yarn run coverage
