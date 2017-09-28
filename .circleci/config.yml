@@ -13,7 +13,7 @@ jobs:
         working_directory: ~/repo
         steps:
             - checkout
-            - run: sudo apt-get install -y postgresql-client-9.6
+            - run: sudo apt-get install -y postgresql-client
             - run: yarn install
             - run: yarn run lint
             - run: yarn run doc
