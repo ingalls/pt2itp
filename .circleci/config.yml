@@ -3,6 +3,13 @@ jobs:
     build:
         docker:
             - image: circleci/node:6.10.2
+              environment:
+                - PG_HOST=localhost
+                - PG_USER=postgres
+            - image: postgres:9.6
+              environment:
+                - POSTGRES_USER=ubuntu
+                - POSTGRES_DB=pt_test
         working_directory: ~/repo
         steps:
             - checkout
