@@ -75,6 +75,15 @@ switch (argv._[2]) {
             }
         });
         break;
+    case ('testcsv'):
+        require('./lib/testcsv')(process.argv, (err) => {
+            if (err) {
+                console.error(err.toString());
+                process.exit(1);
+            }
+        });
+        break;
+
     default:
         help(argv);
         break;
