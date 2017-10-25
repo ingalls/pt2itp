@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v12.6.2
+
+- :rocket: Strip the `#` from street names like `HWY #35`
+
 ### v12.6.1
 
 - :bug: Skip test result if it returns `undefined`

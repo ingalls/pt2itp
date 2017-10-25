@@ -156,7 +156,7 @@ test('Osmium', (t) => {
     },{country: "us", region: "pa"}), [
         { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 3, street: 'name' }, type: 'Feature' },
         { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 3, street: 'ROUTE 66' }, type: 'Feature' }], 'US Federal Route');
-    
+
     t.deepEquals(map({
         type: 'Feature',
         properties: {
@@ -172,6 +172,23 @@ test('Osmium', (t) => {
     },{country: "us", region: "pa"}), [
         { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 3, street: 'name' }, type: 'Feature' },
         { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 3, street: 'ROUTE 66' }, type: 'Feature' }], 'US State Route');
+
+    // remove octothorpes from highway names
+    t.deepEquals(map({
+        type: 'Feature',
+        properties: {
+            highway: 'motorway',
+            "@id": 3,
+            name: 'name',
+            ref: 'HWY #35'
+        },
+        geometry: {
+            type: 'LineString',
+            coordinates: [[0,0],[1,1]]
+        }
+    },{country: "us"}), [
+        { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 3, street: 'name' }, type: 'Feature' },
+        { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 3, street: 'HWY 35' }, type: 'Feature' }], 'HWY # replaced');
 
     t.end();
 });
