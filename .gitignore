@@ -1,6 +1,5 @@
 node_modules/
 data/
-*.mbtiles
 *.geojsonl
 *.geojson
 
