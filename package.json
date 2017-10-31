@@ -39,6 +39,7 @@
     "simple-statistics": "^5.0.0",
     "split": "^1.0.0",
     "talisman": "^0.20.0",
+    "tape-spawn": "^1.4.2",
     "turf-line-slice-at-intersection": "^1.0.1",
     "wellknown": "^0.5.0"
   },
