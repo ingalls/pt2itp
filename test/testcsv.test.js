@@ -12,7 +12,14 @@ tape.test('testcsv', (t) => {
     t.test('Return correct std.err message', (t) => {
 
         let st = spawn(t, `${__dirname}/../index.js testcsv --index ${index} --input ${input} --output ${output} --config ${config}`);
-        st.stderr.match('\nERROR TYPE                   COUNT\n-----------------------------------------------------------------------------------\nDIST                             2 ( 50.0% of errors | 18.2% of total addresses)\nNO RESULTS                       2 ( 50.0% of errors | 18.2% of total addresses)\n\nok - 4/11 (36.4%) failed to geocode\n');
+        st.stderr.match(`
+            ERROR TYPE                   COUNT
+            -----------------------------------------------------------------------------------
+            DIST                             2 ( 50.0% of errors | 18.2% of total addresses)
+            NO RESULTS                       2 ( 50.0% of errors | 18.2% of total addresses)
+
+            ok - 4/11 (36.4%) failed to geocode
+        `.replace(/^ +/mg, ''));
 
         st.end();
     });
