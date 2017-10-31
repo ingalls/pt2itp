@@ -33,7 +33,7 @@ tape.test('testcsv', (t) => {
         .on("data", (data) => {
             csvErr.push(data);
         })
-        .on("end", function(){
+        .on("end", function() {
             t.equals(csvErr[0].error, 'DIST');
             t.equals(csvErr[1].error, 'DIST');
             t.equals(csvErr[2].error, 'NO RESULTS');
