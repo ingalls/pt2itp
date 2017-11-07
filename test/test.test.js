@@ -34,7 +34,8 @@ tape.test('load address and network files', (t) => {
             'in-network': './test/fixtures/index-ri-single/network.geojson',
             output: '/tmp/itp.geojson',
             debug: true,
-            db: 'pt_test'
+            db: 'pt_test',
+            tokens: 'en'
        }, (err, res) => {
             t.error(err);
             t.end();
