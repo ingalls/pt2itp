@@ -2,13 +2,12 @@ const tape = require('tape');
 const spawn = require('tape-spawn');
 const csv = require('fast-csv');
 
+let index = `${__dirname}/fixtures/index-ri-single/us_ri-address-both-0d603c2a171017011038-0d603c2a39.mbtiles`;
+let input = `${__dirname}/fixtures/index-ri-testing.csv`;
+let output = `${__dirname}/fixtures/index-ri-errors.csv`;
+let config = `${__dirname}/fixtures/index-ri-carmen-config.json`;
+
 tape.test('testcsv', (t) => {
-
-    let index = `${__dirname}/fixtures/index-ri-single/us_ri-address-both-0d603c2a171017011038-0d603c2a39.mbtiles`;
-    let input = `${__dirname}/fixtures/index-ri-testing.csv`;
-    let output = `${__dirname}/fixtures/index-ri-errors.csv`;
-    let config = `${__dirname}/fixtures/index-ri-carmen-config.json`;
-
     t.test('Return correct std.err message', (t) => {
 
         let st = spawn(t, `${__dirname}/../index.js testcsv --index ${index} --input ${input} --output ${output} --config ${config}`);
