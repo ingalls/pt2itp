@@ -52,12 +52,13 @@ tape.test('Run test mode', (t) => {
             ok - beginning unmatch
             ok - beginning diff name
 
+
             ERROR TYPE                   COUNT
             -----------------------------------------------------------------------------------
-            NAME MISMATCH (SOFT)             1 (  9.1% of errors |  9.1% of total addresses)
-            NO RESULTS                       1 (  9.1% of errors |  9.1% of total addresses)
+            NAME MISMATCH (SOFT)             1 ( 50.0% of errors |  9.1% of total addresses)
+            NO RESULTS                       1 ( 50.0% of errors |  9.1% of total addresses)
 
-            ok - 1/11 ( 9.1%) failed to geocode
+            ok - 1/11 (9.1%) failed to geocode
             `.replace(/^ +/mg, ''));
         st.end();
     });
