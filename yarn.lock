@@ -43,9 +43,9 @@
     split "1.0.0"
     xregexp "3.1.1"
 
-"@mapbox/geocoder-abbreviations@^2.0.0":
+"@mapbox/geocoder-abbreviations@mapbox/geocoder-abbreviations#missedAbbr":
   version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/geocoder-abbreviations/-/geocoder-abbreviations-2.1.0.tgz#86d9f272cd08f53dc7cf89f127ce0e7c6fef4c25"
+  resolved "https://codeload.github.com/mapbox/geocoder-abbreviations/tar.gz/a9a5ebaad7332985839af11f075ba704c493cda0"
   dependencies:
     tape "^4.6.3"
 
