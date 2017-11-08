@@ -58,8 +58,6 @@ tape.test('Run test mode', (t) => {
             NO RESULTS                       1 (  9.1% of errors |  9.1% of total addresses)
 
             ok - 1/11 ( 9.1%) failed to geocode
-            ok - skipped 0 duplicative & proximate house numbers as redundant (these are fine)
-            ok - skipped 0 duplicative & distant house numbers as impossible to geocode (these are less fine)
             `.replace(/^ +/mg, ''));
         st.end();
     });
@@ -72,8 +70,9 @@ tape.test('Run test mode', (t) => {
             csvErr.push(data);
         })
         .on("end", function() {
-            t.equals(csvErr[0].error, 'NAME MISMATCH (SOFT)');
-            t.equals(csvErr[1].error, 'NO RESULTS');
+            t.equal(csvErr.length, 2);
+            t.notEqual(csvErr.map((ele) => ele.error).indexOf('NO RESULTS'), -1);
+            t.notEqual(csvErr.map((ele) => ele.error).indexOf('NAME MISMATCH (SOFT)'), -1);
             t.end();
         });
 
