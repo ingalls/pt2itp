@@ -3,6 +3,7 @@ const test = require('tape');
 const pg = require('pg');
 const split = require('../lib/split');
 const Index = require('../lib/index');
+const turf = require('@turf/turf');
 
 const pool = new pg.Pool({
     max: 10,
@@ -150,10 +151,11 @@ test('Split: East Long Street', (t) => {
                 t.equals(res.geometry.type, 'GeometryCollection', 'Geometry should be GeometryCollection');
                 t.equals(res.geometry.geometries.length, 2, 'GeometryCollection should have 2 child geometries');
 
-                t.equals(res.geometry.geometries[0].coordinates.length, 1);
-
                 t.equals(res.properties['carmen:text'], 'East Long Street', 'Text should be East Long Street');
             }
+            t.equals(ress[0].geometry.geometries[0].coordinates.length, 7);
+            t.equals(ress[1].geometry.geometries[0].coordinates.length, 3);
+
 
             split.kill();
             q.end();
@@ -221,6 +223,87 @@ test('Split: (with no output) Mt Thor Way', (t) => {
 
             t.equals(res.properties['carmen:text'], 'Mount Thor Way', 'Text should be Mount Thor Way');
             t.deepEquals(res.properties['carmen:addressnumber'], [ null, [ '1000', '5432' ] ], 'Epheremal addrpts dropped');
+            split.kill();
+            q.end();
+        });
+    });
+
+    t.end();
+});
+
+test('Init Database', (t) => {
+    const index = new Index(pool);
+
+    index.init((err) => {
+        t.error(err);
+        t.end();
+    });
+});
+
+/**
+ * Roads should be split into a max distance as defined by explode#split
+ * Ensure roads that pass into cluster#break don't exceed this threshold
+ */
+test('Split: Ensure cluster#break roads are split', (t) => {
+    t.test('Populate', (q) => {
+        pool.query(`
+            BEGIN;
+
+            INSERT INTO network_cluster (
+                text,
+                _text,
+                address,
+                geom
+            ) VALUES (
+                'really long rd',
+                'Really Long road',
+                1,
+                ST_SetSRID(ST_GeomFromGeoJSON('{"type": "MultiLineString", "coordinates": [ [ [ -81.65313720703125, 38.35673412466715, 1 ], [ -81.46087646484375, 38.48154475346391, 1 ], [ -81.38671875, 38.51378825951165, 1 ], [ -81.26861572265625, 38.56105262446978, 1 ], [ -81.1669921875, 38.59755381474309, 1 ], [ -81.14089965820312, 38.56105262446978, 1 ], [ -81.10931396484374, 38.57501115220884, 1 ], [ -81.02691650390625, 38.61579745317872, 1 ], [ -80.97610473632811, 38.61579745317872, 1 ], [ -80.91293334960938, 38.60292007223949, 1 ], [ -80.78384399414062, 38.60721278935162, 1 ], [ -80.73165893554688, 38.63189092902837, 1 ], [ -80.72616577148438, 38.66835610151506, 1 ], [ -80.6781005859375, 38.70694605159386, 1 ], [ -80.66299438476562, 38.7508703622086, 1 ], [ -80.65750122070312, 38.79904887985135, 1 ], [ -80.66299438476562, 38.83542884007305, 1 ], [ -80.65338134765625, 38.86751337001198, 1 ], [ -80.58334350585938, 38.9070643560226, 1 ] ] ] }'), 4326)
+            );
+
+            INSERT INTO address_cluster (
+                _text,
+                geom
+            ) VALUES (
+                '{"REALLY LONG ROAD"}',
+                ST_SetSRID(ST_GeomFromGeoJSON('{"type":"MultiPoint","coordinates": [[-80.67535400390625,38.91561302513129, 1], [ -80.74127197265625, 38.70908932739828, 3 ], [ -81.14227294921875, 38.6329636990003, 3 ], [ -81.55014038085938, 38.477244528955595, 1 ], [ -80.54214477539062, 38.817241182948266, 2 ], [ -80.64102172851561, 38.6233081913603, 4 ], [ -81.04888916015625, 38.4783196091326, 4 ], [ -81.53228759765625, 38.33734763569314, 2 ] ] }'), 4326)
+            );
+
+            COMMIT;
+        `, (err, res) => {
+            q.error(err);
+            q.end();
+        });
+    });
+
+    t.test('Run', (q) => {
+        split.init({
+            pool: {
+                max: 10,
+                user: 'postgres',
+                database: 'pt_test',
+                idleTimeoutMillis: 30000
+            },
+            stdout: false,
+            debug: true,
+            country: 'us'
+        });
+
+        split.split(1, (err, ress) => {
+            q.error(err);
+
+            t.equals(ress.length, 2);
+
+            for (let res of ress) {
+                t.equals(res.type, 'Feature', 'Type should be feature');
+                t.equals(res.geometry.type, 'GeometryCollection', 'Geometry should be GeometryCollection');
+                t.equals(res.geometry.geometries.length, 2, 'GeometryCollection should have 2 child geometries');
+
+                for (let ln of res.geometry.geometries[0].coordinates) {
+                    t.ok(turf.lineDistance(turf.lineString(ln)) < 0.51, 'does not exceed max seg length');
+                }
+            }
+
             split.kill();
             q.end();
         });
