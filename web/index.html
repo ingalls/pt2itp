@@ -5,14 +5,14 @@
     <title>PT2ITP Debug</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
 
-    <link href="https://api.mapbox.com/mapbox-assembly/v0.12.0/assembly.min.css" rel="stylesheet">
-    <script async defer src="https://api.mapbox.com/mapbox-assembly/v0.12.0/assembly.js"></script>
+    <link href="https://api.mapbox.com/mapbox-assembly/v0.19.0/assembly.min.css" rel="stylesheet">
+    <script async defer src="https://api.mapbox.com/mapbox-assembly/v0.19.0/assembly.js"></script>
 
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.36.0/mapbox-gl.css' rel='stylesheet'/>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.42.0/mapbox-gl.css' rel='stylesheet'/>
 
-    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.0/mapbox-gl-geocoder.min.js'></script>
-    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.0/mapbox-gl-geocoder.css' type='text/css' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.2/mapbox-gl-geocoder.min.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.1.2/mapbox-gl-geocoder.css' type='text/css' />
 
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
 
@@ -49,7 +49,7 @@
     </style>
 </head>
 <body class='relative'>
-    <div class='grid grid--gut12 p12 bg-purple'>
+    <div class='grid grid--gut12 py12 px12 bg-purple'>
         <div class='col col--8 col--4-mm relative'>
             <div class='absolute flex-parent flex-parent--center-cross flex-parent--center-main w36 h36'><svg class='icon'><use xlink:href='#icon-search'></use></svg></div>
             <input class='search input bg-white px36' placeholder='Search By ID or Coordinates'>
@@ -72,9 +72,9 @@
         </div>
     </div>
 
-    <!-- JSON Response -->
-    <div id='json' class='left-pane w-full w480-mm none'>
-        <div class='fill-light pad4'>
+    <!-- Panel Response -->
+    <div id='json' class='left-pane w-full w600-mm none'>
+        <div class='fill-light'>
             <button id='copyJsonButton' data-clipboard-target='#feat-json' class='copyButton fr btn h36 round bg-gray-light transition bg-gray-dark-on-hover'><svg class='icon'><use xlink:href='#icon-clipboard'/></svg></button>
             <div id='json-default' class='pad4'>
                 Select a feature on the map search or search for a feature ID to see the geoJSON
@@ -98,11 +98,10 @@
             container: 'map', // container id
             style: 'mapbox://styles/mapbox/streets-v9' //stylesheet location
         });
-        map.addControl(new MapboxGeocoder({
-            accessToken: mapboxgl.accessToken
-        }));
 
-        map.on('style.load', function () {
+        map.addControl(new MapboxGeocoder({ accessToken: mapboxgl.accessToken }));
+
+        map.on('load', function() {
             ['addr', 'itp', 'addr-debug', 'itp-debug'].forEach((layer) =>  {
                 map.addSource(layer, {
                     "type": "geojson",

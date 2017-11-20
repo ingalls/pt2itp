@@ -14,7 +14,7 @@ const pool = new pg.Pool({
 });
 
 const index = new Index(pool);
-const cluster = new Cluster(pool);
+const cluster = new Cluster({ pool: pool });
 
 test('Drop/Init Database', (t) => {
     index.init((err, res) => {

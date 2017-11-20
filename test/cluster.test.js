@@ -13,7 +13,7 @@ const pool = new pg.Pool({
     idleTimeoutMillis: 30000
 });
 
-const cluster = new Cluster(pool);
+const cluster = new Cluster({ pool: pool });
 const index = new Index(pool);
 
 test('Drop/Init Database', (t) => {
@@ -140,6 +140,129 @@ test('cluster.name', (t) => {
     });
 });
 
+
+test('cluster.name (titlecase upper)', (t) => {
+    const popQ = new Queue(1);
+
+    //POPULATE NETWORK
+    popQ.defer((done) => {
+        pool.query(`
+            BEGIN;
+            INSERT INTO network (text, _text, text_tokenless, id, geom) VALUES ('','','',1, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "LineString", "coordinates": [ [ -66.05180561542511, 45.26869136632906, 1 ], [ -66.05007290840149, 45.268982070325656, 1 ] ] }'), 4326));
+            COMMIT;
+        `, (err, res) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    //POPULATE NEARBY ADDRESSES
+    popQ.defer((done) => {
+        pool.query(`
+            BEGIN;
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (1, 'main st', 'main', 'MAIN STREET', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249, 10 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (2, 'main st', 'main', 'MAIN STREET', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05125308036804, 45.26868759094269, 10 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (3, 'main st', 'main', 'MAIN STREET', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05092048645020, 45.26872912017898, 10 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (4, 'main st', 'main', 'MAIN STREET', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05050742626190, 45.26880462780347, 10 ] }'), 4326));
+            COMMIT;
+        `, (err, res) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    //CALL cluster.name on id 1
+    popQ.defer((done) => {
+        cluster.name(1, (err) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    popQ.defer((done) => {
+        pool.query(`
+            SELECT id, _text, text_tokenless, text, named FROM network;
+        `, (err, res) => {
+            t.error(err, 'no errors');
+
+            t.deepEquals(res.rows[0], {
+                id: '1',
+                _text: 'Main Street',
+                text_tokenless: 'main',
+                text: 'main st',
+                named: true
+            }, 'test fields matched to nearby addresses');
+            return done();
+        });
+    });
+
+    popQ.await((err) => {
+        t.error(err, 'no errors');
+        t.end();
+    });
+});
+
+test('cluster.name (titlecase lower)', (t) => {
+    const popQ = new Queue(1);
+
+    //POPULATE NETWORK
+    popQ.defer((done) => {
+        pool.query(`
+            BEGIN;
+            INSERT INTO network (text, _text, text_tokenless, id, geom) VALUES ('','','',1, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "LineString", "coordinates": [ [ -66.05180561542511, 45.26869136632906, 1 ], [ -66.05007290840149, 45.268982070325656, 1 ] ] }'), 4326));
+            COMMIT;
+        `, (err, res) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    //POPULATE NEARBY ADDRESSES
+    popQ.defer((done) => {
+        pool.query(`
+            BEGIN;
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (1, 'main st', 'main', 'main street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249, 10 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (2, 'main st', 'main', 'main street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05125308036804, 45.26868759094269, 10 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (3, 'main st', 'main', 'main street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05092048645020, 45.26872912017898, 10 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, geom) VALUES (4, 'main st', 'main', 'main street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05050742626190, 45.26880462780347, 10 ] }'), 4326));
+            COMMIT;
+        `, (err, res) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    //CALL cluster.name on id 1
+    popQ.defer((done) => {
+        cluster.name(1, (err) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    popQ.defer((done) => {
+        pool.query(`
+            SELECT id, _text, text_tokenless, text, named FROM network;
+        `, (err, res) => {
+            t.error(err, 'no errors');
+
+            t.deepEquals(res.rows[0], {
+                id: '1',
+                _text: 'Main Street',
+                text_tokenless: 'main',
+                text: 'main st',
+                named: true
+            }, 'test fields matched to nearby addresses');
+            return done();
+        });
+    });
+
+    popQ.await((err) => {
+        t.error(err, 'no errors');
+        t.end();
+    });
+});
+
 test('Drop/Init Database', (t) => {
     index.init((err, res) => {
         t.error(err, 'no errors');
@@ -187,6 +310,54 @@ test('cluster.address', (t) => {
             t.deepEquals(res.rows[0], { geom: {"type":"MultiPoint","coordinates":[[-85.25390625,52.9089020477703,5]]}, text: ['fake av'], text_tokenless: ['fake'] }, 'fake av');
             t.deepEquals(res.rows[1], { geom: {"type":"MultiPoint","coordinates":[[-105.46875,56.3652501368561,3],[-105.46875,56.3652501368561,4]]}, text: ['main st'], text_tokenless: ['main'] });
             t.deepEquals(res.rows[2], { geom: { coordinates: [ [ -66.97265625, 43.9611906389202, 1 ], [ -66.97265625, 43.9611906389202, 2 ], [ -66.97265625, 43.9611906389202, 6 ] ], type: 'MultiPoint' }, text: ['main st'], text_tokenless: ['main'] });
+            return done();
+        });
+    });
+
+    popQ.await((err) => {
+        t.error(err, 'no errors');
+        t.end();
+    });
+});
+
+test('cluster.address - order synonyms by address count', (t) => {
+    const popQ = new Queue(1);
+
+    popQ.defer((done) => {
+        pool.query(`
+            BEGIN;
+
+            INSERT INTO address (id, text, text_tokenless, _text, number, netid, geom) VALUES (21, 'mill st nw', 'mill', 'Mill Street NW', 12, 20, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -85.41056871414183, 41.8005111239637, 5 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, netid, geom) VALUES (22, 'mill st nw', 'mill', 'Mill Street NW', 13, 20, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -85.41054725646971, 41.801102975153974, 6 ] }'), 4326));
+
+            INSERT INTO address (id, text, text_tokenless, _text, number, netid, geom) VALUES (23, 'r st nw', 'r', 'R Street NW', 10, 20, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -85.41816473007202, 41.80102299558284, 7 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, netid, geom) VALUES (24, 'r st nw', 'r', 'R Street NW', 11, 20, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -85.4172420501709, 41.80103899150505, 8 ] }'), 4326));
+            INSERT INTO address (id, text, text_tokenless, _text, number, netid, geom) VALUES (25, 'r st nw', 'r', 'R Street NW', 12, 20, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -85.41599750518799, 41.801166958738996, 9 ] }'), 4326));
+
+
+            COMMIT;
+        `, (err, res) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    popQ.defer((done) => {
+        cluster.address((err) => {
+            t.error(err, 'no errors');
+            return done();
+        });
+    });
+
+    popQ.defer((done) => {
+        // check that text has r st, then roe st
+        pool.query(`
+            SELECT id, text FROM address_cluster WHERE 'r st nw'=ANY(text);
+        `, (err, res) => {
+            t.error(err, 'no errors');
+
+            t.equals(res.rows.length, 1, 'one address cluster');
+            t.deepEquals(res.rows[0].text[0], 'r st nw', 'address cluster text ordered by number of addresses');
             return done();
         });
     });

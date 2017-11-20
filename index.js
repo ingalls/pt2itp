@@ -81,6 +81,15 @@ switch (argv._[2]) {
             }
         });
         break;
+    case ('analyze'):
+        require('./lib/analyze')(process.argv, (err) => {
+            if (err) {
+                console.error(err.stack);
+                process.exit(1);
+            }
+            process.exit(0);
+        });
+        break;
     case ('convert'):
         require('./lib/convert')(process.argv, (err) => {
             if (err) {

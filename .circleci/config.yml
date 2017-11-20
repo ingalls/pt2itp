@@ -35,3 +35,6 @@ jobs:
                 name: "yarn run coverage"
                 command: "yarn run coverage"
                 no_output_timeout: 12000
+            - run:
+                name: "yarn run coverage-upload"
+                command: "yarn run coverage-upload"

@@ -10,6 +10,42 @@
 
 ## Version History
 
+### v13.1.3
+
+- :white_check_mark: Add additional `misc#sign` tests
+
+### v13.1.2
+
+- :pencil2: Add `analyze` command to `--help` menu
+
+### v13.1.1
+
+- :arrow_up: Update Assembly Frontend Dep
+- :arrow_up: Update Mapbox-GL-Js
+- :rocket: Misc UI Fixes
+
+### v13.1.0
+
+- :rocket: Separate `DIST` errors in `test` and `testcsv` into `DIST` and `DIST (STREET` for easier visual classification
+
+### v13.0.1
+
+- :rocket: Update locked deps
+
+### v13.0.0
+
+- :white_check_mark: Add tests for `test` mode
+- :white_check_mark: Migrate all tests to call `index#init` instead of manual table creation
+- :tada: Rewrite `cluster#address` & Add `cluster#orphan`
+- :tada: Addresses are now individually matched against a network and then clustered based on identical network ids and not proximity as before
+- :rocket: Remove `segment` code which nobody was actually using since the switch to child processes
+- :rocket: Remove `cluster#adoption` code which is deprecated now that we do individual matches
+- :rocket: Remove `cluster#prune` code which is deprecated now that we do individual matches
+- :bug: Ensure autonamed features are correctly titlecased
+
+### v12.6.5
+- :tada: `analyze` verb added to CLI: performs ngram collocation analysis on loaded address and network text data
+
 ### v12.6.4
 
 - :white_check_mark: Add broader language tests to tokenize
