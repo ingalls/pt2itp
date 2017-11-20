@@ -14,6 +14,9 @@ test('misc.sign', (t) => {
     t.equal(misc.sign(5), 1);
     t.equal(misc.sign(-5), -1);
     t.equal(misc.sign(0), 0);
+    t.equal(misc.sign(1), 1);
+    t.equal(misc.sign(-1), -1);
+    t.ok(Number.isNaN(misc.sign('22')));
     t.end();
 });
 

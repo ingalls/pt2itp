@@ -1,4 +1,5 @@
 node_modules/
+scores.csv
 data/
 *.geojsonl
 *.geojson

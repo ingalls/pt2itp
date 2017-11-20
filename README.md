@@ -17,10 +17,6 @@ Given a road network and a set of address points as line delimited geojson; outp
 Input line-delimited geojson features of points. Each point should have a property called `street` containing the street name
 and `number` containing the street address.
 
-Note: pt2itp is designed to be run on numberic address points. Unit numbers should be stripped out before being fed into pt2itp. Alternatively they
-can be stripped using a map file. Examples of bad addresses and their correct counterparts include: `16A => 16` (US Unit #), `1/3 => 3` (NZ Unit #), `12-4 => 12`, etc
-If non-numeric input is detected in addresses, a fatal error will be thrown.
-
 ### Properties
 
 | Property | Function |

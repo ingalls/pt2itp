@@ -93,22 +93,22 @@ test('ITP Sort', (t) => {
     });
 });
 
-test('LSB', (t) => {
-    t.test('LSB forward', (q) => {
-        let LSB = interpolize.lsb(
+test('lsb', (t) => {
+    t.test('lsb forward', (q) => {
+        let lsb = interpolize.lsb(
             [-79.37625288963318,38.83449282408381],
             [-79.37467575073241,38.83594698648804]
         )
-        q.equal(LSB, 1);
+        q.equal(lsb, 1);
         q.end();
     });
 
-    t.test('LSB reverse', (q) => {
-        let LSB = interpolize.lsb(
+    t.test('lsb reverse', (q) => {
+        let lsb = interpolize.lsb(
             [-79.37467575073241,38.83594698648804],
             [-79.37625288963318,38.83449282408381]
         )
-        q.equal(LSB, 1);
+        q.equal(lsb, 1);
         q.end();
     });
     t.end();
@@ -429,7 +429,7 @@ test('Interpolize - Addr past line end', (t) => {
 });
 
 test('Interpolize - Addr past line end - opposite', (t) => {
-    let segs  = [{
+    let segs = [{
         network: {
             type: "Feature",
             properties: { },

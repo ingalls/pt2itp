@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "12.6.4",
+  "version": "13.1.3",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
   "bin": {
@@ -8,7 +8,8 @@
   },
   "scripts": {
     "lint": "eslint index.js test/* lib/*",
-    "coverage": "istanbul cover tape test/*.js && coveralls < ./coverage/lcov.info",
+    "coverage": "nyc tape test/*.js && nyc report --reporter=text-lcov > coverage.lcov",
+    "coverage-upload": "coveralls < ./coverage.lcov",
     "doc": "./node_modules/documentation/bin/documentation.js lint ./lib/**",
     "test": "tape test/*.test.js",
     "pretest": "echo 'DROP DATABASE pt_test; CREATE DATABASE pt_test;' | psql postgres://postgres:@localhost:5432 && echo 'CREATE EXTENSION postgis;' | psql postgres://postgres:@localhost:5432/pt_test"
@@ -36,7 +37,7 @@
     "pg-cursor": "^1.2.0",
     "pluralize": "^7.0.0",
     "progress": "^2.0.0",
-    "simple-statistics": "^5.0.0",
+    "simple-statistics": "^5.1.0",
     "split": "^1.0.0",
     "talisman": "^0.20.0",
     "turf-line-slice-at-intersection": "^1.0.1",
@@ -46,7 +47,7 @@
     "coveralls": "^3.0.0",
     "documentation": "^5.3.1",
     "eslint": "^4.6.1",
-    "istanbul": "^0.4.0",
+    "nyc": "^11.3.0",
     "tape": "^4.7.0",
     "tape-spawn": "^1.4.2",
     "tmp": "0.0.33"
@@ -79,11 +80,11 @@
       "comma-style": 2,
       "no-lonely-if": 2,
       "no-else-return": 0,
-      "new-cap": 0,
+      "new-cap": 2,
       "no-empty": 2,
+      "no-trailing-spaces": 2,
       "no-new": 2,
-      "no-multi-spaces": 0,
-      "space-in-brackets": 0,
+      "no-multi-spaces": 2,
       "brace-style": 0,
       "quotes": 0,
       "no-underscore-dangle": 0,

@@ -1,4 +1,6 @@
 const Cluster = require('../lib/cluster');
+const Index = require('../lib/index');
+
 const test = require('tape');
 const fs = require('fs');
 const pg = require('pg');
@@ -11,34 +13,25 @@ const pool = new pg.Pool({
     idleTimeoutMillis: 30000
 });
 
-const cluster = new Cluster(pool);
+const index = new Index(pool);
+const cluster = new Cluster({ pool: pool });
 
-test('Points far away shouldn\'t be clustered', (t) => {
-    const popQ = Queue(1);
-
-    //CREATE pt2itp TABLES
-    popQ.defer((done) => {
-        pool.query(`
-            BEGIN;
-            DROP TABLE IF EXISTS address;
-            DROP TABLE IF EXISTS address_cluster;
-            DROP TABLE IF EXISTS network;
-            DROP TABLE IF EXISTS network_cluster;
-            CREATE TABLE address (id SERIAL, segment BIGINT, text TEXT, text_tokenless TEXT, _text TEXT, number INT, geom GEOMETRY(POINTZ, 4326));
-            CREATE TABLE address_cluster(ID SERIAL, text TEXT, _text TEXT, text_tokenless TEXT, geom GEOMETRY(GEOMETRYZ, 4326));
-            COMMIT;
-        `, (err, res) => {
-            t.error(err);
-            return done();
-        });
+test('Drop/Init Database', (t) => {
+    index.init((err, res) => {
+        t.error(err);
+        t.end();
     });
+});
+
+test('Points are clustered on netid', (t) => {
+    const popQ = new Queue(1);
 
     //POPULATE ADDRESS
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO address (id, segment, text, text_tokenless, _text, number, geom) VALUES (1, 1, 'main st', 'main', 'Main Street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.505233764648438,47.13018433161339, 1 ] }'), 4326));
-            INSERT INTO address (id, segment, text, text_tokenless, _text, number, geom) VALUES (2, 1, 'main st', 'main', 'Main Street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.523429870605469,47.130797460977575, 2 ] }'), 4326));
+            INSERT INTO address (id, netid, text, text_tokenless, _text, number, geom) VALUES (1, 1, 'main st', 'main', 'Main Street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.505233764648438,47.13018433161339, 1 ] }'), 4326));
+            INSERT INTO address (id, netid, text, text_tokenless, _text, number, geom) VALUES (2, 1, 'main st', 'main', 'Main Street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.523429870605469,47.130797460977575, 2 ] }'), 4326));
             COMMIT;
         `, (err, res) => {
             t.error(err);
@@ -47,7 +40,7 @@ test('Points far away shouldn\'t be clustered', (t) => {
     });
 
     popQ.defer((done) => {
-        cluster.address(1, (err) => {
+        cluster.address((err) => {
             t.error(err);
             return done();
         });
@@ -57,98 +50,33 @@ test('Points far away shouldn\'t be clustered', (t) => {
         t.error(err);
 
         pool.query(`
-            BEGIN;
             SELECT ST_AsGeoJSON(geom) FROM address_cluster;
-            DROP TABLE address;
-            DROP TABLE address_cluster;
-            COMMIT;
         `, (err, res) => {
             t.error(err);
-            t.deepEquals(JSON.parse(res[1].rows[1].st_asgeojson), {"type":"MultiPoint","coordinates":[[9.52342987060547,47.1307974609776, 2]]}, 'ok not clustered');
+
+            t.deepEquals(res.rows[0].st_asgeojson, '{"type":"MultiPoint","coordinates":[[9.50523376464844,47.1301843316134,1],[9.52342987060547,47.1307974609776,2]]}');
+
             t.end();
         });
     });
 });
 
-test('Points nearby should be clustered', (t) => {
-    const popQ = Queue(1);
-
-    //CREATE pt2itp TABLES
-    popQ.defer((done) => {
-        pool.query(`
-            BEGIN;
-            DROP TABLE IF EXISTS address;
-            DROP TABLE IF EXISTS address_cluster;
-            CREATE TABLE address (id SERIAL, segment BIGINT, text TEXT, text_tokenless TEXT, _text TEXT, number INT, geom GEOMETRY(POINTZ, 4326));
-            CREATE TABLE address_cluster(ID SERIAL, text TEXT, _text TEXT, text_tokenless TEXT, geom GEOMETRY(GEOMETRYZ, 4326));
-            COMMIT;
-        `, (err, res) => {
-            t.error(err);
-            return done();
-        });
-    });
-
-    //POPULATE ADDRESS
-    popQ.defer((done) => {
-        pool.query(`
-            BEGIN;
-            INSERT INTO address (id, segment, text, text_tokenless, _text, number, geom) VALUES (1, 1, 'main st', 'main', 'Main Street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [ 9.51413869857788,47.132724392963944, 1 ]}'), 4326));
-            INSERT INTO address (id, segment, text, text_tokenless, _text, number, geom) VALUES (2, 1, 'main st', 'main', 'Main Street', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [ 9.516541957855225,47.132724392963944, 2 ] }'), 4326));
-            COMMIT;
-        `, (err, res) => {
-            t.error(err);
-            return done();
-        });
-    });
-
-    popQ.defer((done) => {
-        cluster.address(1, (err) => {
-            t.error(err);
-            return done();
-        });
-    });
-
-    popQ.await((err) => {
+test('Drop/Init Database', (t) => {
+    index.init((err, res) => {
         t.error(err);
-
-        pool.query(`
-            BEGIN;
-            SELECT ST_AsGeoJSON(geom) FROM address_cluster;
-            DROP TABLE address;
-            DROP TABLE address_cluster;
-            COMMIT;
-        `, (err, res) => {
-            t.error(err);
-            t.deepEquals(JSON.parse(res[1].rows[0].st_asgeojson), {"type":"MultiPoint","coordinates":[[9.51413869857788,47.1327243929639, 1],[9.51654195785522,47.1327243929639, 2]]}, 'ok not clustered');
-            t.end();
-        });
+        t.end();
     });
 });
-
 
 test('LinesStrings far away should not be clustered', (t) => {
-    const popQ = Queue(1);
-
-    //CREATE pt2itp TABLES
-    popQ.defer((done) => {
-        pool.query(`
-            BEGIN;
-            DROP TABLE IF EXISTS network;
-            CREATE TABLE network (id BIGINT, segment BIGINT, text TEXT, text_tokenless TEXT, _text TEXT, named BOOLEAN, geom GEOMETRY(LINESTRINGZ, 4326));
-            CREATE TABLE network_cluster(ID SERIAL, text TEXT, _text TEXT, text_tokenless TEXT, geom GEOMETRY(GEOMETRYZ, 4326), buffer GEOMETRY(Polygon,4326), address INTEGER, source_ids BIGINT[]);
-            COMMIT;
-        `, (err, res) => {
-            t.error(err);
-            return done();
-        });
-    });
+    const popQ = new Queue(1);
 
     //POPULATE NETWORK
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO network (id, segment, text, text_tokenless, _text, geom) VALUES (1, 1, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString", "coordinates": [[9.50514793395996,47.13027192195532,1],[9.50094223022461,47.13027192195532,1]]}'), 4326));
-            INSERT INTO network (id, segment, text, text_tokenless, _text, geom) VALUES (2, 1, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString", "coordinates": [[9.523429870605469,47.1308412556617,2],[9.527077674865723,47.13091424672175,2]]}'), 4326));
+            INSERT INTO network (id, text, text_tokenless, _text, geom) VALUES (1, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString", "coordinates": [[9.50514793395996,47.13027192195532,1],[9.50094223022461,47.13027192195532,1]]}'), 4326));
+            INSERT INTO network (id, text, text_tokenless, _text, geom) VALUES (2, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString", "coordinates": [[9.523429870605469,47.1308412556617,2],[9.527077674865723,47.13091424672175,2]]}'), 4326));
             COMMIT;
         `, (err, res) => {
             t.error(err);
@@ -157,7 +85,7 @@ test('LinesStrings far away should not be clustered', (t) => {
     });
 
     popQ.defer((done) => {
-        cluster.network(1, (err) => {
+        cluster.network((err) => {
             t.error(err);
             return done();
         });
@@ -178,30 +106,22 @@ test('LinesStrings far away should not be clustered', (t) => {
     });
 });
 
-test('LinesStrings should be clustered', (t) => {
-    const popQ = Queue(1);
-
-    //CREATE pt2itp TABLES
-    popQ.defer((done) => {
-        pool.query(`
-            BEGIN;
-            DROP TABLE IF EXISTS network;
-            DROP TABLE IF EXISTS network_cluster;
-            CREATE TABLE network (id BIGINT, segment BIGINT, text TEXT, text_tokenless TEXT, _text TEXT, named BOOLEAN, geom GEOMETRY(LINESTRINGZ, 4326));
-            CREATE TABLE network_cluster (id SERIAL, text TEXT, text_tokenless TEXT, _text TEXT, address INT, geom GEOMETRY(MULTILINESTRINGZ, 4326), buffer GEOMETRY(POLYGON, 4326), source_ids BIGINT[]);
-            COMMIT;
-        `, (err, res) => {
-            t.error(err);
-            return done();
-        });
+test('Drop/Init Database', (t) => {
+    index.init((err, res) => {
+        t.error(err);
+        t.end();
     });
+});
+
+test('LinesStrings should be clustered', (t) => {
+    const popQ = new Queue(1);
 
     //POPULATE ADDRESS
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO network (id, segment, text, text_tokenless, _text, geom) VALUES (1, 1, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString","coordinates": [[9.516735076904297,47.13276818606133,1],[9.519824981689451,47.132870369814995,1]]}'), 4326));
-            INSERT INTO network (id, segment, text, text_tokenless,_text, geom) VALUES (2, 1, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString", "coordinates": [[9.513999223709106,47.132695197545665,2],[9.512518644332886,47.132695197545665,2]]},'), 4326));
+            INSERT INTO network (id, text, text_tokenless, _text, geom) VALUES (1, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString","coordinates": [[9.516735076904297,47.13276818606133,1],[9.519824981689451,47.132870369814995,1]]}'), 4326));
+            INSERT INTO network (id, text, text_tokenless,_text, geom) VALUES (2, 'main st', 'main', 'Main Street', ST_SetSRID(ST_GeomFromGeoJSON('{"type": "LineString", "coordinates": [[9.513999223709106,47.132695197545665,2],[9.512518644332886,47.132695197545665,2]]},'), 4326));
             COMMIT;
         `, (err, res) => {
             t.error(err);
@@ -210,7 +130,7 @@ test('LinesStrings should be clustered', (t) => {
     });
 
     popQ.defer((done) => {
-        cluster.network(1, (err) => {
+        cluster.network((err) => {
             t.error(err);
             return done();
         });
@@ -220,16 +140,20 @@ test('LinesStrings should be clustered', (t) => {
         t.error(err);
 
         pool.query(`
-            BEGIN;
             SELECT ST_AsGeoJSON(geom) FROM network_cluster;
-            DROP TABLE network;
-            DROP TABLE network_cluster;
-            COMMIT;
         `, (err, res) => {
             t.error(err);
-            t.equals(res[1].rows[0].st_asgeojson.toString(), '{"type":"MultiLineString","coordinates":[[[9.5167350769043,47.1327681860613],[9.51982498168945,47.132870369815]],[[9.51399922370911,47.1326951975457],[9.51251864433289,47.1326951975457]]]}', 'ok network is clustered');
+
+            t.equals(res.rows[0].st_asgeojson.toString(), '{"type":"MultiLineString","coordinates":[[[9.5167350769043,47.1327681860613],[9.51982498168945,47.132870369815]],[[9.51399922370911,47.1326951975457],[9.51251864433289,47.1326951975457]]]}', 'ok network is clustered');
             t.end();
         });
+    });
+});
+
+test('Drop/Init Database', (t) => {
+    index.init((err, res) => {
+        t.error(err);
+        t.end();
     });
 });
 

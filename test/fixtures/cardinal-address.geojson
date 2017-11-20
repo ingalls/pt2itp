@@ -1,0 +1,8 @@
+{"type": "Feature","properties": {"street": "Orchard Road W","number": 1},"geometry": {"type": "Point","coordinates": [-102.03595161437988,45.08103619068379]}}
+{"type": "Feature","properties": {"street": "Orchard Road W","number": 5},"geometry": {"type": "Point","coordinates": [-102.03011512756348,45.081096796213956]}}
+{"type": "Feature","properties": {"street": "Orchard Road W","number": 9},"geometry": {"type": "Point","coordinates": [-102.02178955078125,45.08103619068379]}}
+{"type": "Feature","properties": {"street": "Orchard Road E","number": 11},"geometry": {"type": "Point","coordinates": [-102.01286315917969,45.08103619068379]}}
+{"type": "Feature","properties": {"street": "Orchard Road E","number": 15},"geometry": {"type": "Point","coordinates": [-102.00522422790526,45.081157401679846]}}
+{"type": "Feature","properties": {"street": "Orchard Road","number": 3},"geometry": {"type": "Point","coordinates": [-102.03337669372559,45.080581647158354]}}
+{"type": "Feature","properties": {"street": "Orchard Road","number": 7},"geometry": {"type": "Point","coordinates": [-102.02629566192627,45.08070285911873]}}
+{"type": "Feature","properties": {"street": "Orchard Road","number": 13},"geometry": {"type": "Point","coordinates": [-102.00908660888672,45.08036952560893]

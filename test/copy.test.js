@@ -22,8 +22,7 @@ tape('copy.js output - address', (t) => {
         if (process.env.UPDATE) {
             fs.createReadStream(tempFile).pipe(fs.createWriteStream(path.resolve(__dirname, './fixtures/copy.sample-output-address.psv')));
             t.fail('updated fixture');
-        }
-        else
+        } else
             t.equal(fs.readFileSync(tempFile).toString(), fs.readFileSync(__dirname + '/fixtures/copy.sample-output-address.psv').toString(), 'output is as expected');
         t.end();
     });
@@ -46,8 +45,7 @@ tape('copy.js output - network', (t) => {
         if (process.env.UPDATE) {
             fs.createReadStream(tempFile).pipe(fs.createWriteStream(path.resolve(__dirname, './fixtures/copy.sample-output-network.psv')));
             t.fail('updated fixture');
-        }
-        else
+        } else
             t.equal(fs.readFileSync(tempFile).toString(), fs.readFileSync(__dirname + '/fixtures/copy.sample-output-network.psv').toString(), 'output is as expected');
         t.end();
     });

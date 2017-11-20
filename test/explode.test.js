@@ -19,7 +19,7 @@ test('explode', (t) => {
                     "coordinates": [1,1]
                 }
             }]
-        }).features[0].geometry.coordinates,  [ 1, 1 ] , 'Non joinstrings are ignored');
+        }).features[0].geometry.coordinates, [ 1, 1 ] , 'Non joinstrings are ignored');
 
         q.end()
     });
@@ -39,7 +39,7 @@ test('explode', (t) => {
                     "coordinates": [[[0,0],[0,1]], [[0,1],[1,1]]]
                 }
             }]
-        }).features[0].geometry.coordinates,  [ [ 0, 0 ], [ 0, 1 ], [ 1, 1 ] ], '90 deg angle');
+        }).features[0].geometry.coordinates, [ [ 0, 0 ], [ 0, 1 ], [ 1, 1 ] ], '90 deg angle');
 
         q.end();
     });
@@ -77,7 +77,7 @@ test('explode', (t) => {
                     "coordinates": [[[0,0],[1,1]]]
                 }
             }]
-        }).features[0].geometry.coordinates,  [ [ 0, 0 ], [ 1, 1 ] ] , '-1->');
+        }).features[0].geometry.coordinates, [ [ 0, 0 ], [ 1, 1 ] ] , '-1->');
 
         q.end();
     });

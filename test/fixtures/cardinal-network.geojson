@@ -1,0 +1,2 @@
+{"type": "Feature","properties": {"id": 1,"street": "Orchard Road E"},"geometry": {"type": "LineString","coordinates": [[-102.00016021728516,45.08212708039077],[-102.01655387878418,45.08206647595349]]}}
+{"type": "Feature","properties": {"id": 2,"street": "Orchard Road W"},"geometry": {"type": "LineString","coordinates": [[-102.01724052429199,45.08206647595349],[-102.03758239746094,45.08206647595349]]}}
