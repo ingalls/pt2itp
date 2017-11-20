@@ -3,9 +3,9 @@ const spawn = require('tape-spawn');
 const csv = require('fast-csv');
 
 let index = `${__dirname}/fixtures/index-ri-single/us_ri-address-both-0d603c2a171017011038-0d603c2a39.mbtiles`;
-let input = `${__dirname}/fixtures/index-ri-testing.csv`;
-let output = `${__dirname}/fixtures/index-ri-errors.csv`;
-let config = `${__dirname}/fixtures/index-ri-carmen-config.json`;
+let input = `${__dirname}/fixtures/index-ri-single/index-ri-testing.csv`;
+let output = `${__dirname}/fixtures/index-ri-single/index-ri-errors.csv`;
+let config = `${__dirname}/fixtures/index-ri-single/index-ri-carmen-config.json`;
 
 tape.test('testcsv', (t) => {
     t.test('Return correct std.err message', (t) => {
@@ -18,6 +18,11 @@ tape.test('testcsv', (t) => {
             NO RESULTS                       2 ( 50.0% of errors | 18.2% of total addresses)
 
             ok - 4/11 (36.4%) failed to geocode
+            ok - 0/0 (NaN%) ITP results failed to geocode
+
+            DIST statistical breakdown
+            -----------------------------------------------------------------------------------
+            DIST - mean: 7355.03 / median: 7355.03 / skew: null / standard dev: 6882.01
         `.replace(/^ +/mg, ''));
 
         st.end();
