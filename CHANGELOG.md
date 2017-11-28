@@ -10,6 +10,15 @@
 
 ## Version History
 
+### v13.2.1
+
+- :tada: text analysis reporting added. The `analyze` command now produces lists of significant 1-word and 2-word sequences. Both SQL and CSV output.
+
+### v13.2.0
+
+- :bug: Ensure all lines are segmented into max seg length
+- :bug: Ensure no features have null/empty text fields
+
 ### v13.1.3
 
 - :white_check_mark: Add additional `misc#sign` tests

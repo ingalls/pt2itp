@@ -3,7 +3,7 @@ version: 2
 jobs:
     build:
         docker:
-            - image: circleci/node:6.10.3
+            - image: ubuntu:16.04
             - image: mdillon/postgis:9.6
               environment:
                 - POSTGRES_USER=postgres
@@ -11,30 +11,36 @@ jobs:
 
         steps:
             - run:
-                name: "Install Yarn PPAs"
-                command: "curl -sS http://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - && echo 'deb http://dl.yarnpkg.com/debian/ stable main' | sudo tee /etc/apt/sources.list.d/yarn.list"
+                name: "Install cURL"
+                command: "apt-get update -y && apt-get install -y curl"
             - run:
-                name: "Update APT Cache & Install latest yarn"
-                command: "sudo apt-get -y update && sudo apt-get install -y yarn postgresql-client"
+                name: "Install node with nvm"
+                command: "curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash && export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm install 6.10.3"
+            - run:
+                name: "Install Yarn & Ubuntu Toolchain PPAs"
+                command: "apt-get install -y software-properties-common git && apt-add-repository -y ppa:ubuntu-toolchain-r/test && curl -sS http://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo 'deb http://dl.yarnpkg.com/debian/ stable main' | tee /etc/apt/sources.list.d/yarn.list"
+            - run:
+                name: "Update APT Cache & Install latest yarn & libstdc++-5-dev"
+                command: "apt-get -y update && apt-get install -y yarn postgresql-client && apt-get -y install libstdc++-5-dev"
 
             - checkout
 
             - run:
                 name: "yarn install"
-                command: "yarn install"
+                command: "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && yarn install"
             - run:
                 name: "yarn lint"
-                command: "yarn run lint"
+                command: "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && yarn run lint"
             - run:
                 name: "yarn doc"
-                command: "yarn run doc"
+                command: "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && yarn run doc"
             - run:
                 name: "yarn pretest"
-                command: "yarn run pretest"
+                command: "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && yarn run pretest"
             - run:
                 name: "yarn run coverage"
-                command: "yarn run coverage"
+                command: "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && yarn run coverage"
                 no_output_timeout: 12000
             - run:
                 name: "yarn run coverage-upload"
-                command: "yarn run coverage-upload"
+                command: "export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && yarn run coverage-upload"
