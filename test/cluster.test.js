@@ -840,7 +840,7 @@ test('cluster.collapse - substantial overlap (successful merge)', (t) => {
                         SELECT id, address, _text, text, text_tokenless, source_ids, st_length(geom) AS lngth FROM network_cluster ORDER BY id ASC;
                     `, (err, res) => {
                         t.equals(res.rows.length, 1, 'one row remains');
-                        t.equals(parseInt(res.rows[0].id), 1, 'main st feature still exists');
+                        t.equals(parseInt(res.rows[0].id), 2, 'main st feature still exists');
                         t.equals(res.rows[0]._text, 'Main Street,Main Avenue', '_text');
                         t.equals(res.rows[0].text, 'main st,main ave', 'text');
                         t.equals(res.rows[0].text_tokenless, 'main,main', 'text_tokenless');
