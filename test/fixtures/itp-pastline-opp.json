@@ -2,10 +2,6 @@
     "type": "Feature",
     "properties": {
         "carmen:text": "Battleridge Place",
-        "carmen:center": [
-            -77.2106346487999,
-            39.17712917725643
-        ],
         "carmen:addressnumber": [
             null,
             [
@@ -53,6 +49,10 @@
                 20
             ],
             null
+        ],
+        "carmen:center": [
+            -77.21056759357452,
+            39.17731007133552
         ]
     },
     "geometry": {

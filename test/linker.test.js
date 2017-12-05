@@ -1,6 +1,21 @@
 const linker = require('../lib/linker');
 const test = require('tape');
 
+test('linker#isNumbered', (t) => {
+
+    t.equals(linker.isNumbered('main st'), false, 'main st => false');
+    t.equals(linker.isNumbered('1st st'), '1st', '1st st => 1st');
+    t.equals(linker.isNumbered('2nd st'), '2nd', '2nd st => 2nd');
+    t.equals(linker.isNumbered('west 2nd st'), '2nd', 'west 2nd st => 2nd');
+    t.equals(linker.isNumbered('3rd st'), '3rd', '3rd st = 3rd');
+    t.equals(linker.isNumbered('4th av'), '4th', '4th av => 4th');
+    t.equals(linker.isNumbered('21st av'), '21st', '21st av => 21st');
+    t.equals(linker.isNumbered('32nd av'), '32nd', '32nd av => 32nd');
+    t.equals(linker.isNumbered('45th av'), '45th', '45th av => 45th');
+    t.equals(linker.isNumbered('351235th av'), '351235th', '351235th av => 351235th');
+    t.end();
+});
+
 test('Passing Linker Matches', (t) => {
     t.deepEquals(
         linker({ text: 'main st' }, [
@@ -15,6 +30,41 @@ test('Passing Linker Matches', (t) => {
         ]),
         [{ id: 1, text: 'maim st', score: 85.71428571428572 }],
     'close match');
+
+    t.deepEquals(
+        linker({ text: '1st st west' }, [
+            { id: 1, text: '2nd st west' },
+        ]),
+        false,
+    'no match numeric simple (2nd)');
+
+    t.deepEquals(
+        linker({ text: '1st st west' }, [
+            { id: 1, text: '3rd st west' },
+        ]),
+        false,
+    'no match numeric simple (3rd)');
+
+    t.deepEquals(
+        linker({ text: '1st st west' }, [
+            { id: 1, text: '4th st west' },
+        ]),
+        false,
+    'no match numeric simple (4th)');
+
+    t.deepEquals(
+        linker({ text: '11th st west' }, [
+            { id: 1, text: '21st st west' },
+        ]),
+        false,
+    'no match numeric simple (21st)');
+
+    t.deepEquals(
+        linker({ text: '11th st west' }, [
+            { id: 1, text: '11th av west' },
+        ]),
+        [ { id: 1, text: '11th av west', score: 83.33333333333334 } ],
+    'match numeric simple (type mismatch)');
 
     t.deepEquals(
         linker({ text: 'main st' }, [

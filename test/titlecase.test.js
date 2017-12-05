@@ -32,7 +32,7 @@ tape('title case xformation', (t) => {
 });
 
 tape('label logic, default behavior', (t) => {
-    const label = require('../lib/label/titlecase')({ language: 'en' });
+    const label = require('../lib/label/titlecase')();
     let tests = [
         [{ address_text: 'our lady of whatever', network_text: 'our lady' }, 'Our Lady of Whatever'],
         [{ address_text: 'our lady of whatever', network_text: 'OUR LADY of WHATEVER' }, 'OUR LADY of WHATEVER'],
@@ -46,7 +46,7 @@ tape('label logic, default behavior', (t) => {
 });
 
 tape('label logic, favor network', (t) => {
-    const label = require('../lib/label/titlecase')({ language: 'en', favor: 'network' });
+    const label = require('../lib/label/titlecase')({ favor: 'network' });
     let tests = [
         [{ address_text: 'our lady of whatever', network_text: 'our lady ' }, 'Our Lady']
     ];
@@ -58,7 +58,7 @@ tape('label logic, favor network', (t) => {
 });
 
 tape('label logic, include synonyms', (t) => {
-    const label = require('../lib/label/titlecase')({ language: 'en', synonym: true});
+    const label = require('../lib/label/titlecase')({ synonym: true });
     let tests = [
         [{ address_text: 'our lady of whatever', network_text: 'our lady ' }, 'Our Lady of Whatever,Our Lady']
     ];

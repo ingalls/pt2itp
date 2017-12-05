@@ -2,10 +2,6 @@
     "type": "Feature",
     "properties": {
         "carmen:text": "Hill Top Road",
-        "carmen:center": [
-            -64.26819562911987,
-            44.54786745368044
-        ],
         "carmen:addressnumber": [
             null,
             [
@@ -52,6 +48,10 @@
                 10
             ],
             null
+        ],
+        "carmen:center": [
+            -64.26645755767822,
+            44.548635879168515
         ]
     },
     "geometry": {

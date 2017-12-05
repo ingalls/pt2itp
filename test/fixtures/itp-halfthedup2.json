@@ -2,10 +2,6 @@
     "type": "Feature",
     "properties": {
         "carmen:text": "Complicated Ave",
-        "carmen:center": [
-            -72.52744674682617,
-            45.900282732840324
-        ],
         "carmen:addressnumber": [
             null,
             [
@@ -52,6 +48,10 @@
                 0
             ],
             null
+        ],
+        "carmen:center": [
+            -72.63490676879883,
+            45.81587939239973
         ]
     },
     "geometry": {

@@ -2,10 +2,6 @@
     "type": "Feature",
     "properties": {
         "carmen:text": "Tommy Bell Pl",
-        "carmen:center": [
-            -77.19209790229797,
-            39.09155388949448
-        ],
         "carmen:addressnumber": [
             null,
             [
@@ -58,6 +54,10 @@
                 11
             ],
             null
+        ],
+        "carmen:center": [
+            -77.19247877597809,
+            39.09103344557164
         ]
     },
     "geometry": {

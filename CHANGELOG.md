@@ -10,6 +10,22 @@
 
 ## Version History
 
+### v13.5.0
+
+- :tada: Ensure numbered addresses (`1st`, `2nd`, `24th`, ...) are never matched with a textually similiar but non-identical street (`24th st` != `34th st`)
+
+### v13.4.0
+
+- :bug: Ensure synonym length does not exceed 10
+
+### v13.3.0
+
+- :tada: Convert all centroid calculations into a post script so they are all run exactly the same
+
+### v13.2.2
+
+- :bug: Fix Max Callstack Exceeded by switching to pg-copy streams
+
 ### v13.2.1
 
 - :tada: text analysis reporting added. The `analyze` command now produces lists of significant 1-word and 2-word sequences. Both SQL and CSV output.

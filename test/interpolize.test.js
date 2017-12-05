@@ -173,7 +173,7 @@ test('Interpolize', (t) => {
         type: 'Feature',
         properties: {
             'carmen:text': 'Battleridge Place',
-            'carmen:center':[-77.2106346487999,39.17712917725643],
+            "carmen:center": [ -77.2107258439064, 39.176966996844406 ],
             'carmen:rangetype':'tiger',
             'carmen:parityl':[ ['O'], null],
             'carmen:lfromhn':[ [1] , null],
@@ -641,3 +641,30 @@ test('Interpolize - Hooked Road', (t) => {
     t.end();
 });
 
+test('Interpolize - No address cluster', (t) => {
+    let segs = [{
+        network: {
+            type: "Feature",
+            properties: { },
+            geometry: {
+                type: "LineString",
+                coordinates: [
+                    [ -77.19249486923218, 39.090421398604306 ],
+                    [ -77.19209790229797, 39.09155388949448 ],
+                    [ -77.19150245189667, 39.091428983303274 ]
+                ]
+            }
+        }
+    }];
+
+    let res = interpolize('Tommy Bell Pl', segs);
+    delete res.id;
+
+    if (process.env.UPDATE) {
+        fs.writeFileSync(__dirname + '/fixtures/left-hook-network.json', JSON.stringify(res, null, 4));
+        t.fail('had to update fixture');
+    }
+
+    t.deepEquals(res, require('./fixtures/left-hook-network.json'));
+    t.end();
+});

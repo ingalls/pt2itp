@@ -64,5 +64,17 @@ test('Post: Dedupe', (t) => {
         }
     }, 'dedupe tokens, multi language');
 
+    t.deepEquals(post({
+        properties: {
+            'carmen:text': '204 Haywood Rd,201 Haywood Rd,202 Haywood Rd,203 Haywood Rd,208 Haywood Rd,209 Haywood Rd,210 Haywood Rd,211 Haywood Rd,212 Haywood Rd,213 Haywood Rd,214 Haywood Rd,215 Haywood Rd,216 Haywood Rd,217 Haywood Rd,218 Haywood Rd',
+            'carmen:text_xx': '204 Haywood Rd,201 Haywood Rd,202 Haywood Rd,203 Haywood Rd,208 Haywood Rd,209 Haywood Rd,210 Haywood Rd,211 Haywood Rd,212 Haywood Rd,213 Haywood Rd,214 Haywood Rd,215 Haywood Rd,216 Haywood Rd,217 Haywood Rd,218 Haywood Rd'
+        }
+    }, { tokens: ['en', 'es'] }), {
+        properties: {
+            'carmen:text': '204 Haywood Rd,201 Haywood Rd,202 Haywood Rd,203 Haywood Rd,208 Haywood Rd,209 Haywood Rd,210 Haywood Rd,211 Haywood Rd,212 Haywood Rd,213 Haywood Rd',
+            'carmen:text_xx': '204 Haywood Rd,201 Haywood Rd,202 Haywood Rd,203 Haywood Rd,208 Haywood Rd,209 Haywood Rd,210 Haywood Rd,211 Haywood Rd,212 Haywood Rd,213 Haywood Rd'
+        }
+    }, 'dedupe tokens, excessive synonyms');
+
     t.end();
 });
