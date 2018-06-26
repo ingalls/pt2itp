@@ -3,8 +3,8 @@ version: 2
 jobs:
     build:
         docker:
-            - image: ubuntu:16.04
-            - image: mdillon/postgis:9.6
+            - image: ubuntu:18.04
+            - image: mdillon/postgis:10
               environment:
                 - POSTGRES_USER=postgres
                 - POSTGRES_DB=pt_test
