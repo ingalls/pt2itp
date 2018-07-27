@@ -10,6 +10,14 @@
 
 ## Version History
 
+## v16.5.0
+
+- :rocket: Rewrite `cluster#break` to handle multiple address changes in a given segment
+
+## v16.4.4
+
+- :arrow_up: Add romanian language tokens
+
 ## v16.4.3
 
 - :rocket: Expand scope of filtered drive throughs

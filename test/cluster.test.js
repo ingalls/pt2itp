@@ -181,6 +181,7 @@ test('cluster.network', (t) => {
             t.error(err, 'no errors');
 
             t.equals(res.rows.length, 2);
+
             t.deepEquals(res.rows[0], {
                 geom: {
                     type: "MultiLineString",
@@ -210,6 +211,8 @@ test('cluster.network', (t) => {
                 }],
                 source_ids: [ '3', '4' ]
             });
+
+
             return done();
         });
     });
