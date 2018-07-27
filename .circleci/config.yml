@@ -3,8 +3,8 @@ version: 2
 jobs:
     build:
         docker:
-            - image: ubuntu:16.04
-            - image: mdillon/postgis:9.6
+            - image: ubuntu:18.04
+            - image: mdillon/postgis:10
               environment:
                 - POSTGRES_USER=postgres
                 - POSTGRES_DB=pt_test
@@ -21,7 +21,7 @@ jobs:
                 command: "apt-get -y install libstdc++-5-dev gcc-4.8 g++-4.8; export CXX=g++-4.8"
             - run:
                 name: "Install node with nvm"
-                command: "curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash && export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm install 6.10.3"
+                command: "curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash && export NVM_DIR=\"$HOME/.nvm\" && [ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && nvm install 8.11.3"
             - run:
                 name: "Install Yarn & Ubuntu Toolchain PPAs"
                 command: "apt-get install -y software-properties-common git && apt-add-repository -y ppa:ubuntu-toolchain-r/test && curl -sS http://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && echo 'deb http://dl.yarnpkg.com/debian/ stable main' | tee /etc/apt/sources.list.d/yarn.list"
