@@ -17,7 +17,7 @@
   },
   "author": "Nicholas Ingalls <nicholas.ingalls@gmail.com>",
   "dependencies": {
-    "@mapbox/carmen": "25.3.0",
+    "@mapbox/carmen": "25.3.1",
     "@mapbox/geocoder-abbreviations": "2.2.0",
     "@mapbox/geojson-area": "^0.2.2",
     "@mapbox/mbtiles": "^0.10.0",
