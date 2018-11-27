@@ -93,9 +93,9 @@
     nan "~2.10.0"
     node-pre-gyp "~0.10.1"
 
-"@mapbox/carmen@25.6.0":
-  version "25.6.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-25.6.0.tgz#410a40bc4b5755231a9124d81684fe9bef553e3c"
+"@mapbox/carmen@25.7.0":
+  version "25.7.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-25.7.0.tgz#64b750320c78954ae59c813449c924575dc80730"
   dependencies:
     "@mapbox/carmen-cache" "0.21.5"
     "@mapbox/geojsonhint" "^2.0.1"
