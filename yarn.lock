@@ -7194,10 +7194,10 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
 
-simple-statistics@^6.0.1:
-  version "6.1.1"
-  resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-6.1.1.tgz#e3a0799ffc49914d6f421c5a4ac585f6a13e2bad"
-  integrity sha512-zGwn0DDRa9Zel4H4n2pjTFIyGoAGpnpjrGIctreCxj5XWrcx9v7Xy7270FkC967WMmcvuc8ZU7m0ZG+hGN7gAA==
+simple-statistics@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-7.0.0.tgz#5f788219cb14069d8f275d7ebd0f5a23a8ef6d4d"
+  integrity sha512-A1Ibqq2DeTCeqZACGo0/DE+hAQkIKIVoh9VRUf57VBVui60hCsaqfsmiCnlebzekCvMBg46RMY3BeRYasPAnFQ==
 
 single-line-log@~0.3.1:
   version "0.3.1"
