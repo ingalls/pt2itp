@@ -913,16 +913,16 @@
     nan "~2.10.0"
     node-pre-gyp "~0.10.1"
 
-"@mapbox/carmen@25.8.1":
-  version "25.8.1"
-  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-25.8.1.tgz#894d7ef3bdaaa0c17de0f3790b297c1815f8745c"
-  integrity sha512-0U9f+2JfBFS5zYdVemCTQmoq8tkyOvr2in4IHDXSJmaadF8568z1jHVNQCjmkBOlBzgmpxglmB11z/Aix6GI9Q==
+"@mapbox/carmen@26.0.0":
+  version "26.0.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-26.0.0.tgz#5ab5ea8059ee56054a574ef50f5e2e493302c84d"
+  integrity sha512-ReE6Ixkcbc449sXXUdyu1X6HUrzGUm7cGGJqzTeqR/fEweRemBMUwbwxXzPOTFDqbNqoEPam/Mqw89PFEmXMqQ==
   dependencies:
     "@mapbox/carmen-cache" "0.24.0"
     "@mapbox/geojsonhint" "^2.0.1"
     "@mapbox/locking" "^3.0.0"
     "@mapbox/mbtiles" "^0.10.0"
-    "@mapbox/node-fuzzy-phrase" "0.1.3"
+    "@mapbox/node-fuzzy-phrase" "0.2.0"
     "@mapbox/sphericalmercator" "^1.1.0"
     "@mapbox/tile-cover" "^3.0.2"
     "@mapbox/tilebelt" "1.0.x"
@@ -1017,10 +1017,10 @@
     d3-queue "~2.0.3"
     sqlite3 "4.x"
 
-"@mapbox/node-fuzzy-phrase@0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@mapbox/node-fuzzy-phrase/-/node-fuzzy-phrase-0.1.3.tgz#f4622dbbb5bd527c9f6b8b3c0065a93c5446ca71"
-  integrity sha512-jMB8fWRGiQSqTFLPfBYORH3+MtkrnJy3KshjX/aspIl1Ezd3uABgl+ddktwEPu8eiPk6/NplDpJpCKPoaYojrA==
+"@mapbox/node-fuzzy-phrase@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/node-fuzzy-phrase/-/node-fuzzy-phrase-0.2.0.tgz#0d8d1d4355584da6de2a28de8eea81ca73e53452"
+  integrity sha512-AXu0LQZ55UWDE/gbqQW8XmZgDDBoC2/TdeyTAMGSj+tgqk8DH72HTcCkBnCd/PjUZdNYCusTe7XnYu5VYWARGg==
   dependencies:
     "@mapbox/cfn-config" "^2.15.0"
     "@mapbox/cloudfriend" "^1.9.1"
