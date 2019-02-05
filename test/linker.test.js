@@ -250,3 +250,23 @@ test('Failing Linker Matches', (t) => {
 
     t.end();
 });
+
+test('Match to a bridge', (t) => {
+    t.deepEquals(linker([{ source: 'address', display: 'H STREET NE', priority: 0, tokenized: 'h st ne', tokenless: 'h' }], [
+        { id: 1438, name: { freq: 1, source: 'network', display: 'Union Station Bus Deck Access', priority: 0, tokenized: 'un stn bus deck accs', tokenless: 'bus deck' }, dist: 0.000353203907117136 },
+        { id: 1439, name: { freq: 1, source: 'network', display: 'Hopscotch Bridge', priority: 0, tokenized: 'hopscotch brg', tokenless: 'hopscotch' }, dist: 0.000453961663102101 },
+        { id: 1449, name: { freq: 1, source: 'network', display: '1st Street Northeast', priority: 0, tokenized: '1st st ne', tokenless: '' }, dist: 0.00108057626240549 },
+        { id: 1449, name: { freq: 1, source: 'network', display: 'Dave Thomas Circle Northeast', priority: -1, tokenized: 'dave thomas cir ne', tokenless: 'dave thomas' }, dist: 0.00108057626240549 },
+        { id: 1444, name: { freq: 1, source: 'network', display: 'G Place Northeast', priority: 0, tokenized: 'g pl ne', tokenless: 'g' }, dist: 0.00122727177104788 },
+        { id: 1441, name: { freq: 1, source: 'network', display: '1st Street Northest', priority: 0, tokenized: '1st st northest', tokenless: 'northest' }, dist: 0.00132553159147745 },
+        { id: 761, name: { freq: 1, source: 'network', display: 'I Street Northeast', priority: 0, tokenized: 'i st ne', tokenless: '' }, dist: 0.00163964172915381 },
+        { id: 759, name: { freq: 1, source: 'network', display: 'G Street Northeast', priority: 0, tokenized: 'g st ne', tokenless: 'g' }, dist: 0.00166244458554399 },
+        { id: 1423, name: { freq: 1, source: 'network', display: 'Union Station Drive Northeast', priority: 0, tokenized: 'un stn dr ne', tokenless: '' }, dist: 0.00166244458554399 },
+        { id: 1442, name: { freq: 1, source: 'network', display: 'education walk area', priority: 0, tokenized: 'education wlk area', tokenless: 'education area' }, dist: 0.00187431107343411 },
+        { id: 1567, name: { freq: 1, source: 'network', display: '2nd Street Northeast', priority: 0, tokenized: '2nd st ne', tokenless: '' }, dist: 0.0022015317860604 }
+    ]), [
+        { id: 1439, name: { freq: 1, source: 'network', display: 'Hopscotch Bridge', priority: 0, tokenized: 'hopscotch brg', tokenless: 'hopscotch' }, dist: 0.000453961663102101 }
+    ], 'Matched Hopscotch Bridge');
+
+    t.end();
+});
