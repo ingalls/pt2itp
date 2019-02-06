@@ -263,10 +263,12 @@ test('Match to a bridge', (t) => {
         { id: 759, name: { freq: 1, source: 'network', display: 'G Street Northeast', priority: 0, tokenized: 'g st ne', tokenless: 'g' }, dist: 0.00166244458554399 },
         { id: 1423, name: { freq: 1, source: 'network', display: 'Union Station Drive Northeast', priority: 0, tokenized: 'un stn dr ne', tokenless: '' }, dist: 0.00166244458554399 },
         { id: 1442, name: { freq: 1, source: 'network', display: 'education walk area', priority: 0, tokenized: 'education wlk area', tokenless: 'education area' }, dist: 0.00187431107343411 },
-        { id: 1567, name: { freq: 1, source: 'network', display: '2nd Street Northeast', priority: 0, tokenized: '2nd st ne', tokenless: '' }, dist: 0.0022015317860604 }
+        { id: 1567, name: { freq: 1, source: 'network', display: '2nd Street Northeast', priority: 0, tokenized: '2nd st ne', tokenless: '' }, dist: 0.0022015317860604 },
+        { id: 1445, name: { freq: 1, source: 'network', display: 'H Street Northeast', priority: 0, tokenized: 'h st ne', tokenless: 'h' }, dist: 0.0023253492210833 }
     ]), [
-        { id: 1439, name: { freq: 1, source: 'network', display: 'Hopscotch Bridge', priority: 0, tokenized: 'hopscotch brg', tokenless: 'hopscotch' }, dist: 0.000453961663102101 }
-    ], 'Matched Hopscotch Bridge');
+        { id: 1445, name: { freq: 1, source: 'network', display: 'H Street Northeast', priority: 0, tokenized: 'h st ne', tokenless: 'h' }, dist: 0.0023253492210833, score: 100}
+
+    ], 'Matched correct street');
 
     t.end();
 });
