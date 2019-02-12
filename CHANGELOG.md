@@ -10,6 +10,18 @@
 
 ## Version History
 
+## v19.3.0
+
+- :rocket: Update `osmiunm` expectations
+
+## v19.2.0
+
+- :rocket: Update to latest carmen intersection format
+
+## v19.1.0
+
+- :rocket: Don't permutate cardinals for streets with both pre&post cardinals
+
 ## v19.0.0
 
 - :tada: Rewrite `stats` module to use `GeoStream` rust module & expose far more stats

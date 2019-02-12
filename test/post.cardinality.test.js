@@ -16,6 +16,10 @@ test('Post: Cardinality', (t) => {
     t.equals(f('South Main St'), 'South Main St,Main St South,Main St');
     t.equals(f('Main St South'), 'Main St South,South Main St,Main St');
 
+
+    t.equals(f('S Main St NW'), 'S Main St NW');
+    t.equals(f('NW Main St S'), 'NW Main St S');
+
     t.equals(f('South Main St,Fake St South'), 'South Main St,Fake St South,Main St South,Main St,South Fake St,Fake St');
 
     //Random Sample From SG File

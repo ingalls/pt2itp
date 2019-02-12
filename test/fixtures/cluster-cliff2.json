@@ -97,7 +97,8 @@
                     }
                 }
             ]
-        }
+        },
+        "intersections": []
     },
     {
         "address": [
@@ -201,7 +202,8 @@
                     }
                 }
             ]
-        }
+        },
+        "intersections": []
     },
     {
         "address": [
@@ -293,6 +295,7 @@
                     }
                 }
             ]
-        }
+        },
+        "intersections": []
     }
 ]

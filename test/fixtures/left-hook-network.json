@@ -2,6 +2,7 @@
     "type": "Feature",
     "properties": {
         "address_props": [],
+        "carmen:intersections": [],
         "carmen:rangetype": "tiger",
         "carmen:parityl": [
             [

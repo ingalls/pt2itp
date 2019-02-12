@@ -1,3 +1,0 @@
-1|[{"display":"Linebreak\nStreet","priority":0,"freq":1,"tokenized":"linebreak street","tokenless":"linebreak street","source":"network"}]|{"type":"LineString","coordinates":[[0,0,1],[1,0,1]]}|111.195080
-2|[{"display":"Carriagereturn\rStreet","priority":0,"freq":1,"tokenized":"carriagereturn street","tokenless":"carriagereturn street","source":"network"}]|{"type":"LineString","coordinates":[[0,0,2],[1,0,2]]}|111.195080
-3|[{"display":"PipeStreet","priority":0,"freq":1,"tokenized":"pipe street","tokenless":"pipe street","source":"network"}]|{"type":"LineString","coordinates":[[0,0,3],[1,0,3]]}|111.195080

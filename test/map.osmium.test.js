@@ -16,137 +16,24 @@ test('Osmium', (t) => {
         }
     },{}), false, 'Feat must have Properties');
 
-    t.equals(map({
-        type: 'Feature',
-        properties: { },
-        geometry: {
-            type: 'LineString'
-        }
-    },{}), false, 'Feat must have Highway');
-
-    t.equals(map({
-        type: 'Feature',
-        properties: {
-            name: 'Test',
-            highway: 'fake'
-        },
-        geometry: {
-            type: 'LineString'
-        }
-    },{}), false, 'Feat must be valid Highway');
-
-    t.equals(map({
-        type: 'Feature',
-        properties: {
-            name: 'Test',
-            highway: 'primary'
-        },
-        geometry: {
-            type: 'LineString',
-            coordinates: [[0,0], [0,0]]
-        }
-    },{}), false, 'Feat must have length');
-
-    //Streets allowed to be missing names
-    for (let type of ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'residential', 'unclassified', 'living_street', 'pedestrian', 'road']) {
-        t.deepEquals(map({
-            type: 'Feature',
-            properties: {
-                "@id": 1,
-                highway: type
-            },
-            geometry: {
-                type: 'LineString',
-                coordinates: [[0,0],[1,1]]
-            }
-        },{}), { geometry: { type: 'LineString', coordinates: [[0,0], [1,1]] }, properties: { id: 1, street: [{ display: '', priority: 0 }] }, type: 'Feature' }, `${type} is accepted`);
-    }
-
-    //Streets required to have names as they are lower quality tags
-    for (let type of ['track', 'service', 'construction', 'proposed', 'footway']) {
-        t.equals(map({
-            type: 'Feature',
-            properties: {
-                highway: type
-            },
-            geometry: {
-                type: 'LineString',
-                coordinates: [[0,0],[1,1]]
-            }
-        },{}), false, `${type} requires name`);
-    }
-
-    for (let type of ['track', 'service', 'construction', 'proposed', 'footway']) {
-        t.deepEquals(map({
-            type: 'Feature',
-            properties: {
-                "@id": 2,
-                highway: type,
-                name: 'Test'
-            },
-            geometry: {
-                type: 'LineString',
-                coordinates: [[0,0],[1,1]]
-            }
-        },{}), { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 2, street: [{ display: 'Test', priority: 0 }] }, type: 'Feature' }, `${type} is accepted w/ name`);
-    }
-
-    t.deepEquals(map({
-        type: 'Feature',
-        properties: {
-            highway: 'motorway',
-            "@id": 3,
-            name: 'name',
-            loc_name: 'loc_name',
-            alt_name: 'alt_name',
-            ref: 'ref'
-        },
-        geometry: {
-            type: 'LineString',
-            coordinates: [[0,0],[1,1]]
-        }
-    },{}), { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 3, street: [ { display: 'name', priority: 0 }, { display: 'loc_name', priority: -1 }, { display: 'alt_name', priority: -1 }, { display: 'ref', priority: -1 } ] }, type: 'Feature' }, 'AltNames');
-
-    t.deepEquals(map({
-        type: 'Feature',
-        properties: {
-            "@id": 4,
-            highway: 'motorway',
-            name: '1 Name;2 Name;3 Name'
-        },
-        geometry: {
-            type: 'LineString',
-            coordinates: [[0,0],[1,1]]
-        }
-    },{}), { type: 'Feature', properties: { id: 4, street: [ { display: '1 Name', priority: 0 }, { display: '2 Name', priority: -1 }, { display: '3 Name', priority: -1 } ] }, geometry: { type: 'LineString', coordinates: [ [ 0, 0 ], [ 1, 1 ] ] } }, 'OSM ; AltNames');
-
-    t.deepEquals(map({
-        type: 'Feature',
-        properties: {
-            '@id': 5,
-            highway: 'motorway',
-            name: '1 Name; '
-        },
-        geometry: {
-            type: 'LineString',
-            coordinates: [[0,0],[1,1]]
-        }
-    },{}), { geometry: { type: 'LineString', coordinates: [[0,0],[1,1]] }, properties: { id: 5, street: [{ display: '1 Name', priority: 0 }] }, type: 'Feature' }, 'OSM ; AltNames null');
-
     // remove octothorpes from highway names
     t.deepEquals(map({
         type: 'Feature',
         properties: {
-            highway: 'motorway',
-            "@id": 3,
-            name: 'name',
-            ref: 'HWY #35'
+            street: [{
+                display: 'name',
+                priority: 0
+            },{
+                display: 'HWY #35',
+                priority: -1
+            }]
+
         },
         geometry: {
             type: 'LineString',
             coordinates: [[0,0],[1,1]]
         }
-    },{country: 'us'}), { type: 'Feature', properties: { id: 3, street: [ { display: 'name', priority: 0 }, { display: 'HWY 35', priority: -1 } ] }, geometry: { type: 'LineString', coordinates: [ [ 0, 0 ], [ 1, 1 ] ] } }, 'HWY # replaced');
+    },{country: 'us'}), { type: 'Feature', properties: { street: [ { display: 'name', priority: 0 }, { display: 'HWY 35', priority: -1 } ] }, geometry: { type: 'LineString', coordinates: [ [ 0, 0 ], [ 1, 1 ] ] } }, 'HWY # replaced');
 
     // Ensure drop overrides are dropped
     for (let name of [
@@ -162,7 +49,6 @@ test('Osmium', (t) => {
             type: 'Feature',
             properties: {
                 highway: 'motorway',
-                '@id': 3,
                 name: name
             },
             geometry: {
@@ -193,9 +79,10 @@ test('Osmium', (t) => {
         let res = map({
             type: 'Feature',
             properties: {
-                highway: 'motorway',
-                '@id': 3,
-                name: x[0]
+                street: [{
+                    display: x[0],
+                    priority: 0
+                }]
             },
             geometry: {
                 type: 'LineString',
@@ -203,7 +90,7 @@ test('Osmium', (t) => {
             }
         }, { country: 'us' });
 
-        t.deepEquals(res, { type: 'Feature', properties: { id: 3, street: [ { display: x[0], priority: 0 }, { display: x[0].split(' ')[0] + x[1] + ' ' + x[0].split(' ')[1], priority: -1 } ] }, geometry: { type: 'LineString', coordinates: [ [ 0, 0 ], [ 1, 1 ] ] } });
+        t.deepEquals(res, { type: 'Feature', properties: { street: [ { display: x[0], priority: 0 }, { display: x[0].split(' ')[0] + x[1] + ' ' + x[0].split(' ')[1], priority: -1 } ] }, geometry: { type: 'LineString', coordinates: [ [ 0, 0 ], [ 1, 1 ] ] } });
 
     });
 
@@ -211,15 +98,17 @@ test('Osmium', (t) => {
         let res = map({
             type: 'Feature',
             properties: {
-                highway: 'motorway',
-                '@id': 3,
-                name: x[0]
+                street: [{
+                    display: x[0],
+                    priority: 0
+                }]
             },
             geometry: {
                 type: 'LineString',
                 coordinates: [[0,0],[1,1]]
             }
         }, { country: 'de' });
+
         t.equals(res.properties.street.length, 1, x[0] + ' unmodified when country=de');
     });
 
@@ -230,16 +119,17 @@ test('Osmium', (t) => {
         t.deepEquals(map({
             type: 'Feature',
             properties: {
-                highway: 'motorway',
-                '@id': 3,
-                name: name
+                street: [{
+                    display: name,
+                    priority: 0
+                }]
             },
             geometry: {
                 type: 'LineString',
                 coordinates: [[0,0],[1,1]]
             }
         }, { country: 'us', region: 'pa'}),
-            { type: 'Feature', properties: { id: 3, street: [
+            { type: 'Feature', properties: { street: [
                 { display: 'County Road 123', priority: 1 },
                 { display: name, priority: 0 },
                 { display: 'CR 123', priority: -1 },
@@ -259,16 +149,17 @@ test('Osmium', (t) => {
         t.deepEquals(map({
             type: 'Feature',
             properties: {
-                highway: 'motorway',
-                '@id': 3,
-                name: name
+                street: [{
+                    display: name,
+                    priority: 0
+                }]
             },
             geometry: {
                 type: 'LineString',
                 coordinates: [[0,0],[1,1]]
             }
         }, { country: 'us', region: 'pa'}),
-            { type: 'Feature', properties: { id: 3, street: [
+            { type: 'Feature', properties: { street: [
                 { display: 'Pennsylvania Highway 123', priority: 1 },
                 { display: name, priority: 0 },
                 { display: 'PA 123', priority: -1 },
@@ -292,16 +183,17 @@ test('Osmium', (t) => {
         t.deepEquals(map({
             type: 'Feature',
             properties: {
-                highway: 'motorway',
-                '@id': 3,
-                name: name
+                street: [{
+                    display: name,
+                    priority: 0
+                }]
             },
             geometry: {
                 type: 'LineString',
                 coordinates: [[0,0],[1,1]]
             }
         }, { country: 'us', region: 'pa'}),
-            { type: 'Feature', properties: { id: 3, street: [
+            { type: 'Feature', properties: { street: [
                 { display: 'Pennsylvania Highway 123', priority: 1 },
                 { display: name, priority: 0 },
                 { display: 'PA 123', priority: -1 },
@@ -329,16 +221,17 @@ test('Osmium', (t) => {
         t.deepEquals(map({
             type: 'Feature',
             properties: {
-                highway: 'motorway',
-                "@id": 3,
-                name: name
+                street: [{
+                    display: name,
+                    priority: 0
+                }]
             },
             geometry: {
                 type: 'LineString',
                 coordinates: [[0,0],[1,1]]
             }
         }, { country: 'us', region: 'pa'}),
-             { type: 'Feature', properties: { id: 3, street: [
+             { type: 'Feature', properties: { street: [
                  { display: 'US Route 81', priority: 1 },
                  { display: name, priority: 0 },
                  { display: 'US 81', priority: -1 },
@@ -362,16 +255,17 @@ test('Osmium', (t) => {
         t.deepEquals(map({
             type: 'Feature',
             properties: {
-                highway: 'motorway',
-                "@id": 3,
-                name: name
+                street: [{
+                    display: name,
+                    priority: 0
+                }]
             },
             geometry: {
                 type: 'LineString',
                 coordinates: [[0,0],[1,1]]
             }
         }, { country: "ca", region: "nb"}),
-             { type: 'Feature', properties: { id: 3, street: [
+             { type: 'Feature', properties: { street: [
                  { display: name, priority: 0 },
                  { display: 'Highway 101a', priority: -1 },
                  { display: 'Route 101a', priority: -1 },
@@ -384,9 +278,10 @@ test('Osmium', (t) => {
     t.deepEquals(map({
         type: 'Feature',
         properties: {
-            highway: 'motorway',
-            "@id": 3,
-            name: 'Burger King Einfahrt'
+            street: [{
+                display: 'Burger King Einfahrt',
+                priority: 0
+            }]
         },
         geometry: {
             type: 'LineString',

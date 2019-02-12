@@ -180,7 +180,8 @@ test('Interpolize', (t) => {
         'carmen:parityr':[['E'], null],
         'carmen:rfromhn':[ [0], null],
         'carmen:rtohn':  [ [20] ,null],
-        'carmen:addressnumber':[null,['8','10','9','11']]
+        'carmen:addressnumber':[null,['8','10','9','11']],
+        'carmen:intersections': []
     }, 'has expected properties');
 
     t.deepEquals(res.geometry, {
