@@ -87,7 +87,7 @@ test('Passing Linker Matches', (t) => {
         linker([{ display: '11th Street West', tokenized: '11th st west' }], [
             { id: 1, name: { display: '11th Avenue West', tokenized: '11th av west' } },
         ]),
-        [ { id: 1, name: { display: '11th Avenue West', tokenized: '11th av west' }, score: 94.44444444444444 } ],
+        [ { id: 1, name: { display: '11th Avenue West', tokenized: '11th av west' }, score: 98 } ],
     'match numeric simple (type mismatch)');
 
     t.deepEquals(
@@ -123,7 +123,7 @@ test('Passing Linker Matches', (t) => {
             { id: 1, name: { tokenized: 'ave', tokenless: '', display: 'Avenue' } },
             { id: 2, name: { tokenized: 'avenida', tokenless: 'avenida' } }
         ]),
-        [{ id: 1, name: { tokenized: 'ave', tokenless: '', display: 'Avenue' }, score: 77.77777777777777 }],
+        [{ id: 1, name: { tokenized: 'ave', tokenless: '', display: 'Avenue' }, score: 98 }],
     'all-token scenario (e.g. avenue street)');
 
     t.deepEquals(
@@ -133,8 +133,8 @@ test('Passing Linker Matches', (t) => {
             { id: 3, name: { tokenized: 'avenida', tokenless: 'avenida' } }
         ]),
         [
-            { id: 1, name: { tokenized: 'ave', tokenless: '', display: 'Avenue' }, score: 77.77777777777777 },
-            { id: 2, name: { tokenized: 'ave', tokenless: '', display: 'Avenue' }, score: 77.77777777777777 }
+            { id: 1, name: { tokenized: 'ave', tokenless: '', display: 'Avenue' }, score: 98 },
+            { id: 2, name: { tokenized: 'ave', tokenless: '', display: 'Avenue' }, score: 98 }
         ],
     'multiple winners (exact match)');
 
@@ -151,7 +151,7 @@ test('Passing Linker Matches', (t) => {
         linker([{ display: 'Lake Street West', tokenized: 'lk ts w', tokenless: '' }], [
             { id: 1, name: { tokenized: 'w lk st', tokenless: '', display: 'West Lake Street' } }
         ]),
-        [ { id: 1, name: { tokenized: 'w lk st', tokenless: '', display: 'West Lake Street' }, score: 90.47619047619048 }, ],
+        [ { id: 1, name: { tokenized: 'w lk st', tokenless: '', display: 'West Lake Street' }, score: 98 }, ],
     'Match w/o tokenless');
 
     t.deepEquals(
@@ -270,7 +270,7 @@ test('Tokenized match success', (t) => {
         { id: 96818, name: { freq: 1, source: 'network', display: 'Springdale Lane', priority: 0, tokenized: 'springdale ln', tokenless: 'springdale' }, dist: 0.00226970419234784 },
         { id: 96823, name: { freq: 1, source: 'network', display: 'University Heights Avenue', priority: 0, tokenized: 'univ hts av', tokenless: '' }, dist: 0.00247436800011108 }
     ]), [
-        { id: 96796, name: { freq: 1, source: 'network', display: 'College Avenue', priority: 0, tokenized: 'coll av', tokenless: '' }, dist: 0.000249000000003718, score: 100}
+        { id: 96796, name: { freq: 1, source: 'network', display: 'College Avenue', priority: 0, tokenized: 'coll av', tokenless: '' }, dist: 0.000249000000003718, score: 99}
     ], 'Ensure tokenized match is correct');
 
     t.end();
