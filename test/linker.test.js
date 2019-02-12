@@ -250,3 +250,28 @@ test('Failing Linker Matches', (t) => {
 
     t.end();
 });
+
+test('Tokenized match success', (t) => {
+    t.deepEquals(linker([{ source: 'address', display: 'E College Ave', priority: 0, tokenized: 'e coll av', tokenless: '' }], [
+        { id: 96796, name: { freq: 1, source: 'network', display: 'College Avenue', priority: 0, tokenized: 'coll av', tokenless: '' }, dist: 0.000249000000003718 },
+        { id: 96794, name: { freq: 1, source: 'network', display: 'Village Drive', priority: 0, tokenized: 'vlg dr', tokenless: '' }, dist: 0.000891004948209828 },
+        { id: 96795, name: { freq: 1, source: 'network', display: 'Colorado Avenue', priority: 0, tokenized: 'colorado av', tokenless: 'colorado' }, dist: 0.00096000468748776 },
+        { id: 96792, name: { freq: 1, source: 'network', display: 'Adams Circle', priority: 0, tokenized: 'adams cir', tokenless: 'adams' }, dist: 0.00130397891087183 },
+        { id: 96797, name: { freq: 1, source: 'network', display: '28th Street Frontage Road', priority: 0, tokenized: '28th st frtg rd', tokenless: '28th' }, dist: 0.00140758309828831 },
+        { id: 96816, name: { freq: 1, source: 'network', display: 'Pennsylvania Avenue', priority: 0, tokenized: 'pennsylvania av', tokenless: 'pennsylvania' }, dist: 0.00157203015186948 },
+        { id: 96817, name: { freq: 1, source: 'network', display: 'Holly Place', priority: 0, tokenized: 'holly pl', tokenless: 'holly' }, dist: 0.00165197820808934 },
+        { id: 96941, name: { freq: 1, source: 'network', display: '28th Street', priority: 0, tokenized: '28th st', tokenless: '28th' }, dist: 0.0016531353199351 },
+        { id: 96941, name: { freq: 1, source: 'network', display: 'CO 119', priority: -1, tokenized: 'co 119', tokenless: '119' }, dist: 0.0016531353199351 },
+        { id: 96941, name: { freq: 1, source: 'network', display: 'CO 7', priority: -1, tokenized: 'co 7', tokenless: '' }, dist: 0.0016531353199351 },
+        { id: 96941, name: { freq: 1, source: 'network', display: 'Highway 36', priority: -1, tokenized: 'hwy 36', tokenless: '36' }, dist: 0.0016531353199351 },
+        { id: 96941, name: { freq: 1, source: 'network', display: 'United States Highway 36', priority: -1, tokenized: 'united states hwy 36', tokenless: 'united states 36' }, dist: 0.0016531353199351 },
+        { id: 96941, name: { freq: 1, source: 'network', display: 'US 36', priority: -1, tokenized: 'us 36', tokenless: 'us 36' }, dist: 0.0016531353199351 },
+        { id: 96815, name: { freq: 1, source: 'network', display: 'East Ridge Avenue', priority: 0, tokenized: 'e rdg av', tokenless: '' }, dist: 0.00224964219377202 },
+        { id: 96818, name: { freq: 1, source: 'network', display: 'Springdale Lane', priority: 0, tokenized: 'springdale ln', tokenless: 'springdale' }, dist: 0.00226970419234784 },
+        { id: 96823, name: { freq: 1, source: 'network', display: 'University Heights Avenue', priority: 0, tokenized: 'univ hts av', tokenless: '' }, dist: 0.00247436800011108 }
+    ]), [
+        { id: 96796, name: { freq: 1, source: 'network', display: 'College Avenue', priority: 0, tokenized: 'coll av', tokenless: '' }, dist: 0.000249000000003718, score: 100}
+    ], 'Ensure tokenized match is correct');
+
+    t.end();
+});
