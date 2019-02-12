@@ -67,7 +67,7 @@ test('Stats - Cluster', (t) => {
         clusters: 1,
         invalid: 0,
         addresses: 2,
-        intersections: 0,
+        intersections: 1,
         address_orphans: 0,
         network_orphans: 0
     }, 'has 1 cluster');

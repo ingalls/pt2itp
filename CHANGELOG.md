@@ -10,6 +10,10 @@
 
 ## Version History
 
+## v19.4.0
+
+- :rocket: Add intersection stats support
+
 ## v19.3.0
 
 - :rocket: Update `osmiunm` expectations
