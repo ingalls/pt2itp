@@ -31,14 +31,6 @@ if (require.main === module) {
                 process.exit(0);
             });
             break;
-        case ('clean'):
-            require('./lib/clean')(process.argv, (err) => {
-                if (err) throw err;
-
-                console.error('ok - processing complete');
-                process.exit(0);
-            });
-            break;
         case ('map'):
             require('./lib/map')(process.argv, (err) => {
                 if (err) throw err;
@@ -107,21 +99,48 @@ if (require.main === module) {
             });
 
             break;
+        case ('dedupe'):
+            let dedupe_arg = require('minimist')(process.argv, {
+                string: [ 'input', 'output', 'tokens', 'db', 'country', 'region' ],
+                boolean: ['hecate'],
+                alias: {
+                    database: 'db'
+                }
+            });
+
+            let context = undefined;
+            if (dedupe_arg.country) {
+                context = {
+                    country: debug_arg.country,
+                    region: debug_arg.region
+                };
+            }
+
+            require('./native/index.node').dedupe({
+                input: dedupe_arg.input,
+                output: dedupe_arg.output,
+                tokens: dedupe_arg.tokens,
+                hecate: dedupe_arg.hecate,
+                context: context,
+                db: dedupe_arg.db
+            });
+
+            break;
         default:
             help(argv);
             break;
     }
 } else {
     module.exports = {
+        dedupe: require('./native/index.node').dedupe,
+        stat: require('./native/index.node').stats,
+        convert: require('./native/index.node').convert,
         debug: require('./lib/debug'),
-        clean: require('./lib/clean'),
         map: require('./lib/map'),
         conflate: require('./lib/conflate'),
-        stat: require('./native/index.node').stats,
         test: require('./lib/test'),
         testcsv: require('./lib/testcsv'),
         strip: require('./lib/strip'),
-        analyze: require('./lib/analyze'),
-        convert: require('./native/index.node').convert
+        analyze: require('./lib/analyze')
     };
 }

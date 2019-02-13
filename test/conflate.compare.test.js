@@ -5,14 +5,11 @@ const Compare = require('../lib/conflate/compare');
 
 test('conflate/compare - compare', (t) => {
     const compare = new Compare({
-        id: 1,
-        total: 1,
         context: {
             country: 'us',
             region: 'dc'
         },
         pool: false,
-        map: false,
         tokens: false
     });
 
@@ -136,14 +133,14 @@ test('conflate/compare - compare', (t) => {
                 id: 1,
                 type: 'Feature',
                 properties: {
-                    street: [{
-                        display: 'Main Street North',
-                        tokenized: 'main street north',
-                        priority: 0
-                    }],
                     number: 1,
                     source: 'test'
                 },
+                names: [{
+                    display: 'Main Street North',
+                    tokenized: 'main street north',
+                    priority: 0
+                }],
                 geometry: {
                     type: 'Point',
                     coordinates: [0,0]

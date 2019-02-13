@@ -4,7 +4,7 @@ jobs:
     build:
         docker:
             - image: ubuntu:18.04
-            - image: mdillon/postgis:9.6
+            - image: mdillon/postgis:11
               environment:
                 - POSTGRES_USER=postgres
                 - POSTGRES_DB=pt_test

@@ -13,8 +13,13 @@ crate-type = ["dylib"]
 neon-build = "0.2"
 
 [dependencies]
+lazy_static = "1.2.0"
+regex = "1.1"
+postgres = "0.15.2"
+postgis = "0.6.0"
 geojson = "0.14.0"
 neon = "0.2"
 neon-serde = "0.1.1"
+serde_json = "1.0"
 serde_derive = "1.0"
 serde = "1.0"

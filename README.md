@@ -134,31 +134,6 @@ Full Options:
 ./index.js convert --help
 ```
 
-## `clean` Mode
-
-### Basic Usage
-
-When processing network/address data, they often come in a format that is not supported by
-PT2ITP. For a long time, `map` mode has provided the `--map-address` and `--map-network` flags
-to allow a script to sit inbetween the PT2ITP ingestion script and the source data.
-
-This script would recieve a JSON feature and have the ability to transform, clean, or reject it
-to fit PT2ITPs assumptions on input data.
-
-In `map` mode this is done as the data is being imported to the database and there was no way to
-get a GeoJSON stream of features out. `clean` mode solves this by allowing one to only
-process a given source using the map script, not performing a DB import or interpolization.
-
-Basic Usage:
-```
-./index.js clean osmium --input osm.geojson --output cleaned_osm.geojson
-```
-
-Full Options:
-```
-./index.js clean --help
-```
-
 ## Version Numbers
 
 PT2ITP follows the [Semver](http://semver.org/) spec for it's **CLI interface**.

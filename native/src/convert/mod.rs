@@ -4,7 +4,7 @@ use std::convert::From;
 
 use neon::prelude::*;
 
-use super::geostream::GeoStream;
+use super::stream::GeoStream;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ConvertArgs {

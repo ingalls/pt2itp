@@ -4,6 +4,8 @@ const test = require('tape');
 const pg = require('pg');
 const Queue = require('d3-queue').queue;
 const Index = require('../lib/map/index');
+const pg_init = require('../native/index.node').pg_init;
+const pg_optimize = require('../native/index.node').pg_optimize;
 
 const pool = new pg.Pool({
     max: 10,
@@ -15,6 +17,8 @@ const pool = new pg.Pool({
 const index = new Index(pool);
 
 test('Drop/Init Database', (t) => {
+    pg_init();
+
     index.init((err, res) => {
         t.error(err);
         t.end();
@@ -40,11 +44,14 @@ test('Match', (t) => {
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO address (id, name, number, geom) VALUES (1, '[{ "tokenized": "main st", "tokenless": "main", "display": "Main Street" }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249, 10 ] }'), 4326));
-            INSERT INTO address (id, name, number, geom) VALUES (2, '[{ "tokenized": "fake av", "tokenless": "fake", "display": "Fake Avenue" }]', 12, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249, 12 ] }'), 4326));
+            INSERT INTO address (names, number, geom) VALUES ('[{ "tokenized": "main st", "tokenless": "main", "display": "Main Street" }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249 ] }'), 4326));
+            INSERT INTO address (names, number, geom) VALUES ('[{ "tokenized": "fake av", "tokenless": "fake", "display": "Fake Avenue" }]', 12, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249 ] }'), 4326));
             COMMIT;
         `, (err, res) => {
             t.error(err);
+
+            pg_optimize();
+
             return done();
         });
     });
@@ -70,19 +77,19 @@ test('Match', (t) => {
 
     popQ.defer((done) => {
         pool.query(`
-            SELECT id, name, netid FROM address ORDER BY id;
+            SELECT id, names, netid FROM address ORDER BY id;
         `, (err, res) => {
             t.error(err);
 
             t.deepEquals(res.rows[0], {
-                id: 1,
-                name: [ { display: 'Main Street', tokenized: 'main st', tokenless: 'main' } ],
+                id: '1',
+                names: [ { display: 'Main Street', tokenized: 'main st', tokenless: 'main' } ],
                 netid: '1'
             });
 
             t.deepEquals(res.rows[1], {
-                id: 2,
-                name: [ { display: 'Fake Avenue', tokenized: 'fake av', tokenless: 'fake' } ],
+                id: '2',
+                names: [ { display: 'Fake Avenue', tokenized: 'fake av', tokenless: 'fake' } ],
                 netid: null
             });
 
@@ -97,6 +104,8 @@ test('Match', (t) => {
 });
 
 test('Drop/Init Database', (t) => {
+    pg_init();
+
     index.init((err, res) => {
         t.error(err);
         t.end();

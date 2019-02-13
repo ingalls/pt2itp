@@ -114,10 +114,23 @@ test('drop cardinal database', (t) => {
 });
 
 test('map - good run', (t) => {
+
+    // Ensure files don't exist before test
+    try {
+        fs.unlinkSync('/tmp/itp.geojson');
+        fs.unlinkSync('/tmp/error-network');
+        fs.unlinkSync('/tmp/error-address');
+    } catch (err) {
+        console.error('ok - cleaned tmp files');
+    }
+
     worker({
         'in-address': path.resolve(__dirname, './fixtures/sg-address.geojson'),
         'in-network': path.resolve(__dirname, './fixtures/sg-network.geojson'),
         output: '/tmp/itp.geojson',
+        'error-network': '/tmp/error-network',
+        'error-address': '/tmp/error-address',
+        tokens: 'en',
         debug: true,
         db: 'pt_test'
     }, (err, res) => {
@@ -149,7 +162,14 @@ test('map - good run', (t) => {
         rl.on('error', t.error);
 
         rl.on('close', () => {
+            t.doesNotThrow(() => {
+                fs.accessSync('/tmp/error-network');
+                fs.accessSync('/tmp/error-address');
+            });
+
             fs.unlinkSync('/tmp/itp.geojson');
+            fs.unlinkSync('/tmp/error-network');
+            fs.unlinkSync('/tmp/error-address');
             t.end();
         });
 

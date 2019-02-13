@@ -20,13 +20,6 @@ test('help - analyze', (t) => {
     st.end();
 });
 
-test('help - clean', (t) => {
-    let st = spawn(t, `${__dirname}/../index.js clean --help`);
-
-    st.stdout.match(/Direct access to the output of map scripts/);
-    st.end();
-});
-
 test('help - convert', (t) => {
     let st = spawn(t, `${__dirname}/../index.js convert --help`);
 

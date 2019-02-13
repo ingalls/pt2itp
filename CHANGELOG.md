@@ -10,6 +10,10 @@
 
 ## Version History
 
+## v19.5.0
+
+- :rocket: Rewrite ingestion pipeline to use rust ingester for increased speed
+
 ## v19.4.0
 
 - :rocket: Add intersection stats support

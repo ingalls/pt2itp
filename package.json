@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "19.4.0",
+  "version": "19.5.0",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
@@ -14,8 +14,8 @@
     "package": "neon build --release && node-pre-gyp package && node-pre-gyp-github publish",
     "coverage": "nyc tape test/*.js && nyc report --reporter=text-lcov > coverage.lcov",
     "coverage-upload": "coveralls < ./coverage.lcov",
-    "doc": "./node_modules/documentation/bin/documentation.js lint ./lib/**",
-    "test": "tape test/*.test.js",
+    "doc": "./node_modules/documentation/bin/documentation.js lint ./lib/**/*.js",
+    "test": "tape test/*.test.js && cd native && cargo test --release",
     "pretest": "echo 'DROP DATABASE pt_test; CREATE DATABASE pt_test;' | psql postgres://postgres:@localhost:5432 && echo 'CREATE EXTENSION postgis;' | psql postgres://postgres:@localhost:5432/pt_test"
   },
   "binary": {

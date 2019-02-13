@@ -5,6 +5,9 @@ const { Split, SplitFeat } = require('../lib/map/split');
 const Index = require('../lib/map/index');
 const turf = require('@turf/turf');
 
+const pg_init = require('../native/index.node').pg_init;
+const pg_optimize = require('../native/index.node').pg_optimize;
+
 test('SplitFeat - from db', (t) => {
     const pool = new pg.Pool({
         max: 10,
@@ -15,6 +18,8 @@ test('SplitFeat - from db', (t) => {
 
     t.test('SplitFeat - from db - create tables', (q) => {
         const index = new Index(pool);
+
+        pg_init();
 
         index.init((err) => {
             q.error(err);
@@ -104,6 +109,9 @@ test('SplitFeat - from db', (t) => {
             COMMIT;
         `, (err) => {
             q.error(err);
+
+            pg_optimize();
+
             q.end();
         });
     });

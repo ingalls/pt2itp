@@ -1,5 +1,5 @@
 use neon::prelude::*;
-use super::geostream::GeoStream;
+use super::stream::GeoStream;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct StatsArgs {
