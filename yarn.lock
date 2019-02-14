@@ -865,7 +865,7 @@
   resolved "https://registry.yarnpkg.com/@babel/preset-stage-0/-/preset-stage-0-7.0.0.tgz#999aaec79ee8f0a763042c68c06539c97c6e0646"
   integrity sha512-FBMd0IiARPtH5aaOFUVki6evHiJQiY0pFy7fizyRF7dtwc+el3nwpzvhb9qBNzceG1OIJModG1xpE0DDFjPXwA==
 
-"@babel/runtime-corejs2@^7.1.5", "@babel/runtime-corejs2@^7.2.0":
+"@babel/runtime-corejs2@^7.1.5":
   version "7.3.1"
   resolved "https://registry.yarnpkg.com/@babel/runtime-corejs2/-/runtime-corejs2-7.3.1.tgz#0c113242e2328f9674d42703a89bee6ebebe9a82"
   integrity sha512-YpO13776h3e6Wy8dl2J8T9Qwlvopr+b4trCEhHE+yek6yIqV8sx6g3KozdHMbXeBpjosbPi+Ii5Z7X9oXFHUKA==
@@ -913,20 +913,20 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@mapbox/carmen-cache@0.25.0":
-  version "0.25.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/carmen-cache/-/carmen-cache-0.25.0.tgz#b7e359bbddd7b64ac9a938ae429e9fce59d95aa8"
-  integrity sha512-2Vpjh6ocZCEpCkoPQ3LsjMXFnS6qGb7zABHoSokZs5ay3bZqca72EESrymwRBmVTxQ6gm69fasUo8fE/dBFXuA==
+"@mapbox/carmen-cache@0.26.0":
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/carmen-cache/-/carmen-cache-0.26.0.tgz#4da8cff40654c2ccf7b1f0200a5d445cc441959a"
+  integrity sha512-2zK+o9kDTPZo9vtyOC5SY4EivCqLUaBV5F8h4SXoMejd0xYWDbR0x31LZw4RFyzGwoxpmHMYd/ad7bcb4nOnYA==
   dependencies:
     nan "~2.10.0"
     node-pre-gyp "~0.10.1"
 
-"@mapbox/carmen@26.2.0":
-  version "26.2.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-26.2.0.tgz#12874aafe2c5329f7d6d29a5ebf00089e04f1a3f"
-  integrity sha512-XdDXgik5qi34RByGjq07ZNKpXXfT1MMlHZsrz5u2os0C8JsanKmWZ+kgwtY9ld0MgQxPE7zi940f5Xaaz9TLFQ==
+"@mapbox/carmen@27.1.0":
+  version "27.1.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-27.1.0.tgz#6a11240ed2475b89eb6f7f14a2c1ca884f407d1e"
+  integrity sha512-DG1Tz2oQL2XA0MHgTYJNFw9j8sjfrs+MBYgZXZYVu51RxTDXyf0w6ne8hG1+HKu73vyEJeqpmW0ev1vL1FIqaQ==
   dependencies:
-    "@mapbox/carmen-cache" "0.25.0"
+    "@mapbox/carmen-cache" "0.26.0"
     "@mapbox/geojsonhint" "^2.0.1"
     "@mapbox/locking" "^3.0.0"
     "@mapbox/mbtiles" "^0.10.0"
@@ -946,16 +946,16 @@
     "@turf/length" "^6.0.2"
     "@turf/nearest-point-on-line" "^6.0.2"
     "@turf/point-on-feature" "^5.1.5"
+    cheap-ruler "^2.5.1"
     d3-queue "3.0.x"
     err-code "^1.1.2"
     fs-extra "^7.0.0"
     geojson-rewind "^0.3.1"
     iter-tools "^6.1.6"
-    mapnik "^4.0.1"
+    mapnik "^4.0.2"
     minimist "1.2.0"
     model-un "0.0.3"
     split "^1.0.1"
-    xregexp "^4.2.0"
     yarn "^1.7.0"
 
 "@mapbox/cfn-config@^2.15.0":
@@ -2953,6 +2953,11 @@ chardet@^0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.7.0.tgz#90094849f0937f2eedc2425d0d28a9e5f0cbad9e"
   integrity sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==
+
+cheap-ruler@^2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/cheap-ruler/-/cheap-ruler-2.5.1.tgz#1c47ece27fc14bc95e817e16d49ceb5009a7e987"
+  integrity sha512-5x22zeBDPIXdDDiqIsC8tkOY1HEBD6FCRCfsvgwNg9yelClCpvfNGk0L2MotxTDEL4aoXOUUgdm3rPOBSLF+jA==
 
 chokidar@^2.0.4:
   version "2.0.4"
@@ -5491,7 +5496,7 @@ mapnik-vector-tile@2.2.1:
   resolved "https://registry.yarnpkg.com/mapnik-vector-tile/-/mapnik-vector-tile-2.2.1.tgz#9c70f07f2497ae2728679c7528f07c35bf7a62e9"
   integrity sha512-+oasa2DfqArIMC7F71ca8CXpDt0rEcq9sJDv+AuhBCZJg+3m2ikDAs/oskEpPpUOwta1hH48Qr+0deCkyB/0Jg==
 
-mapnik@^4.0.1:
+mapnik@^4.0.2:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/mapnik/-/mapnik-4.2.1.tgz#b1c4532527a8313f898c9d08a35f670fd0994582"
   integrity sha512-xRGIzwPu3n9T1L8V0izZ7694nWMiHxe9PGy4ghL4PDr/koIqCN0JDD9wsrvt52m53ZZC+zdeXFtuS84JqU74lQ==
@@ -8618,13 +8623,6 @@ xmlbuilder@~9.0.1:
   version "9.0.7"
   resolved "https://registry.yarnpkg.com/xmlbuilder/-/xmlbuilder-9.0.7.tgz#132ee63d2ec5565c557e20f4c22df9aca686b10d"
   integrity sha1-Ey7mPS7FVlxVfiD0wi35rKaGsQ0=
-
-xregexp@^4.2.0:
-  version "4.2.4"
-  resolved "https://registry.yarnpkg.com/xregexp/-/xregexp-4.2.4.tgz#02a4aea056d65a42632c02f0233eab8e4d7e57ed"
-  integrity sha512-sO0bYdYeJAJBcJA8g7MJJX7UrOZIfJPd8U2SC7B2Dd/J24U0aQNoGp33shCaBSWeb0rD5rh6VBUIXOkGal1TZA==
-  dependencies:
-    "@babel/runtime-corejs2" "^7.2.0"
 
 xtend@^3.0.0:
   version "3.0.0"

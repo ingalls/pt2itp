@@ -101,8 +101,8 @@ impl Network {
 
         self.names.sort();
         if self.names.names.len() > 1 {
-            if self.names.names[0].priority <= self.names.names[1].priority {
-                return Err(String::from("1 Synonym must have greater priority"));
+            if self.names.names[0].priority == self.names.names[1].priority {
+                return Err(format!("1 Synonym must have greater priority: {:?}", self.names.names));
             }
         }
 
@@ -145,5 +145,36 @@ impl Network {
             props = serde_json::value::Value::from(self.props),
             geom = geom
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{Tokens, Context};
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_network_simple_geom() {
+        let feat: geojson::GeoJson = String::from(r#"{
+            "type":"Feature",
+            "properties":{
+                "id":6052094,
+                "street":[{"display":"Poremba Court Southwest","priority":0}]},
+                "geometry":{
+                    "type":"LineString",
+                    "coordinates":[[-77.008941,38.859243],[-77.008447,38.859],[-77.0081173,38.8588497]]
+                }
+        }"#).parse().unwrap();
+
+        let context = Context::new(
+            String::from("us"),
+            Some(String::from("dc")),
+            Tokens::new(HashMap::new())
+        );
+
+        let net = Network::new(feat, &context).unwrap();
+
+        assert_eq!(net.to_tsv(), "[{\"display\":\"Poremba Court Southwest\",\"priority\":0,\"source\":\"network\",\"tokenized\":\"poremba court southwest\",\"tokenless\":\"poremba court southwest\",\"freq\":1}]\t\t{\"id\":6052094}\t0105000020E610000001000000010200000003000000FCA5457D924053C09128B4ACFB6D4340F52F49658A4053C0CBA145B6F36D434009826CFE844053C0F7D676C9EE6D4340\n");
     }
 }

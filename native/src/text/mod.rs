@@ -86,7 +86,7 @@ pub fn syn_number_suffix(name: &Name, context: &Context) -> Vec<Name> {
                 suffix = String::from("th");
             }
 
-            vec![Name::new(format!("{}{} {}", num, suffix, &capture["name"]), 0, &context)]
+            vec![Name::new(format!("{}{} {}", num, suffix, &capture["name"]), -1, &context)]
         },
         None => Vec::new()
     }
@@ -213,7 +213,7 @@ pub fn syn_written_numeric(name: &Name, context: &Context) -> Vec<Name> {
                 Some(nth) => nth
             };
 
-            vec![Name::new(format!("{}{}{}{}", &capture["pre"], tenth, nth, &capture["post"]), 0, &context)]
+            vec![Name::new(format!("{}{}{}{}", &capture["pre"], tenth, nth, &capture["post"]), -1, &context)]
         },
         _ => Vec::new()
     }
@@ -573,32 +573,32 @@ mod tests {
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("1 Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("1st Avenue"), 0, &context)]
+            vec![Name::new(String::from("1st Avenue"), -1, &context)]
         );
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("2 Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("2nd Avenue"), 0, &context)]
+            vec![Name::new(String::from("2nd Avenue"), -1, &context)]
         );
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("3 Street"), 0, &context), &context),
-            vec![Name::new(String::from("3rd Street"), 0, &context)]
+            vec![Name::new(String::from("3rd Street"), -1, &context)]
         );
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("4 Street"), 0, &context), &context),
-            vec![Name::new(String::from("4th Street"), 0, &context)]
+            vec![Name::new(String::from("4th Street"), -1, &context)]
         );
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("20 Street"), 0, &context), &context),
-            vec![Name::new(String::from("20th Street"), 0, &context)]
+            vec![Name::new(String::from("20th Street"), -1, &context)]
         );
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("21 Street"), 0, &context), &context),
-            vec![Name::new(String::from("21st Street"), 0, &context)]
+            vec![Name::new(String::from("21st Street"), -1, &context)]
         );
     }
 
@@ -608,17 +608,17 @@ mod tests {
 
         assert_eq!(
             syn_written_numeric(&Name::new(String::from("Twenty-third Avenue NW"), 0, &context), &context),
-            vec![Name::new(String::from("23rd Avenue NW"), 0, &context)]
+            vec![Name::new(String::from("23rd Avenue NW"), -1, &context)]
         );
 
         assert_eq!(
             syn_written_numeric(&Name::new(String::from("North twenty-Third Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("North 23rd Avenue"), 0, &context)]
+            vec![Name::new(String::from("North 23rd Avenue"), -1, &context)]
         );
 
         assert_eq!(
             syn_written_numeric(&Name::new(String::from("TWENTY-THIRD Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("23rd Avenue"), 0, &context)]
+            vec![Name::new(String::from("23rd Avenue"), -1, &context)]
         );
     }
 

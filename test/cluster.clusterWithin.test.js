@@ -120,10 +120,10 @@ test('LineStrings far away should not be clustered', (t) => {
                 id
         `, (err, res) => {
             t.error(err);
-            t.deepEquals(res.rows[0].geom, { type: 'MultiLineString', coordinates: [ [ [ 9.52342987060547, 47.130841255661 ], [ 9.52707767486572, 47.130914246721 ] ] ] });
+            t.deepEquals(res.rows[0].geom, { type: 'MultiLineString', coordinates: [ [ [ 9.50514793395996, 47.1302719219553 ], [ 9.50094223022461, 47.1302719219553 ] ] ] })
             t.deepEquals(res.rows[0].name, [{ freq: 1, display: 'Main Street', tokenized: 'main st', tokeneless: 'main' }]);
 
-            t.deepEquals(res.rows[1].geom, { type: 'MultiLineString', coordinates: [ [ [ 9.50514793395996, 47.130271921955 ], [ 9.50094223022461, 47.130271921955 ] ] ] });
+            t.deepEquals(res.rows[1].geom, { type: 'MultiLineString', coordinates: [ [ [ 9.52342987060547, 47.1308412556617 ], [ 9.52707767486572, 47.1309142467218 ] ] ] })
             t.deepEquals(res.rows[1].name, [{ freq: 1, display: 'Main Street', tokenized: 'main st', tokeneless: 'main' }]);
             t.end();
         });
@@ -179,7 +179,7 @@ test('LinesStrings should be clustered', (t) => {
         `, (err, res) => {
             t.error(err);
 
-            t.deepEquals(res.rows[0].geom, { type: 'MultiLineString', coordinates: [ [ [ 9.5167350769043, 47.132768186061 ], [ 9.51982498168945, 47.13287036981 ] ], [ [ 9.51399922370911, 47.132695197545 ], [ 9.51251864433289, 47.132695197545 ] ] ] });
+            t.deepEquals(res.rows[0].geom, { type: 'MultiLineString', coordinates: [ [ [ 9.5167350769043, 47.1327681860613 ], [ 9.51982498168945, 47.132870369815 ] ], [ [ 9.51399922370911, 47.1326951975457 ], [ 9.51251864433289, 47.1326951975457 ] ] ] });
             t.deepEquals(res.rows[0].name, [{ freq: 1, display: 'Main Street', tokenized: 'main st', tokeneless: 'main' }]);
             t.end();
         });

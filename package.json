@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "19.5.0",
+  "version": "19.6.0",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
@@ -28,7 +28,7 @@
   },
   "author": "Nicholas Ingalls <nicholas.ingalls@gmail.com>",
   "dependencies": {
-    "@mapbox/carmen": "26.2.0",
+    "@mapbox/carmen": "27.1.0",
     "@mapbox/geocoder-abbreviations": "2.4.0",
     "@mapbox/geojson-area": "^0.2.2",
     "@mapbox/mbtiles": "^0.10.0",

@@ -170,7 +170,7 @@ impl Table for Network {
             ALTER TABLE network
                 ALTER COLUMN geom
                 TYPE GEOMETRY(MULTILINESTRINGZ, 4326)
-                USING ST_GEomFromEWKT(Regexp_Replace(ST_AsEWKT(geom)::TEXT, '\d(?=[,)])', ' '||id, 'g'))
+                USING ST_GEomFromEWKT(Regexp_Replace(ST_AsEWKT(geom)::TEXT, '(?<=\d)(?=[,)])', ' '||id, 'g'))
         "#, &[]).unwrap();
 
         conn.execute(r#"

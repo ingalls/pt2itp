@@ -86,9 +86,9 @@ impl Names {
     pub fn sort(&mut self) {
         self.names.sort_by(|a, b| {
             if a.priority > b.priority {
-                std::cmp::Ordering::Greater
-            } else if a.priority < b.priority {
                 std::cmp::Ordering::Less
+            } else if a.priority < b.priority {
+                std::cmp::Ordering::Greater
             } else {
                 std::cmp::Ordering::Equal
             }
@@ -166,6 +166,27 @@ mod tests {
             tokenless: String::from("main st nw"),
             freq: 1
         });
+    }
+
+    #[test]
+    fn test_names_sort() {
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
+        let mut names = Names::new(vec![
+            Name::new(String::from("Highway 123"), -1, &context),
+            Name::new(String::from("Route 123"), 2, &context),
+            Name::new(String::from("Test 123"), 0, &context)
+        ], &context);
+
+        names.sort();
+
+        let names_sorted = Names::new(vec![
+            Name::new(String::from("Route 123"), 2, &context),
+            Name::new(String::from("Test 123"), 0, &context),
+            Name::new(String::from("Highway 123"), -1, &context)
+        ], &context);
+
+        assert_eq!(names, names_sorted);
     }
 
     #[test]
