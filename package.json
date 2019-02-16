@@ -29,7 +29,7 @@
   "author": "Nicholas Ingalls <nicholas.ingalls@gmail.com>",
   "dependencies": {
     "@mapbox/carmen": "27.1.0",
-    "@mapbox/geocoder-abbreviations": "2.4.0",
+    "@mapbox/geocoder-abbreviations": "https://github.com/mapbox/geocoder-abbreviations#ru-update",
     "@mapbox/geojson-area": "^0.2.2",
     "@mapbox/mbtiles": "^0.10.0",
     "@mapbox/tile-cover": "^3.0.2",

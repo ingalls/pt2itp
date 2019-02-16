@@ -60,7 +60,7 @@ impl Iterator for GeoStream {
         while line.is_some() && line.as_ref().unwrap().trim().len() == 0 {
             line = match GeoStream::line(&mut self.input) {
                 None => None,
-                Some(line) => Some(line)
+                Some(line) => Some(line.replace("\\\\","").replace("\\n"," "))
             };
         }
 
