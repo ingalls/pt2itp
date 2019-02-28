@@ -6,6 +6,9 @@ const path = require('path');
 const fs = require('fs');
 const pg = require('pg');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('help - main', (t) => {
     let st = spawn(t, `${__dirname}/../index.js`);
 

@@ -40,7 +40,7 @@ pub fn convert(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         Some(outpath) => {
             let outfile = match File::create(outpath) {
                 Ok(outfile) => outfile,
-                Err(err) => { panic!("Unable to owrite to output file: {}", err); }
+                Err(err) => { panic!("Unable to write to output file: {}", err); }
             };
 
             convert_stream(stream, BufWriter::new(outfile))

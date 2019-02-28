@@ -14,6 +14,9 @@ const carmenIndex = '/tmp/test-ri.mbtiles';
 const output = '/tmp/test-ri.err';
 const config = path.resolve(__dirname, './fixtures/test-ri/carmen-config.json');
 
+const db = require('./lib/db');
+db.init(test);
+
 const pool = new pg.Pool({
     max: 10,
     user: 'postgres',

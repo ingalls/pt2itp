@@ -101,7 +101,7 @@ if (require.main === module) {
             break;
         case ('dedupe'):
             let dedupe_arg = require('minimist')(process.argv, {
-                string: [ 'input', 'output', 'tokens', 'db', 'country', 'region' ],
+                string: [ 'buildings', 'input', 'output', 'tokens', 'db', 'country', 'region' ],
                 boolean: ['hecate'],
                 alias: {
                     database: 'db'
@@ -116,7 +116,13 @@ if (require.main === module) {
                 };
             }
 
+            if (!dedupe_arg.db) {
+                console.error('--db <DATABASE> argument required');
+                process.exit(1);
+            }
+
             require('./native/index.node').dedupe({
+                buildings: dedupe_arg.buildings,
                 input: dedupe_arg.input,
                 output: dedupe_arg.output,
                 tokens: dedupe_arg.tokens,

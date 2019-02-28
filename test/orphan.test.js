@@ -5,6 +5,11 @@ const pg_init = require('../native/index.node').pg_init;
 const pg_optimize = require('../native/index.node').pg_optimize;
 const Cluster = require('../lib/map/cluster');
 const pg = require('pg');
+const test = require('tape');
+
+const db = require('./lib/db');
+db.init(test);
+
 const pool = new pg.Pool({
     max: 10,
     user: 'postgres',
@@ -12,7 +17,6 @@ const pool = new pg.Pool({
     idleTimeoutMillis: 30000
 });
 
-const test = require('tape');
 const fs = require('fs');
 const path = require('path');
 const Queue = require('d3-queue').queue;

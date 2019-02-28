@@ -3,6 +3,9 @@ const test = require('tape');
 const path = require('path');
 const os = require('os');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('Convert - FeatureCollection', (t) => {
     convert({
         input: String(path.resolve(__dirname, 'fixtures/convert.FeatureCollection')),

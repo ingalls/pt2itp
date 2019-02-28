@@ -4,6 +4,9 @@ const pg = require('pg');
 const { Split, SplitFeat } = require('../lib/map/split');
 const turf = require('@turf/turf');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('Split: Dulaney Valley Rd, MD', (t) => {
     let feat = new SplitFeat(
         1,

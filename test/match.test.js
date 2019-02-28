@@ -7,16 +7,13 @@ const Index = require('../lib/map/index');
 const pg_init = require('../native/index.node').pg_init;
 const pg_optimize = require('../native/index.node').pg_optimize;
 
-const pool = new pg.Pool({
-    max: 10,
-    user: 'postgres',
-    database: 'pt_test',
-    idleTimeoutMillis: 30000
-});
+const db = require('./lib/db');
+db.init(test);
 
+const pool = db.get();
 const index = new Index(pool);
 
-test('Drop/Init Database', (t) => {
+test('Init Database', (t) => {
     pg_init();
 
     index.init((err, res) => {

@@ -3,6 +3,9 @@ const turf = require('@turf/turf');
 const test = require('tape');
 const fs = require('fs');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('Drop Low', (t) => {
     let d;
 

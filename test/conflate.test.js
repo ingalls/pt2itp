@@ -5,6 +5,9 @@ const test = require('tape');
 const path = require('path');
 const fs = require('fs');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('Compare', (t) => {
 
     // Ensure files don't exist before test

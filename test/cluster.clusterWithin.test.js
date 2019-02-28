@@ -8,6 +8,9 @@ const fs = require('fs');
 const pg = require('pg');
 const Queue = require('d3-queue').queue;
 
+const db = require('./lib/db');
+db.init(test);
+
 const pool = new pg.Pool({
     max: 10,
     user: 'postgres',

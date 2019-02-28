@@ -15,6 +15,9 @@ const output = '/tmp/test-de.err';
 const config = path.resolve(__dirname, './fixtures/test-de/carmen-config.json');
 const abbr = path.resolve(__dirname, '../node_modules/@mapbox/geocoder-abbreviations/tokens/global.js')
 
+const db = require('./lib/db');
+db.init(test);
+
 
 const pool = new pg.Pool({
     max: 10,

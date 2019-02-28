@@ -3,6 +3,9 @@ const test = require('tape');
 const geocode = require('../lib/util/geocode');
 const tokens = require('../lib/util/tokenize');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('geocode#isPass.suffix', (t) => {
     geocode.testConfig({ geocoder_stack: ['us', 'xx'] });
     let query = [

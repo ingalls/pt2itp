@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "19.6.0",
+  "version": "19.10.1",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
@@ -15,8 +15,7 @@
     "coverage": "nyc tape test/*.js && nyc report --reporter=text-lcov > coverage.lcov",
     "coverage-upload": "coveralls < ./coverage.lcov",
     "doc": "./node_modules/documentation/bin/documentation.js lint ./lib/**/*.js",
-    "test": "tape test/*.test.js && cd native && cargo test --release",
-    "pretest": "echo 'DROP DATABASE pt_test; CREATE DATABASE pt_test;' | psql postgres://postgres:@localhost:5432 && echo 'CREATE EXTENSION postgis;' | psql postgres://postgres:@localhost:5432/pt_test"
+    "test": "tape test/*.test.js && cd native && cargo test --release"
   },
   "binary": {
     "module_name": "index",
@@ -29,7 +28,7 @@
   "author": "Nicholas Ingalls <nicholas.ingalls@gmail.com>",
   "dependencies": {
     "@mapbox/carmen": "27.1.0",
-    "@mapbox/geocoder-abbreviations": "2.4.0",
+    "@mapbox/geocoder-abbreviations": "2.4.1",
     "@mapbox/geojson-area": "^0.2.2",
     "@mapbox/mbtiles": "^0.10.0",
     "@mapbox/tile-cover": "^3.0.2",

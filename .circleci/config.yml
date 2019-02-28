@@ -45,9 +45,6 @@ jobs:
                 name: "Yarn Doc"
                 command: "yarn run doc"
             - run:
-                name: "Yarn Pretest"
-                command: "yarn run pretest"
-            - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
                 no_output_timeout: 12000

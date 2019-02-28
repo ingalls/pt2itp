@@ -3,6 +3,7 @@ scores.csv
 data/
 *.mbtiles
 *.geojsonl
+*.geojson
 
 # Rust
 

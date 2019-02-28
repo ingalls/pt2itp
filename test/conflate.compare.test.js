@@ -3,6 +3,9 @@ const test = require('tape');
 const path = require('path');
 const Compare = require('../lib/conflate/compare');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('conflate/compare - compare', (t) => {
     const compare = new Compare({
         context: {

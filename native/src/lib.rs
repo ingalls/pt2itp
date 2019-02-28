@@ -3,8 +3,10 @@
 #[macro_use] extern crate lazy_static;
 extern crate serde_json;
 extern crate neon_serde;
-extern crate geojson;
+extern crate crossbeam;
+extern crate num_cpus;
 extern crate postgres;
+extern crate geojson;
 extern crate regex;
 
 // Internal Helper Libraries
@@ -24,10 +26,14 @@ pub mod dedupe;
 
 pub use self::types::Address;
 pub use self::types::Network;
+pub use self::types::Polygon;
+
+pub use self::types::hecate;
 pub use self::types::Context;
+pub use self::text::Tokens;
+
 pub use self::types::Names;
 pub use self::types::Name;
-pub use self::text::Tokens;
 
 // Functions registered here will be made avaliable to be called from NodeJS
 register_module!(mut m, {

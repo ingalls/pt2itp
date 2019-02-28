@@ -9,6 +9,8 @@ const testArray = ["the", "cat", "chased", "the", "mouse"];
 const testEntries = [["the", 2], ["cat", 1], ["chased", 1], ["mouse", 1]];
 const testMap = new Map(testEntries);
 
+const db = require('./lib/db');
+db.init(test);
 
 test('FrequencyDistribution.arrayToCounts', (t) => {
     freqDist = new FrequencyDistribution();

@@ -1,11 +1,15 @@
 mod address;
 mod network;
+mod polygon;
 
 mod name;
 mod context;
+pub mod hecate;
 
 pub use self::address::Address;
 pub use self::network::Network;
+pub use self::polygon::Polygon;
+
 pub use self::name::Name;
 pub use self::name::Names;
 pub use self::context::Context;

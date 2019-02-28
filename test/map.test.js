@@ -7,6 +7,9 @@ const path = require('path');
 const fs = require('fs');
 const pg = require('pg');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('map - in-address error', (t) => {
     worker({
     }, (err, res) => {

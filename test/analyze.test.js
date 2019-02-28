@@ -10,6 +10,9 @@ const Queue = require('d3-queue').queue;
 const Cluster = require('../lib/map/cluster');
 const Index = require('../lib/map/index');
 
+const db = require('./lib/db');
+db.init(test);
+
 const pool = new pg.Pool({
     max: 3,
     user: 'postgres',

@@ -22,8 +22,11 @@ pub fn pg_init(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
 
-    pg::Address::create(&conn);
-    pg::Network::create(&conn);
+    let address = pg::Address::new();
+    let network = pg::Network::new();
+
+    address.create(&conn);
+    network.create(&conn);
 
     Ok(cx.boolean(true))
 }
@@ -36,11 +39,14 @@ pub fn pg_optimize(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
 
-    pg::Address::seq_id(&conn);
-    pg::Network::seq_id(&conn);
+    let address = pg::Address::new();
+    let network = pg::Network::new();
 
-    pg::Address::index(&conn);
-    pg::Network::index(&conn);
+    address.seq_id(&conn);
+    network.seq_id(&conn);
+
+    address.index(&conn);
+    network.index(&conn);
 
     Ok(cx.boolean(true))
 }
@@ -86,12 +92,13 @@ pub fn import_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
     };
 
-    pg::Address::create(&conn);
-    pg::Address::input(&conn, AddrStream::new(GeoStream::new(args.input), context, args.errors));
+    let address = pg::Address::new();
+    address.create(&conn);
+    address.input(&conn, AddrStream::new(GeoStream::new(args.input), context, args.errors));
     if args.seq {
-        pg::Address::seq_id(&conn);
+        address.seq_id(&conn);
     }
-    pg::Address::index(&conn);
+    address.index(&conn);
 
     Ok(cx.boolean(true))
 }
@@ -116,12 +123,13 @@ pub fn import_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
     };
 
-    pg::Network::create(&conn);
-    pg::Network::input(&conn, NetStream::new(GeoStream::new(args.input), context, args.errors));
+    let network = pg::Network::new();
+    network.create(&conn);
+    network.input(&conn, NetStream::new(GeoStream::new(args.input), context, args.errors));
     if args.seq {
-        pg::Network::seq_id(&conn);
+        network.seq_id(&conn);
     }
-    pg::Network::index(&conn);
+    network.index(&conn);
 
     Ok(cx.boolean(true))
 }

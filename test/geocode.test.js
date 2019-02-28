@@ -3,6 +3,9 @@ const test = require('tape');
 const geocode = require('../lib/util/geocode');
 const tokens = require('../lib/util/tokenize');
 
+const db = require('./lib/db');
+db.init(test);
+
 test('geocode#isPass', (t) => {
     let query = [
         '200 Broadway',

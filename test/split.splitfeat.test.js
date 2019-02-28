@@ -5,6 +5,9 @@ const { Split, SplitFeat } = require('../lib/map/split');
 const Index = require('../lib/map/index');
 const turf = require('@turf/turf');
 
+const db = require('./lib/db');
+db.init(test);
+
 const pg_init = require('../native/index.node').pg_init;
 const pg_optimize = require('../native/index.node').pg_optimize;
 
@@ -112,7 +115,10 @@ test('SplitFeat - from db', (t) => {
 
             pg_optimize();
 
-            q.end();
+            Split.prepare(pool, (err, res) => {
+                q.error(err);
+                q.end();
+            });
         });
     });
 

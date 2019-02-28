@@ -1,0 +1,8 @@
+{ "id": 1, "type": "Feature", "properties": { "street": "Main St", "number": 123, "source": "openaddresses", "random": "property" }, "geometry": { "type": "Point", "coordinates": [ -77.48184621334076, 37.50052952012963 ] } }
+{ "id": 2, "type": "Feature", "properties": { "street": "Main St", "number": 123, "source": "random" }, "geometry": { "type": "Point", "coordinates": [ -77.48184621334076, 37.50052952012963 ] } }
+{ "id": 3, "type": "Feature", "properties": { "street": "Main St", "number": 123, "source": "random" }, "geometry": { "type": "Point", "coordinates": [ -77.48255431652069, 37.50026991290263 ] } }
+{ "id": 4, "type": "Feature", "properties": { "street": "Main St", "number": 123, "source": "random" }, "geometry": { "type": "Point", "coordinates": [ -77.4819427728653, 37.49956343620647 ] } }
+{ "id": 5, "type": "Feature", "properties": { "number": 123, "street": "Main St", "source": "openaddresses" }, "geometry": { "type": "Point", "coordinates": [ -77.4813687801361, 37.49999753713683 ] } }
+{ "id": 6, "type": "Feature", "properties": { "number": "123a", "street": "Main St", "source": "rando" }, "geometry": { "type": "Point", "coordinates": [ -77.4813687801361, 37.49999753713683 ] } }
+{ "id": 7, "type": "Feature", "properties": { "street": "Main St", "number": 123, "source": "openaddresses", "random": "property" }, "geometry": { "type": "Point", "coordinates": [ -77.48184621334076, 37.50052952012963 ] } }
+{ "id": 8, "type": "Feature", "properties": { "street": "Main St", "number": 123, "source": "openaddresses", "random": "property" }, "geometry": { "type": "Point", "coordinates": [ -77.48184621334076, 37.50052952012963 ] } }

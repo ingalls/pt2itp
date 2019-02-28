@@ -984,10 +984,10 @@
   dependencies:
     aws-sdk "^2.4.11"
 
-"@mapbox/geocoder-abbreviations@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/geocoder-abbreviations/-/geocoder-abbreviations-2.4.0.tgz#32aa7bf2d177f71d7db5837188dfb3d4d804201e"
-  integrity sha512-7kIOFdNZrbafG2zxyVPGM+v8LrO3WNQLksP0BSyEOT2JFBwZuZboIPfsjCyRJM9n+YzGl9geeqSX3EXptKL3yg==
+"@mapbox/geocoder-abbreviations@2.4.1":
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/@mapbox/geocoder-abbreviations/-/geocoder-abbreviations-2.4.1.tgz#6dac6711bcb0a67e08d2ee1d9e737a52d4ad6dfa"
+  integrity sha512-bAj86Mcw1audeZXFR18T1e1cp8hVGr+DrR0bRZB4HoBtiuhH2/OTVyJjmHnKIVcxH/OofOpMoAnA5lJveMyAWw==
   dependencies:
     tape "^4.6.3"
 
