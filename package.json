@@ -48,7 +48,7 @@
     "node-pre-gyp": "~0.12.0",
     "node-pre-gyp-github": "^1.4.3",
     "pg": "^7.3.0",
-    "pg-copy-streams": "^1.2.0",
+    "pg-copy-streams": "^2.0.0",
     "pg-cursor": "^2.0.0",
     "pluralize": "^7.0.0",
     "progress": "^2.0.0",
