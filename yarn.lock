@@ -6515,10 +6515,10 @@ pg-connection-string@0.1.3:
   resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-0.1.3.tgz#da1847b20940e42ee1492beaf65d49d91b245df7"
   integrity sha1-2hhHsglA5C7hSSvq9l1J2RskXfc=
 
-pg-copy-streams@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/pg-copy-streams/-/pg-copy-streams-1.2.0.tgz#7b3f9dee0b6c5fc2068f59c40fa218e0c1d74249"
-  integrity sha1-ez+d7gtsX8IGj1nED6IY4MHXQkk=
+pg-copy-streams@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/pg-copy-streams/-/pg-copy-streams-2.0.0.tgz#7b77f0eed93ced304df7a7d37c55a608e5f8cc67"
+  integrity sha512-Jh4NrITrt8gpY60DuZNXrpzdTe072JZ3fOq+6hLHx+7RJv6CO+myebja+eHDnGp+SaH6DuI6Cew9HrLG8QxyUg==
 
 pg-cursor@^2.0.0:
   version "2.0.0"
