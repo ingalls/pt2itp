@@ -922,10 +922,10 @@
     nan "~2.10.0"
     node-pre-gyp "~0.10.1"
 
-"@mapbox/carmen@28.2.0":
-  version "28.2.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-28.2.0.tgz#6938480b62a97903f30edafecc9872c1c0642e22"
-  integrity sha512-rZfx5Aw+F82vV9mJUs+ZPrUBGu2c3Jx3dFXG071FD2nUrUzT23l1ssV45IPTm11fmllFhBsvV0oWdUJGySWaTA==
+"@mapbox/carmen@28.3.0":
+  version "28.3.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-28.3.0.tgz#6f6b3690ba6595087d99746ce55c9811db17f54c"
+  integrity sha512-RQ1GONclIojPO/fwOSeKCSJiZHjWNbUbhr1S14xieR4MelGd2aYbOYJk2V7J8vVvId8DUk1mcvZoxDDcNm7W5A==
   dependencies:
     "@mapbox/carmen-cache" "0.26.0"
     "@mapbox/geojsonhint" "^2.0.1"
