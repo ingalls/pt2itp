@@ -987,12 +987,13 @@
   dependencies:
     aws-sdk "^2.4.11"
 
-"@mapbox/geocoder-abbreviations@2.4.1":
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/@mapbox/geocoder-abbreviations/-/geocoder-abbreviations-2.4.1.tgz#6dac6711bcb0a67e08d2ee1d9e737a52d4ad6dfa"
-  integrity sha512-bAj86Mcw1audeZXFR18T1e1cp8hVGr+DrR0bRZB4HoBtiuhH2/OTVyJjmHnKIVcxH/OofOpMoAnA5lJveMyAWw==
+"@mapbox/geocoder-abbreviations@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/geocoder-abbreviations/-/geocoder-abbreviations-3.1.0.tgz#080807f5e8e65021348e6a226cc1128a60582afc"
+  integrity sha512-NLjnRMKtpx6diOpjGAX0TUByLdRdjEeVzWYWn1gNeGolO2nn1RcowyR2nlhAKvskV8zPMCinsrTBklFS5b70vw==
   dependencies:
     tape "^4.6.3"
+    union-find "^1.0.2"
 
 "@mapbox/geojson-area@0.2.2", "@mapbox/geojson-area@^0.2.2":
   version "0.2.2"
@@ -8187,6 +8188,11 @@ unified@^6.0.0:
     trough "^1.0.0"
     vfile "^2.0.0"
     x-is-string "^0.1.0"
+
+union-find@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/union-find/-/union-find-1.0.2.tgz#292bac415e6ad3a89535d237010db4a536284e58"
+  integrity sha1-KSusQV5q06iVNdI3AQ20pTYoTlg=
 
 union-value@^1.0.0:
   version "1.0.0"
