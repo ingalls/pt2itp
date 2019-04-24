@@ -2,7 +2,7 @@ use regex::Regex;
 use super::diacritics;
 use std::collections::HashMap;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Tokens {
     tokens: HashMap<String, String>
 }

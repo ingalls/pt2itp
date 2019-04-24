@@ -1,4 +1,5 @@
 use postgis::ewkb::EwkbWrite;
+use crate::types::ToPG;
 
 ///
 /// A representation of a single Address
@@ -15,42 +16,12 @@ pub struct Polygon {
     pub geom: Vec<geojson::PolygonType>
 }
 
-impl Polygon {
-    pub fn new(feat: geojson::GeoJson) -> Result<Self, String> {
-        let feat = match feat {
-            geojson::GeoJson::Feature(feat) => feat,
-            _ => { return Err(String::from("Not a GeoJSON Feature")); }
-        };
-
-        let props = match feat.properties {
-            Some(props) => props,
-            None => { return Err(String::from("Feature has no properties")); }
-        };
-
-        let geom = match feat.geometry {
-            Some(geom) => match geom.value {
-                geojson::Value::Polygon(py) => vec![py],
-                geojson::Value::MultiPolygon(mpy) => mpy,
-                _ => { return Err(String::from("Polygon must have (Multi)Polygon geometry")); }
-            },
-            None => { return Err(String::from("Polygon must have geometry")); }
-        };
-
-        Ok(Polygon {
-            id: match feat.id {
-                Some(geojson::feature::Id::Number(id)) => id.as_i64(),
-                _ => None
-            },
-            props: props,
-            geom: geom
-        })
-    }
-
+impl ToPG for Polygon {
     ///
     /// Return a PG Copyable String of the feature
     /// props, geom
     ///
-    pub fn to_tsv(self) -> String {
+    fn to_tsv(self) -> String {
         let mut twkb = postgis::twkb::MultiPolygon {
             polygons: Vec::with_capacity(self.geom.len()),
             ids: None
@@ -90,4 +61,37 @@ impl Polygon {
             geom = geom
         )
     }
+}
+
+impl Polygon {
+    pub fn new(feat: geojson::GeoJson) -> Result<Self, String> {
+        let feat = match feat {
+            geojson::GeoJson::Feature(feat) => feat,
+            _ => { return Err(String::from("Not a GeoJSON Feature")); }
+        };
+
+        let props = match feat.properties {
+            Some(props) => props,
+            None => { return Err(String::from("Feature has no properties")); }
+        };
+
+        let geom = match feat.geometry {
+            Some(geom) => match geom.value {
+                geojson::Value::Polygon(py) => vec![py],
+                geojson::Value::MultiPolygon(mpy) => mpy,
+                _ => { return Err(String::from("Polygon must have (Multi)Polygon geometry")); }
+            },
+            None => { return Err(String::from("Polygon must have geometry")); }
+        };
+
+        Ok(Polygon {
+            id: match feat.id {
+                Some(geojson::feature::Id::Number(id)) => id.as_i64(),
+                _ => None
+            },
+            props: props,
+            geom: geom
+        })
+    }
+
 }

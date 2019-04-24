@@ -4,6 +4,13 @@ use std::io::Read;
 use std::mem;
 use serde_json::Value;
 
+#[derive(Clone)]
+pub enum Tables {
+    Address,
+    Network,
+    Polygon(String)
+}
+
 pub mod address;
 pub mod addresscluster;
 pub mod network;

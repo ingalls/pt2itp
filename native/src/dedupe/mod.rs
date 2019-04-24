@@ -4,13 +4,14 @@ use std::collections::HashMap;
 use std::thread;
 use std::fs::File;
 use std::io::{BufWriter, Write};
+use crate::stream::Parallel;
 
 use neon::prelude::*;
 
 use crate::{
     Address,
     types::hecate,
-    stream::{GeoStream, AddrStream, PolyStream}
+    stream::GeoStream
 };
 
 use super::pg;
@@ -65,7 +66,14 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let address = pg::Address::new();
     address.create(&conn);
-    address.input(&conn, AddrStream::new(GeoStream::new(args.input), context, None));
+
+    Parallel::stream(
+        None,
+        format!("postgres://postgres@localhost:5432/{}", &args.db),
+        GeoStream::new(args.input),
+        pg::Tables::Address,
+        context.clone()
+    );
 
     if !is_hecate {
         // Hecate Addresses will already have ids present
@@ -75,15 +83,21 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     address.index(&conn);
 
-    match args.buildings {
-        Some(buildings) => {
-            let polygon = pg::Polygon::new(String::from("buildings"));
-            polygon.create(&conn);
-            polygon.input(&conn, PolyStream::new(GeoStream::new(Some(buildings)), None));
-            polygon.index(&conn);
-        },
-        None => ()
-    };
+    if args.buildings.is_some() {
+        let polygon = pg::Polygon::new(String::from("buildings"));
+        
+        polygon.create(&conn);
+
+        Parallel::stream(
+            None,
+            format!("postgres://postgres@localhost:5432/{}", &args.db),
+            GeoStream::new(args.buildings),
+            pg::Tables::Polygon(String::from("buildings")),
+            context.clone()
+        );
+
+        polygon.index(&conn);
+    }
 
     let count = address.count(&conn);
     let cpus = num_cpus::get() as i64;

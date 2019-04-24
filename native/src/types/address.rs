@@ -1,6 +1,7 @@
 use postgis::ewkb::AsEwkbPoint;
 use postgis::ewkb::EwkbWrite;
 use regex::{Regex, RegexSet};
+use crate::types::ToPG;
 
 use crate::{Context, Names, Name, hecate};
 
@@ -32,6 +33,31 @@ pub struct Address {
 
     /// Simple representation of Lng/Lat geometry
     pub geom: geojson::PointType
+}
+
+impl ToPG for Address {
+    ///
+    ///Return a PG Copyable String of the feature
+    ///
+    ///name, number, source, props, geom
+    ///
+    fn to_tsv(self) -> String {
+        let geom = postgis::ewkb::Point::new(self.geom[0], self.geom[1], Some(4326)).as_ewkb().to_hex_ewkb();
+
+        format!("{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{props}\t{geom}\n",
+            id = match self.id {
+                None => String::from(""),
+                Some(id) => id.to_string()
+            },
+            version = self.version,
+            names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
+            output = self.output,
+            number = self.number,
+            source = self.source,
+            props = serde_json::value::Value::from(self.props),
+            geom = geom
+        )
+    }
 }
 
 impl Address {
@@ -204,30 +230,6 @@ impl Address {
 
         Ok(())
     }
-
-    ///
-    ///Return a PG Copyable String of the feature
-    ///
-    ///name, number, source, props, geom
-    ///
-    pub fn to_tsv(self) -> String {
-        let geom = postgis::ewkb::Point::new(self.geom[0], self.geom[1], Some(4326)).as_ewkb().to_hex_ewkb();
-
-        format!("{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{props}\t{geom}\n",
-            id = match self.id {
-                None => String::from(""),
-                Some(id) => id.to_string()
-            },
-            version = self.version,
-            names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
-            output = self.output,
-            number = self.number,
-            source = self.source,
-            props = serde_json::value::Value::from(self.props),
-            geom = geom
-        )
-    }
-
 
     ///
     /// Outputs Hecate Compatible GeoJSON feature,

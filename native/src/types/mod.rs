@@ -6,6 +6,10 @@ mod name;
 mod context;
 pub mod hecate;
 
+pub trait ToPG {
+    fn to_tsv(self) -> String;
+}
+
 pub use self::address::Address;
 pub use self::network::Network;
 pub use self::polygon::Polygon;

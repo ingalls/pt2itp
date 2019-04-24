@@ -1,72 +1,37 @@
 use std::convert::From;
 use std::iter::Iterator;
-use std::io::{Write, BufWriter};
-use std::fs::File;
+use std::io::Write;
+use std::fs::{File, OpenOptions};
 
-use crate::{stream::geo::GeoStream, Address, Context};
+use crate::{Address, Context};
 
-pub struct AddrStream {
+///
+/// An Address Stream consumes a GeoJSON Iterator stream,
+/// producing an iterator of Address objects
+///
+pub struct AddrStream<T: Iterator> {
     context: Context,
-    input: GeoStream,
-    buffer: Option<Vec<u8>>, //Used by Read impl for storing partial features
-    errors: Option<BufWriter<File>>
+    input: T,
+    errors: Option<File>
 }
 
-impl AddrStream {
-    pub fn new(input: GeoStream, context: Context, errors: Option<String>) -> Self {
+impl<T: Iterator> AddrStream<T> {
+    pub fn new(input: T, context: Context, errors: Option<String>) -> Self {
         AddrStream {
             context: context,
             input: input,
-            buffer: None,
             errors: match errors {
                 None => None,
-                Some(path) => Some(BufWriter::new(File::create(path).unwrap()))
+                Some(path) => Some(OpenOptions::new().create(true).append(true).open(path).unwrap())
             }
         }
     }
 }
 
-impl std::io::Read for AddrStream {
-    fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
-        let buf_len = buf.len();
-        let mut write: Vec<u8> = Vec::new();
-        let mut end = false;
-
-        while write.len() < buf_len && !end {
-            if self.buffer.is_some() {
-                write = self.buffer.take().unwrap();
-            } else {
-                let feat = match self.next() {
-                    Some(feat) => feat.to_tsv(),
-                    None => String::from("")
-                };
-
-                let mut bytes = feat.into_bytes();
-                if bytes.len() == 0 {
-                    end = true;
-                } else {
-                    write.append(&mut bytes);
-                }
-
-                if write.len() == 0 {
-                    return Ok(0);
-                }
-            }
-        }
-
-        if write.len() > buf_len {
-            self.buffer = Some(write.split_off(buf_len));
-        }
-
-        for it in 0..write.len() {
-            buf[it] = write[it];
-        }
-
-        Ok(write.len())
-    }
-}
-
-impl Iterator for AddrStream {
+impl<T: Iterator> Iterator for AddrStream<T>
+where
+    T: Iterator<Item=geojson::GeoJson>
+{
     type Item = Address;
 
     fn next(&mut self) -> Option<Self::Item> {
