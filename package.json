@@ -47,7 +47,7 @@
     "minimist": "^1.2.0",
     "n-readlines": "^1.0.0",
     "neon-cli": "^0.2.0",
-    "node-pre-gyp": "~0.12.0",
+    "node-pre-gyp": "~0.13.0",
     "node-pre-gyp-github": "^1.4.3",
     "pg": "^7.3.0",
     "pg-copy-streams": "^2.1.0",
