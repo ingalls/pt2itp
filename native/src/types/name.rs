@@ -399,4 +399,45 @@ mod tests {
             names: vec![Name::new(String::from("Main St NW"), 0, &context)]
         });
     }
+
+    #[test]
+    fn test_tokenized_string() {
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).tokenized_string(),
+            String::from("main st nw")
+        );
+        assert_eq!(Name::new(String::from("Main Street Northwest"), 0, &context).tokenized_string(),
+            String::from("main st nw")
+        );
+    }
+
+    #[test]
+    fn test_tokenless_string() {
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).tokenless_string(),
+            String::from("main")
+        );
+        assert_eq!(Name::new(String::from("Main Street Northwest"), 0, &context).tokenless_string(),
+            String::from("main")
+        );
+        assert_eq!(Name::new(String::from("East College Road"), 0, &context).tokenless_string(),
+            String::from("coll")
+        );
+    }
+
+    #[test]
+    fn test_has_type() {
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(Some(TokenType::Way)), true);
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(Some(TokenType::Cardinal)), true);
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(None), true);
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(Some(TokenType::PostalBox)), false);
+
+        assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(Some(TokenType::Way)), false);
+        assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(Some(TokenType::Cardinal)), false);
+        assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(None), true);
+    }
 }
