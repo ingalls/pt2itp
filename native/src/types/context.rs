@@ -8,7 +8,7 @@ pub struct InputContext {
     pub languages: Option<Vec<String>>
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Context {
     pub country: String,
     pub region: Option<String>,

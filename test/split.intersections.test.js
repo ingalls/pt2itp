@@ -7,9 +7,8 @@ test('Split: Simple Intersection', (t) => {
     const feat = new SplitFeat(
         1,
         [{
-            'display': 'Riverton Road South',
-            'tokenized': 'riverton rd s',
-            'tokenless': 'riverton'
+            display: 'Riverton Road South',
+            tokenized: [{ token: 'riverton', token_type: null }, { token: 'rd', token_type: 'Way' }, { token: 's', token_type: 'Cardinal' }]
         }],
         {
             1: { 'id':1,'output':true,'number':2 },
@@ -23,14 +22,12 @@ test('Split: Simple Intersection', (t) => {
             a_id: 1,
             b_id: 2,
             a_street: [{
-                'display': 'Riverton Road South',
-                'tokenized': 'riverton rd s',
-                'tokenless': 'riverton'
+                display: 'Riverton Road South',
+                tokenized: [{ token: 'riverton', token_type: null }, { token: 'rd', token_type: 'Way' }, { token: 's', token_type: 'Cardinal' }]
             }],
             b_street: [{
-                'display': 'Germany Valley Road',
-                'tokenized': 'germany vly rd',
-                'tokenless': 'germany'
+                display: 'Germany Valley Road',
+                tokenized: [{ token: 'germany', token_type: null }, { token: 'vly', token_type: 'Way' }, { token: 'rd', token_type: 'Cardinal' }]
             }],
             geom: { 'type': 'Point', 'coordinates': [-79.43606615066528, 38.743573833905266] }
         },{
@@ -38,18 +35,15 @@ test('Split: Simple Intersection', (t) => {
             a_id: 3,
             b_id: 1,
             a_street: [{
-                'display': 'WV Route 33',
-                'tokenized': 'wv rte 33',
-                'tokenless': ''
+                display: 'WV Route 33',
+                tokenized: [{ token: 'wv', token_type: null }, { token: 'rte', token_type: 'Way' }, { token: '33', token_type: 'Cardinal' }]
             },{
-                'display': 'Mountaineer Drive',
-                'tokenized': 'mountaineer dr',
-                'tokenless': 'mountaineer'
+                display: 'Mountaineer Drive',
+                tokenized: [{ token: 'mountaineer', token_type: null }, { token: 'dr', token_type: 'Way' }]
             }],
             b_street: [{
-                'display': 'Riverton Road South',
-                'tokenized': 'riverton rd s',
-                'tokenless': 'riverton'
+                display: 'Riverton Road South',
+                tokenized: [{ token: 'riverton', token_type: null }, { token: 'rd', token_type: 'Way' }, { token: 's', token_type: 'Cardinal' }]
             }],
             geom: { 'type': 'Point', 'coordinates': [-79.43968176841736, 38.74250272111668] }
         }]

@@ -23,7 +23,6 @@ struct DedupeArgs {
     buildings: Option<String>,
     input: Option<String>,
     output: Option<String>,
-    languages: Option<String>,
     hecate: Option<bool>
 }
 
@@ -35,7 +34,6 @@ impl DedupeArgs {
             buildings: None,
             input: None,
             output: None,
-            languages: None,
             hecate: None
         }
     }
@@ -145,8 +143,8 @@ fn output(is_hecate: bool, receive: crossbeam::Receiver<Address>, mut sink: impl
     for result in receive.iter() {
 
         let result: String = match is_hecate {
-            true => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete)).to_string(),
-            false => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None)).to_string()
+            true => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete, false)).to_string(),
+            false => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None, false)).to_string()
         };
 
         if sink.write(format!("{}\n", result).as_bytes()).is_err() {

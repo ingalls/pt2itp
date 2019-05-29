@@ -4,6 +4,7 @@ const fs = require('fs');
 const test = require('tape');
 const dedupe = require('../index').dedupe;
 const ReadLine = require('n-readlines');
+const path = require('path');
 
 const db = require('./lib/db');
 db.init(test);
@@ -19,9 +20,9 @@ test('dedupe (dataset)', (t) => {
         dedupe({
             db: 'pt_test',
             hecate: false,
-            input: './test/fixtures/dedupe.geojson',
+            input: path.resolve(__dirname, './fixtures/dedupe.geojson'),
             output: '/tmp/dedupeout.geojson',
-            tokens: 'en',
+            languages: ['en'],
             context: {
                 country: 'us',
                 region: 'dc'
@@ -54,11 +55,10 @@ test('dedupe (dataset)', (t) => {
         id: 1,
         type: 'Feature',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123',
             source: 'openaddresses',
             random: 'property',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',
@@ -70,10 +70,9 @@ test('dedupe (dataset)', (t) => {
         id: 3,
         type: 'Feature',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123',
             source: 'random',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',
@@ -85,10 +84,9 @@ test('dedupe (dataset)', (t) => {
         id: 4,
         type: 'Feature',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123',
             source: 'random',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',
@@ -100,10 +98,9 @@ test('dedupe (dataset)', (t) => {
         id: 5,
         type: 'Feature',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123',
             source: 'openaddresses',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',
@@ -115,10 +112,9 @@ test('dedupe (dataset)', (t) => {
         id: 6,
         type: 'Feature',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123a',
             source: 'rando',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',
@@ -141,9 +137,9 @@ test('dedupe (hecate)', (t) => {
         dedupe({
             db: 'pt_test',
             hecate: true,
-            input: './test/fixtures/dedupe.geojson',
+            input: path.resolve(__dirname, './fixtures/dedupe.geojson'),
             output: '/tmp/dedupeout.geojson',
-            languages: 'en',
+            languages: ['en'],
             context: {
                 country: 'us',
                 region: 'dc'
@@ -179,10 +175,9 @@ test('dedupe (hecate)', (t) => {
         type: 'Feature',
         action: 'delete',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123',
             source: 'random',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',
@@ -196,11 +191,10 @@ test('dedupe (hecate)', (t) => {
         type: 'Feature',
         action: 'delete',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123',
             source: 'openaddresses',
             random: 'property',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',
@@ -214,11 +208,10 @@ test('dedupe (hecate)', (t) => {
         type: 'Feature',
         action: 'delete',
         properties: {
-            names: [{ display: 'Main St', freq: 1, priority: 0, source: 'address', tokenized: 'main st', tokenless: 'main st' }],
             number: '123',
             source: 'openaddresses',
             random: 'property',
-            street: 'Main St'
+            street: [{ display: 'Main St', priority: 0 }]
         },
         geometry: {
             type: 'Point',

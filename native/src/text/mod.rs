@@ -11,6 +11,8 @@ mod replace;
 
 pub use self::diacritics::diacritics;
 pub use self::tokens::Tokens;
+pub use self::tokens::Tokenized;
+pub use self::tokens::ParsedToken;
 
 use std::collections::HashMap;
 use regex::{Regex, RegexSet};
@@ -19,7 +21,7 @@ use crate::{Name, Context};
 ///
 /// Return the Levenshtein distance between two strings
 ///
-fn distance<T>(a: &T, b: &T) -> usize
+pub fn distance<T>(a: &T, b: &T) -> usize
     where T: ToString
 {
     let v1: Vec<char> = a.to_string().chars().collect();
@@ -52,6 +54,58 @@ fn distance<T>(a: &T, b: &T) -> usize
     }
 
     column[v1len]
+}
+
+
+///
+/// Is the street a numbered street: ie 1st, 2nd, 3rd etc
+///
+pub fn is_numbered(name: &Name) -> Option<String> {
+    let tokens: Vec<String> = name.tokenized
+        .iter()
+        .map(|x| x.token.to_owned())
+        .collect();
+
+    lazy_static! {
+        static ref NUMBERED: Regex = Regex::new(r"^(?P<num>([0-9]+)?(1st|2nd|3rd|[0-9]th))$").unwrap();
+    }
+
+    for token in tokens {
+        match NUMBERED.captures(&token) {
+            Some(capture) => {
+                return Some(capture["num"].to_string());
+            }
+            None => ()
+        };
+    }
+
+    None
+}
+
+///
+/// Is the street a route type number
+/// ie: US Route 4
+///
+pub fn is_routish(name: &Name) -> Option<String> {
+    let tokens: Vec<String> = name.tokenized
+        .iter()
+        .map(|x| x.token.to_owned())
+        .collect();
+
+    lazy_static! {
+        static ref ROUTISH: Regex = Regex::new(r"^(?P<num>\d+)$").unwrap();
+    }
+
+    for token in tokens {
+        match ROUTISH.captures(&token) {
+            Some(capture) => {
+                return Some(capture["num"].to_string());
+            }
+            None => ()
+        };
+    }
+
+    None
 }
 
 ///
@@ -136,23 +190,22 @@ pub fn syn_number_suffix(name: &Name, context: &Context) -> Vec<Name> {
 /// alone. This creates less desirable synonyms for these cases
 ///
 pub fn syn_ca_french(name: &Name, context: &Context) -> Vec<Name> {
-    lazy_static! {
-        static ref STANDALONE: Regex = Regex::new(r"^(r|ch|av|bd)\s").unwrap();
-
-        static ref ELIMINATOR: Regex = Regex::new(r"^(r|ch|av|bd)\s(du|des|de)\s").unwrap();
-    }
-
     let mut syns = Vec::new();
+    let standalone = vec![String::from("r"), String::from("ch"), String::from("av"), String::from("bd")];
+    let eliminator = vec![String::from("du"), String::from("des"), String::from("de")];
 
     if
-        STANDALONE.is_match(&*name.tokenized)
-        && !ELIMINATOR.is_match(&*name.tokenized)
+        standalone.contains(&name.tokenized[0].token)
+        && !eliminator.contains(&name.tokenized[1].token)
     {
-        let basic = STANDALONE.replace(&*name.tokenized, "").to_string();
+        let tokens: Vec<String> = name.tokenized[1..name.tokenized.len()]
+            .iter()
+            .map(|x| x.token.to_owned())
+            .collect();
+        let basic = tokens.join(" ").trim().to_string();
 
         syns.push(Name::new(basic, -1, &context));
     }
-
 
     syns
 }
@@ -741,6 +794,111 @@ mod tests {
         assert_eq!(
             str_remove_octo(&String::from("RTe #1")),
             String::from("RTe 1")
+        );
+    }
+
+    #[test]
+    fn test_is_numbered() {
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("main st"), 0, &context)),
+            None
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("1st st"), 0, &context)),
+            Some(String::from("1st"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("2nd st"), 0, &context)),
+            Some(String::from("2nd"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("west 2nd st"), 0, &context)),
+            Some(String::from("2nd"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("3rd st"), 0, &context)),
+            Some(String::from("3rd"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("4th st"), 0, &context)),
+            Some(String::from("4th"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("11th ave"), 0, &context)),
+            Some(String::from("11th"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("12th ave"), 0, &context)),
+            Some(String::from("12th"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("21st av"), 0, &context)),
+            Some(String::from("21st"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("32nd av"), 0, &context)),
+            Some(String::from("32nd"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("45th av"), 0, &context)),
+            Some(String::from("45th"))
+        );
+
+        assert_eq!(
+            is_numbered(&Name::new(String::from("351235th av"), 0, &context)),
+            Some(String::from("351235th"))
+        );
+    }
+
+    #[test]
+    fn test_is_routish() {
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+
+        assert_eq!(
+            is_routish(&Name::new(String::from("main st"), 0, &context)),
+            None
+        );
+
+        assert_eq!(
+            is_routish(&Name::new(String::from("1st st"), 0, &context)),
+            None
+        );
+
+        assert_eq!(
+            is_routish(&Name::new(String::from("351235th av"), 0, &context)),
+            None
+        );
+
+        assert_eq!(
+            is_routish(&Name::new(String::from("NC 124"), 0, &context)),
+            Some(String::from("124"))
+        );
+
+        assert_eq!(
+            is_routish(&Name::new(String::from("US Route 50 East"), 0, &context)),
+            Some(String::from("50"))
+        );
+
+        assert_eq!(
+            is_routish(&Name::new(String::from("321"), 0, &context)),
+            Some(String::from("321"))
+        );
+
+        assert_eq!(
+            is_routish(&Name::new(String::from("124 NC"), 0, &context)),
+            Some(String::from("124"))
         );
     }
 }

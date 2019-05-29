@@ -4,6 +4,7 @@
 
 const help = require('./lib/help');
 const settings = require('./package.json');
+const Context = require('./lib/util/context');
 
 if (require.main === module) {
     const argv = require('minimist')(process.argv, {
@@ -38,14 +39,6 @@ if (require.main === module) {
                 if (err) throw err;
 
                 console.log('ok - processing complete');
-                process.exit(0);
-            });
-            break;
-        case ('conflate'):
-            require('./lib/conflate')(process.argv, (err) => {
-                if (err) throw err;
-
-                console.log('ok - conflation complete');
                 process.exit(0);
             });
             break;
@@ -104,6 +97,34 @@ if (require.main === module) {
 
             break;
         }
+        case ('conflate'): {
+            const conflate_arg = require('minimist')(process.argv, Context.args({
+                string: ['in_persistent', 'in_address', 'output', 'languages', 'db'],
+                boolean: ['hecate'],
+                alias: {
+                    database: 'db',
+                    'in_address': 'in_addresses'
+                }
+            }));
+
+
+            if (!conflate_arg.db) {
+                console.error('--db <DATABASE> argument required');
+                process.exit(1);
+            }
+
+            require('./native/index.node').conflate({
+                in_persistent: conflate_arg.in_persistent,
+                in_address: conflate_arg.in_address,
+                output: conflate_arg.output,
+                languages: conflate_arg.languages,
+                hecate: conflate_arg.hecate,
+                context: new Context(conflate_arg).as_json(),
+                db: conflate_arg.db
+            });
+
+            break;
+        }
         case ('dedupe'): {
             const dedupe_arg = require('minimist')(process.argv, {
                 string: ['buildings', 'input', 'output', 'languages', 'db', 'country', 'region'],
@@ -112,14 +133,6 @@ if (require.main === module) {
                     database: 'db'
                 }
             });
-
-            let context = undefined;
-            if (dedupe_arg.country) {
-                context = {
-                    country: dedupe_arg.country,
-                    region: dedupe_arg.region
-                };
-            }
 
             if (!dedupe_arg.db) {
                 console.error('--db <DATABASE> argument required');
@@ -130,9 +143,8 @@ if (require.main === module) {
                 buildings: dedupe_arg.buildings,
                 input: dedupe_arg.input,
                 output: dedupe_arg.output,
-                languages: dedupe_arg.languages,
                 hecate: dedupe_arg.hecate,
-                context: context,
+                context: new Context(dedupe_arg).as_json(),
                 db: dedupe_arg.db
             });
 
@@ -181,12 +193,12 @@ if (require.main === module) {
 } else {
     module.exports = {
         classify: require('./native/index.node').classify,
+        conflate: require('./native/index.node').conflate,
         dedupe: require('./native/index.node').dedupe,
         stat: require('./native/index.node').stats,
         convert: require('./native/index.node').convert,
         debug: require('./lib/debug'),
         map: require('./lib/map'),
-        conflate: require('./lib/conflate'),
         test: require('./lib/test'),
         testcsv: require('./lib/testcsv'),
         strip: require('./lib/strip'),

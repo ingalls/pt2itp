@@ -2,7 +2,7 @@ use postgis::ewkb::AsEwkbPoint;
 use postgis::ewkb::EwkbWrite;
 use regex::{Regex, RegexSet};
 
-use crate::{Context, Names, Name, hecate};
+use crate::{Context, Names, Name, hecate, types::name::InputName};
 
 /// A representation of a single Address
 #[derive(Debug)]
@@ -116,7 +116,7 @@ impl Address {
     pub fn from_value(value: serde_json::Value) -> Result<Self, String> {
         let mut value = match value {
             serde_json::Value::Object(obj) => obj,
-            _ => { return Err(String::from("Address::from_row value must be JSON Object")); }
+            _ => { return Err(String::from("Address::from_value value must be JSON Object")); }
         };
 
         let names: Names = match value.get(&String::from("names")) {
@@ -138,7 +138,7 @@ impl Address {
         let props = match value.remove(&String::from("props")) {
             Some(props) => match props {
                 serde_json::Value::Object(obj) => obj,
-                _ => { return Err(String::from("Address::from_row value must be JSON Object")); }
+                _ => { return Err(String::from("Address::from_value value must be JSON Object")); }
             },
             None => { return Err(String::from("props key/value is required")); }
         };
@@ -228,12 +228,60 @@ impl Address {
         )
     }
 
+    ///
+    ///Insert an address into a given database
+    ///
+    ///Only use this function for a small number or address
+    ///features or if they are being infrequently written.
+    ///to_tsv with a copy stream is far more efficient
+    ///
+    pub fn to_db(&self, conn: &impl postgres::GenericConnection, table: impl ToString) -> Result<(), postgres::error::Error> {
+        conn.execute(format!("
+            INSERT INTO {table} (
+                id,
+                version,
+                names,
+                number,
+                source,
+                output,
+                props,
+                geom
+            ) VALUES (
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7,
+                ST_SetSRID(ST_MakePoint($8, $9), 4326)
+            )
+        ",
+            table = table.to_string()
+        ).as_str(), &[
+            &self.id,
+            &self.version,
+            &serde_json::to_value(&self.names.names).unwrap(),
+            &self.number,
+            &self.source,
+            &self.output,
+            &serde_json::value::Value::from(self.props.clone()),
+            &self.geom[0],
+            &self.geom[1]
+        ])?;
+
+        Ok(())
+    }
+
 
     ///
     /// Outputs Hecate Compatible GeoJSON feature,
     /// omitting PT2ITP specific properties
     ///
-    pub fn to_geojson(mut self, action: hecate::Action) -> geojson::Feature {
+    /// action: Hecate action to conditionally attach to output geojson feature
+    /// generated: Should generated synonyms be output
+    ///
+    pub fn to_geojson(mut self, action: hecate::Action, generated: bool) -> geojson::Feature {
         let mut members: serde_json::map::Map<String, serde_json::Value> = serde_json::map::Map::new();
 
         if action != hecate::Action::None {
@@ -256,8 +304,22 @@ impl Address {
             _ => ()
         };
 
-        self.props.insert(String::from("source"), serde_json::value::Value::String(self.source));
-        self.props.insert(String::from("names"), serde_json::to_value(self.names.names).unwrap());
+        let names: Vec<InputName> = self.names.names.into_iter().filter(|name| {
+            if !generated {
+                name.source != String::from("generated")
+            } else {
+                true
+            }
+        }).map(|name| {
+            InputName::from(name)
+        }).collect();
+
+        self.props.insert(String::from("street"), serde_json::to_value(names).unwrap());
+
+        if self.source != String::from("") {
+            self.props.insert(String::from("source"), serde_json::value::Value::String(self.source));
+        }
+
         self.props.insert(String::from("number"), serde_json::value::Value::String(self.number));
 
         geojson::Feature {

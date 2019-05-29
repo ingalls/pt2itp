@@ -10,6 +10,7 @@ extern crate geojson;
 extern crate regex;
 
 // Internal Helper Libraries
+pub mod util;
 pub mod stream;
 pub mod text;
 
@@ -24,6 +25,7 @@ pub mod convert;
 pub mod stats;
 pub mod dedupe;
 pub mod classify;
+pub mod conflate;
 
 pub use self::types::Address;
 pub use self::types::Network;
@@ -32,6 +34,7 @@ pub use self::types::Polygon;
 pub use self::types::hecate;
 pub use self::types::Context;
 pub use self::text::Tokens;
+pub use self::text::Tokenized;
 
 pub use self::types::Names;
 pub use self::types::Name;
@@ -50,6 +53,7 @@ register_module!(mut m, {
     m.export_function("intersections", map::intersections)?;
 
     m.export_function("classify", classify::classify)?;
+    m.export_function("conflate", conflate::conflate)?;
     m.export_function("convert", convert::convert)?;
     m.export_function("stats", stats::stats)?;
     m.export_function("dedupe", dedupe::dedupe)?;

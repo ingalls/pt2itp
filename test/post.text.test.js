@@ -18,8 +18,8 @@ test('Post: Text', (t) => {
 
     t.deepEquals(post({
         properties: {
-            'carmen:text': [{ display: 'Main Street', tokenized: 'main st' }],
-            'carmen:text_xx': [{ display: 'Spring Rd', tokenized: 'spring rd' }]
+            'carmen:text': [{ display: 'Main Street', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }] }],
+            'carmen:text_xx': [{ display: 'Spring Rd', tokenized: [{ token: 'spring', token_type: null }, { token: 'rd', token_type: 'Way' }] }]
         }
     }, args), {
         properties: {
@@ -31,13 +31,13 @@ test('Post: Text', (t) => {
     t.deepEquals(post({
         properties: {
             'carmen:text': [
-                { freq: 12, display: 'Main Street', tokenized: 'main st' },
-                { freq: 2, display: 'Some Other St', tokenized: 'some other st' },
-                { display: 'Main Street', tokenized: 'main st' }
+                { freq: 12, display: 'Main Street', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }] },
+                { freq: 2, display: 'Some Other St', tokenized: [{ token: 'some', token_type: null }, { token: 'other', token_type: null }, { token: 'st', token_type: 'Way' }] },
+                { display: 'Main Street', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }] }
             ],
             'carmen:text_xx': [
-                { display: 'Spring Rd', tokenized: 'spring rd' },
-                { display: 'Spring Rd', tokenized: 'spring rd' }
+                { display: 'Spring Rd', tokenized: [{ token: 'spring', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: 'Spring Rd', tokenized: [{ token: 'spring', token_type: null }, { token: 'rd', token_type: 'Way' }] }
             ]
         }
     }, args), {
@@ -50,18 +50,18 @@ test('Post: Text', (t) => {
     t.deepEquals(post({
         properties: {
             'carmen:text': [
-                { freq: 12, display: 'Main St', tokenized: 'main st' },
-                { display: 'Some Other St', tokenized: 'some other st' },
-                { freq: 12, display: 'Main Street', tokenized: 'main st' }
+                { freq: 12, display: 'Main St', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }] },
+                { display: 'Some Other St', tokenized: [{ token: 'some', token_type: null }, { token: 'other', token_type: null }, { token: 'st', token_type: 'Way' }] },
+                { freq: 12, display: 'Main Street', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }] }
             ],
             'carmen:text_xx': [
-                { display: 'Spring Road', tokenized: 'spring rd' },
-                { display: 'Spring Rd', tokenized: 'spring rd' }
+                { display: 'Spring Road', tokenized: [{ token: 'spring', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: 'Spring Rd', tokenized: [{ token: 'spring', token_type: null }, { token: 'rd', token_type: 'Way' }] }
             ],
             'carmen:text_es': [
-                { priority: 1, display: 'Pta Something', tokenized: 'pta something' },
-                { freq: 2,display: 'Spring Road', tokenized: 'spring rd' },
-                { freq: 12, display: 'Puerta Something', tokenized: 'puerta something' }
+                { priority: 1, display: 'Pta Something', tokenized: [{ token: 'pta', token_type: null }, { token: 'something', token_type: null }] },
+                { freq: 2,display: 'Spring Road', tokenized: [{ token: 'spring', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { freq: 12, display: 'Puerta Something', tokenized: [{ token: 'puerta', token_type: null }, { token: 'something', token_type: null }] }
             ]
         }
     }, args), {
@@ -76,21 +76,21 @@ test('Post: Text', (t) => {
     t.deepEquals(post({
         properties: {
             'carmen:text': [
-                { display: '204 Haywood Rd', tokenized: '204 haywood rd' },
-                { display: '201 Haywood Rd', tokenized: '201 haywood rd' },
-                { display: '202 Haywood Rd', tokenized: '202 haywood rd' },
-                { display: '203 Haywood Rd', tokenized: '203 haywood rd' },
-                { display: '208 Haywood Rd', tokenized: '208 haywood rd' },
-                { display: '209 Haywood Rd', tokenized: '209 haywood rd' },
-                { display: '210 Haywood Rd', tokenized: '210 haywood rd' },
-                { display: '211 Haywood Rd', tokenized: '211 haywood rd' },
-                { display: '212 Haywood Rd', tokenized: '212 haywood rd' },
-                { display: '213 Haywood Rd', tokenized: '213 haywood rd' },
-                { display: '214 Haywood Rd', tokenized: '214 haywood rd' },
-                { display: '215 Haywood Rd', tokenized: '215 haywood rd' },
-                { display: '216 Haywood Rd', tokenized: '216 haywood rd' },
-                { display: '217 Haywood Rd', tokenized: '217 haywood rd' },
-                { display: '218 Haywood Rd', tokenized: '218 haywood rd' }
+                { display: '204 Haywood Rd', tokenized: [{ token: '204', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '201 Haywood Rd', tokenized: [{ token: '201', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '202 Haywood Rd', tokenized: [{ token: '202', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '203 Haywood Rd', tokenized: [{ token: '203', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '208 Haywood Rd', tokenized: [{ token: '208', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '209 Haywood Rd', tokenized: [{ token: '209', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '210 Haywood Rd', tokenized: [{ token: '210', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '211 Haywood Rd', tokenized: [{ token: '211', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '212 Haywood Rd', tokenized: [{ token: '212', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '213 Haywood Rd', tokenized: [{ token: '213', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '214 Haywood Rd', tokenized: [{ token: '214', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '215 Haywood Rd', tokenized: [{ token: '215', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '216 Haywood Rd', tokenized: [{ token: '216', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '217 Haywood Rd', tokenized: [{ token: '217', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] },
+                { display: '218 Haywood Rd', tokenized: [{ token: '218', token_type: null }, { token: 'haywood', token_type: null }, { token: 'rd', token_type: 'Way' }] }
             ]
         }
     }, args), {

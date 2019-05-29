@@ -2,8 +2,8 @@ mod address;
 mod network;
 mod polygon;
 
-mod name;
-mod context;
+pub mod name;
+pub mod context;
 pub mod hecate;
 
 pub use self::address::Address;

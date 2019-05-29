@@ -1,16 +1,28 @@
+use std::collections::HashMap;
 use crate::{Context, text};
+use crate::Tokenized;
+use geocoder_abbreviations::TokenType;
 
 ///
 /// InputName is only used internally to serialize a names array to the
-/// Names type. It should not be used unless as an intermediary into the Names type
+/// Names type. It should not be used unless as an intermediary into or out of the Names type
 ///
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-struct InputName {
+pub struct InputName {
     /// Street Name
     pub display: String,
 
     /// When choosing which street name is primary, order by priority
     pub priority: i8
+}
+
+impl From<Name> for InputName {
+    fn from(name: Name) -> Self {
+        InputName {
+            display: name.display,
+            priority: name.priority
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -44,11 +56,25 @@ impl Names {
             }
         }
 
+        for synonym in synonyms.iter_mut() {
+            synonym.source = String::from("generated");
+        }
+
         names.append(&mut synonyms);
 
         Names {
             names: names
         }
+    }
+
+    pub fn from_input(names: Vec<InputName>, context: &Context) -> Self {
+        let mut full_names: Vec<Name> = Vec::with_capacity(names.len());
+
+        for name in names {
+            full_names.push(Name::new(name.display, name.priority, &context));
+        }
+
+        Names::new(full_names, &context)
     }
 
     ///
@@ -80,6 +106,64 @@ impl Names {
     }
 
     ///
+    /// Take a second names object and add any synonyms that do not
+    /// already exist on the original names object based on the
+    /// tokenized version of the string.
+    ///
+    pub fn concat(&mut self, new_names: Names) {
+        self.names.extend(new_names.names);
+        self.dedupe();
+    }
+
+    ///
+    /// Test to see if the given names argument has synonyms
+    /// that the self names object does not
+    ///
+    pub fn has_diff(&self, names: &Names) -> bool {
+        let mut tokenized: HashMap<String, _> = HashMap::new();
+
+        for self_name in self.names.iter() {
+            tokenized.insert(self_name.tokenized_string(), ());
+        }
+
+        for name in names.names.iter() {
+            if !tokenized.contains_key(&name.tokenized_string()) {
+                return true;
+            }
+        }
+
+        false
+    }
+
+    ///
+    /// Dedupe a names object based on the tokenized
+    /// version of each name
+    ///
+    pub fn dedupe(&mut self) {
+        let mut tokenized: HashMap<String, _> = HashMap::new();
+
+        let mut old_names = Vec::with_capacity(self.names.len());
+
+        loop {
+            match self.names.pop() {
+                Some(name) => old_names.push(name),
+                None => {
+                    break;
+                }
+            }
+        }
+
+        for name in old_names {
+            if tokenized.contains_key(&name.tokenized_string()) {
+                continue;
+            }
+
+            tokenized.insert(name.tokenized_string(), true);
+            self.names.push(name);
+        }
+    }
+
+    ///
     /// Sort names object by priority
     ///
     pub fn sort(&mut self) {
@@ -96,10 +180,13 @@ impl Names {
 
     ///
     /// Set the source on all the given names
+    /// that don't have a source yet set
     ///
     pub fn set_source(&mut self, source: String) {
         for name in self.names.iter_mut() {
-            name.source = source.clone();
+            if name.source == String::from("") {
+                name.source = source.clone();
+            }
         }
     }
 }
@@ -112,14 +199,11 @@ pub struct Name {
     /// When choosing which street name is primary, order by priority
     pub priority: i8,
 
-    /// Geometry Type of a given name (network/address)
+    /// Geometry Type of a given name (network/address/generated)
     pub source: String,
 
-    /// Abbreviated form of the name
-    pub tokenized: String,
-
-    /// All abbreviations removed form of the name
-    pub tokenless: String,
+    /// full token structure tokenless is derived from
+    pub tokenized: Vec<Tokenized>,
 
     /// Frequency of the given name
     pub freq: i64
@@ -133,8 +217,10 @@ impl Name {
     /// * `display` - A string containing the street name (Main St)
     ///
     /// ```
-    pub fn new(mut display: String, priority: i8, context: &Context) -> Self {
-        let tokens = context.tokens.process(&display);
+    pub fn new(display: impl ToString, priority: i8, context: &Context) -> Self {
+        let mut display = display.to_string();
+
+        let tokenized = context.tokens.process(&display);
 
         display = display
             .replace(r#"""#, "")
@@ -145,11 +231,41 @@ impl Name {
             display: display,
             priority: priority,
             source: String::from(""),
-            tokenized: tokens.0,
-            tokenless: tokens.1,
+            tokenized: tokenized,
             freq: 1
         }
     }
+
+    pub fn tokenized_string(&self) -> String {
+        let tokens: Vec<String> = self.tokenized
+            .iter()
+            .map(|x| x.token.to_owned())
+            .collect();
+        let tokenized = String::from(tokens.join(" ").trim());
+
+        tokenized
+    }
+
+    pub fn tokenless_string(&self) -> String {
+        let tokens: Vec<String> = self.tokenized
+            .iter()
+            .filter(|x| x.token_type.is_none())
+            .map(|x| x.token.to_owned())
+            .collect();
+        let tokenless = String::from(tokens.join(" ").trim());
+
+        tokenless
+    }
+
+    pub fn has_type(&self, token_type: Option<TokenType>) -> bool {
+        let tokens: Vec<&Tokenized> = self.tokenized
+            .iter()
+            .filter(|x| x.token_type == token_type)
+            .collect();
+
+        tokens.len() > 0
+    }
+
 }
 
 #[cfg(test)]
@@ -167,8 +283,10 @@ mod tests {
             display: String::from("Main St NW"),
             priority: 0,
             source: String::from(""),
-            tokenized: String::from("main st nw"),
-            tokenless: String::from("main st nw"),
+            tokenized: vec![
+                Tokenized::new(String::from("main"), None),
+                Tokenized::new(String::from("st"), None),
+                Tokenized::new(String::from("nw"), None)],
             freq: 1
         });
     }
@@ -195,6 +313,46 @@ mod tests {
     }
 
     #[test]
+    fn test_names_concat() {
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
+        let mut names = Names::new(vec![
+            Name::new(String::from("Highway 123"), -1, &context),
+        ], &context);
+
+        let names2 = Names::new(vec![
+            Name::new(String::from("Highway 123"), -1, &context),
+            Name::new(String::from("Highway 123"), -1, &context),
+        ], &context);
+
+        names.concat(names2);
+
+        let names_concat = Names::new(vec![
+            Name::new(String::from("Highway 123"), -1, &context),
+        ], &context);
+
+        assert_eq!(names, names_concat);
+    }
+
+    #[test]
+    fn test_names_dedupe() {
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
+        let mut names = Names::new(vec![
+            Name::new(String::from("Highway 123"), -1, &context),
+            Name::new(String::from("Highway 123"), -1, &context),
+        ], &context);
+
+        names.dedupe();
+
+        let names_deduped = Names::new(vec![
+            Name::new(String::from("Highway 123"), -1, &context),
+        ], &context);
+
+        assert_eq!(names, names_deduped);
+    }
+
+    #[test]
     fn test_names_from_value() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
@@ -209,6 +367,27 @@ mod tests {
     }
 
     #[test]
+    fn test_names_has_diff() {
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
+        let a_name = Names::new(vec![Name::new("Main St", 0, &context)], &context);
+        let b_name = Names::new(vec![Name::new("Main St", 0, &context)], &context);
+        assert_eq!(a_name.has_diff(&b_name), false);
+
+        let a_name = Names::new(vec![Name::new("US Route 1", 0, &context)], &context);
+        let b_name = Names::new(vec![Name::new("us route 1", 0, &context)], &context);
+        assert_eq!(a_name.has_diff(&b_name), false);
+
+        let a_name = Names::new(vec![Name::new("highway 1", 0, &context), Name::new("US Route 1", 0, &context)], &context);
+        let b_name = Names::new(vec![Name::new("us route 1", 0, &context)], &context);
+        assert_eq!(a_name.has_diff(&b_name), false);
+
+        let a_name = Names::new(vec![Name::new("us route 1", 0, &context)], &context);
+        let b_name = Names::new(vec![Name::new("highway 1", 0, &context), Name::new("US Route 1", 0, &context)], &context);
+        assert_eq!(a_name.has_diff(&b_name), true);
+    }
+
+    #[test]
     fn test_names() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
@@ -219,5 +398,46 @@ mod tests {
         assert_eq!(Names::new(vec![Name::new(String::from("Main St NW"), 0, &context)], &context), Names {
             names: vec![Name::new(String::from("Main St NW"), 0, &context)]
         });
+    }
+
+    #[test]
+    fn test_tokenized_string() {
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).tokenized_string(),
+            String::from("main st nw")
+        );
+        assert_eq!(Name::new(String::from("Main Street Northwest"), 0, &context).tokenized_string(),
+            String::from("main st nw")
+        );
+    }
+
+    #[test]
+    fn test_tokenless_string() {
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).tokenless_string(),
+            String::from("main")
+        );
+        assert_eq!(Name::new(String::from("Main Street Northwest"), 0, &context).tokenless_string(),
+            String::from("main")
+        );
+        assert_eq!(Name::new(String::from("East College Road"), 0, &context).tokenless_string(),
+            String::from("coll")
+        );
+    }
+
+    #[test]
+    fn test_has_type() {
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(Some(TokenType::Way)), true);
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(Some(TokenType::Cardinal)), true);
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(None), true);
+        assert_eq!(Name::new(String::from("Main St NW"), 0, &context).has_type(Some(TokenType::PostalBox)), false);
+
+        assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(Some(TokenType::Way)), false);
+        assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(Some(TokenType::Cardinal)), false);
+        assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(None), true);
     }
 }
