@@ -29,7 +29,7 @@
   "dependencies": {
     "@mapbox/carmen": "27.2.0",
     "@mapbox/eslint-config-geocoding": "^2.0.0",
-    "@mapbox/geocoder-abbreviations": "2.4.1",
+    "@mapbox/geocoder-abbreviations": "4.1.1",
     "@mapbox/geojson-area": "^0.2.2",
     "@mapbox/mbtiles": "^0.10.0",
     "@mapbox/tile-cover": "^3.0.2",
