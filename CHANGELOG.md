@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v23.0.0
+
+- :rocket: Rewrite `conflate` mode in Rust, add loose and strict token handling modes
+
 ### v22.0.0
 
 - :rocket: Import geocoder-abbreviations tokens in Rust, rename `tokens` parameter to `languages`
