@@ -31,24 +31,61 @@ pub struct Names {
 }
 
 impl Names {
-    pub fn new(mut names: Vec<Name>, context: &Context) -> Self {
+    pub fn new(names: Vec<Name>, context: &Context) -> Self {
+        let mut names = Names {
+            names: names
+        };
+
+        if names.names.len() == 0 {
+            return names;
+        }
+
+        names.sort();
+
+        let top_priority = names.names[0].priority;
+
         let mut synonyms: Vec<Name> = Vec::new();
 
         if context.country == String::from("US") {
-            for name in names.iter_mut() {
+            for name in names.names.iter_mut() {
                 name.display = text::str_remove_octo(&name.display);
 
                 synonyms.append(&mut text::syn_number_suffix(&name, &context));
                 synonyms.append(&mut text::syn_written_numeric(&name, &context));
-                synonyms.append(&mut text::syn_state_hwy(&name, &context));
-                synonyms.append(&mut text::syn_us_hwy(&name, &context));
-                synonyms.append(&mut text::syn_us_cr(&name, &context));
+
+                // don't allow highway names to take the place of a local name
+                // if the highway name is not the primary name as defined by the
+                // input data
+                let mut highway_synonyms: Vec<Name> = Vec::new();
+                highway_synonyms.append(&mut text::syn_state_hwy(&name, &context));
+                highway_synonyms.append(&mut text::syn_us_hwy(&name, &context));
+                highway_synonyms.append(&mut text::syn_us_cr(&name, &context));
+
+                if name.priority == top_priority {
+                    // Name is high priority - pass through standardized highway names
+                    synonyms.append(&mut highway_synonyms);
+                } else {
+                    // Downgrade each highway synonym
+                    for mut synonym in highway_synonyms {
+                        synonym.priority = -1;
+                        synonyms.push(synonym);
+                    }
+                }
             }
         } else if context.country == String::from("CA") {
-            for name in names.iter_mut() {
+            for name in names.names.iter_mut() {
                 name.display = text::str_remove_octo(&name.display);
 
-                synonyms.append(&mut text::syn_ca_hwy(&name, &context));
+                let mut highway_synonyms: Vec<Name> = Vec::new();
+                highway_synonyms.append(&mut text::syn_ca_hwy(&name, &context));
+                if name.priority == top_priority {
+                    synonyms.append(&mut highway_synonyms);
+                } else {
+                    for mut synonym in highway_synonyms {
+                        synonym.priority = -1;
+                        synonyms.push(synonym);
+                    }
+                }
 
                 if context.region.is_some() && context.region.as_ref().unwrap() == "QC" {
                     synonyms.append(&mut text::syn_ca_french(&name, &context));
@@ -60,11 +97,9 @@ impl Names {
             synonym.source = String::from("generated");
         }
 
-        names.append(&mut synonyms);
+        names.names.append(&mut synonyms);
 
-        Names {
-            names: names
-        }
+        names
     }
 
     pub fn from_input(names: Vec<InputName>, context: &Context) -> Self {
@@ -236,6 +271,33 @@ impl Name {
         }
     }
 
+    ///
+    /// Builder style source setter
+    ///
+    /// ie:
+    /// Name::new().set_source("generated")
+    ///
+    /// Can be chained with other builder functions
+    ///
+    pub fn set_source(mut self, source: impl ToString) -> Self {
+        self.source = source.to_string();
+        self
+    }
+
+    ///
+    /// Builder style source setter
+    ///
+    /// ie:
+    /// Name::new().set_freq(1)
+    ///
+    /// Can be chained with other builder functions
+    ///
+    pub fn set_freq(mut self, freq: i64) -> Self {
+        self.freq = freq;
+        self
+    }
+
+
     pub fn tokenized_string(&self) -> String {
         let tokens: Vec<String> = self.tokenized
             .iter()
@@ -397,6 +459,35 @@ mod tests {
 
         assert_eq!(Names::new(vec![Name::new(String::from("Main St NW"), 0, &context)], &context), Names {
             names: vec![Name::new(String::from("Main St NW"), 0, &context)]
+        });
+
+        // Ensure synonyms are being applied correctly
+        assert_eq!(Names::new(vec![Name::new(String::from("US Route 1"), 0, &context)], &context), Names {
+            names: vec![
+                Name::new(String::from("US Route 1"), 0, &context),
+                Name::new(String::from("US 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("US Route 1"), 1, &context).set_source("generated"),
+                Name::new(String::from("US Highway 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("United States Route 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("United States Highway 1"), -1, &context).set_source("generated"),
+            ]
+        });
+
+        // Ensure highway synonyms are being applied correctly but are downgraded
+        // if the highway is not the highest priority name
+        assert_eq!(Names::new(vec![
+            Name::new(String::from("Main St"), 0, &context),
+            Name::new(String::from("US Route 1"), -1, &context)
+        ], &context), Names {
+            names: vec![
+                Name::new(String::from("Main St"), 0, &context),
+                Name::new(String::from("US Route 1"), -1, &context),
+                Name::new(String::from("US 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("US Route 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("US Highway 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("United States Route 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("United States Highway 1"), -1, &context).set_source("generated"),
+            ]
         });
     }
 
