@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v23.1.0
+
+- :bug: Ensure local names take precidence over standardized highway names
+
 ### v23.0.0
 
 - :rocket: Rewrite `conflate` mode in Rust, add loose and strict token handling modes
