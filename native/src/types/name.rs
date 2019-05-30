@@ -472,6 +472,23 @@ mod tests {
                 Name::new(String::from("United States Highway 1"), -1, &context).set_source("generated"),
             ]
         });
+
+        // Ensure highway synonyms are being applied correctly but are downgraded
+        // if the highway is not the highest priority name
+        assert_eq!(Names::new(vec![
+            Name::new(String::from("Main St"), 0, &context),
+            Name::new(String::from("US Route 1"), -1, &context)
+        ], &context), Names {
+            names: vec![
+                Name::new(String::from("Main St"), 0, &context),
+                Name::new(String::from("US Route 1"), -1, &context),
+                Name::new(String::from("US 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("US Route 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("US Highway 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("United States Route 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("United States Highway 1"), -1, &context).set_source("generated"),
+            ]
+        });
     }
 
     #[test]
