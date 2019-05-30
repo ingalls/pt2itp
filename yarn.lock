@@ -940,20 +940,20 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@mapbox/carmen-cache@0.26.0":
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/carmen-cache/-/carmen-cache-0.26.0.tgz#4da8cff40654c2ccf7b1f0200a5d445cc441959a"
-  integrity sha512-2zK+o9kDTPZo9vtyOC5SY4EivCqLUaBV5F8h4SXoMejd0xYWDbR0x31LZw4RFyzGwoxpmHMYd/ad7bcb4nOnYA==
+"@mapbox/carmen-cache@0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/carmen-cache/-/carmen-cache-0.27.0.tgz#4c764163def25c746e59933781d6380afd70a2e4"
+  integrity sha512-PYVhnHLF8AttSPLRE60hKE9XKE+oIsV24VYEhgfsDWkTFwIKy1cxm0oNPQGg5mbNSM4yifZ5z0ZhgXzopbDkaA==
   dependencies:
     nan "~2.10.0"
     node-pre-gyp "~0.10.1"
 
-"@mapbox/carmen@27.2.0":
-  version "27.2.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-27.2.0.tgz#ba21ac3c07cc9c12f0ad06c069dfc67350ff8fe0"
-  integrity sha512-UWuHulHuybeQlu4Hfb3sxBRRBaEXEu7ThGhj8TG5YD6MkM1GQSBjy2EEg9WUrMSiIjmN6fkMwUrztce1OLvmKg==
+"@mapbox/carmen@29.0.0":
+  version "29.0.0"
+  resolved "https://registry.yarnpkg.com/@mapbox/carmen/-/carmen-29.0.0.tgz#beffc3982acbd6748ae9683c9efd62386b205dbd"
+  integrity sha512-UgbSqS9kgZvH5IDXLiSb23CPbCKKpuu1Pb/cx7f0ar5GDHfDPmNsEsUkxT7CLu3f98zcWZW0DfJ/Ev6h9dJztQ==
   dependencies:
-    "@mapbox/carmen-cache" "0.26.0"
+    "@mapbox/carmen-cache" "0.27.0"
     "@mapbox/geojsonhint" "^2.0.1"
     "@mapbox/locking" "^3.0.0"
     "@mapbox/mbtiles" "^0.10.0"
