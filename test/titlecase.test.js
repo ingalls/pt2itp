@@ -64,7 +64,11 @@ tape('label logic, default behavior', (t) => {
             { display: 'State Highway 123', tokenized: [{ token: 'state', token_type: null }, { token: 'hwy', token_type: null }, { token: '123', token_type: null }], source: 'address', priority: 1 },
             { display: 'State Highway 123 ABC', tokenized: [{ token: 'state', token_type: null }, { token: 'hwy', token_type: null }, { token: '123', token_type: null }], source: 'address' }, // Should be deduped on tokenized
             { display: 'NC 123', tokenized: [{ token: 'nc', token_type: null }, { token: '123', token_type: null }], source: 'network', priority: 5 }
-        ], 'Nc 123,State Highway 123']
+        ], 'Nc 123,State Highway 123'],
+        [[
+            { freq: 1, display: 'Main St NW', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: null }, { token: 'nw', token_type: null }], source: 'address' },
+            { freq: 600, display: 'Main St', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: null }], source: 'address', priority: 0 }
+        ], 'Main St NW,Main St']
     ];
 
     for (const test of tests) {
