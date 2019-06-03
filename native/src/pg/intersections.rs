@@ -41,12 +41,11 @@ impl Intersections {
                 };
 
                 conn.execute(format!("
-                    INSERT INTO intersections (a_id, b_id, a_street, b_street, geom) (
+                    INSERT INTO intersections (a_id, b_id, b_street, geom) (
                         SELECT
                             a.id,
                             b.id,
-                            a.names AS a_street,
-                            b.names AS b_street,
+                            b.names::TEXT AS b_street,
                             ST_PointOnSurface(ST_Intersection(a.geom, b.geom)) AS geom
                         FROM
                             network_cluster AS a
@@ -67,6 +66,13 @@ impl Intersections {
         for strand in web {
             strand.join().unwrap();
         }
+
+        conn.execute("
+            ALTER TABLE intersections
+                ALTER COLUMN b_street
+                SET DATA TYPE JSONB
+            USING b_street::JSONB
+        ", &[]);
     }
 }
 
@@ -82,11 +88,9 @@ impl Table for Intersections {
 
         conn.execute(r#"
             CREATE UNLOGGED TABLE intersections (
-                id SERIAL,
                 a_id BIGINT,
                 b_id BIGINT,
-                a_street JSONB,
-                b_street JSONB,
+                b_street TEXT,
                 geom GEOMETRY(POINT, 4326)
             )
         "#, &[]).unwrap();
