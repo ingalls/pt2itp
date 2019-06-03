@@ -55,9 +55,13 @@ impl Intersections {
                             AND a.id <= {max_id}
                     )
                 ", min_id = min_id, max_id = max_id).as_str(), &[]).unwrap();
-            });
+            }).unwrap();
 
             web.push(strand);
+        }
+
+        for strand in web {
+            strand.join().unwrap();
         }
     }
 }
