@@ -13,7 +13,11 @@ impl Intersections {
     /// Create intersections from network data
     ///
     pub fn generate(&self, conn: &postgres::Connection, table: impl ToString) {
-        let count = self.count(conn);
+        let count = conn.query("
+            SELECT count(*) FROM network_cluster;
+        ", &[]).unwrap();
+        let count: i64 = count.get(0).get(0);
+
         let cpus = num_cpus::get() as i64;
         let mut web = Vec::new();
 
