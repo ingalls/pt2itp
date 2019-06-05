@@ -1,6 +1,5 @@
 use std::convert::From;
 use postgres::{Connection, TlsMode};
-use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use geojson::GeoJson;
@@ -10,6 +9,7 @@ use neon::prelude::*;
 use crate::{
     Names,
     Address,
+    Tokens,
     hecate,
     util::linker,
     types::name::InputName,
@@ -93,7 +93,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let context = match args.context {
         Some(context) => crate::Context::from(context),
-        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new()))
+        None => crate::Context::new(String::from(""), None, Tokens::new(Vec::new()))
     };
 
     let pgaddress = pg::Address::new();

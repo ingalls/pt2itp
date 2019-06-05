@@ -1,6 +1,5 @@
 use std::convert::From;
 use postgres::{Connection, TlsMode};
-use std::collections::HashMap;
 
 use crate::Context as CrateContext;
 use crate::Tokens;
@@ -104,7 +103,7 @@ pub fn import_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let context = match args.context {
         Some(context) => CrateContext::from(context),
-        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
+        None => CrateContext::new(String::from(""), None, Tokens::new(Vec::new()))
     };
 
     let address = pg::Address::new();
@@ -135,7 +134,7 @@ pub fn import_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let context = match args.context {
         Some(context) => CrateContext::from(context),
-        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
+        None => CrateContext::new(String::from(""), None, Tokens::new(Vec::new()))
     };
 
     let network = pg::Network::new();

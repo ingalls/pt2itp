@@ -180,31 +180,29 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
     use crate::{Context, Tokens, Name, Names};
-    use crate::text::ParsedToken;
-    use geocoder_abbreviations::TokenType;
+    use geocoder_abbreviations::{Token, TokenType};
 
     #[test]
     fn test_linker() {
-        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        tokens.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));
-        tokens.insert(String::from("street"), ParsedToken::new(String::from("st"), Some(TokenType::Way)));
-        tokens.insert(String::from("st"), ParsedToken::new(String::from("st"), Some(TokenType::Way)));
-        tokens.insert(String::from("lake"), ParsedToken::new(String::from("lk"), None));
-        tokens.insert(String::from("lk"), ParsedToken::new(String::from("lk"), None));
-        tokens.insert(String::from("road"), ParsedToken::new(String::from("rd"), Some(TokenType::Way)));
-        tokens.insert(String::from("rd"), ParsedToken::new(String::from("rd"), Some(TokenType::Way)));
-        tokens.insert(String::from("avenue"), ParsedToken::new(String::from("ave"), Some(TokenType::Way)));
-        tokens.insert(String::from("ave"), ParsedToken::new(String::from("ave"), Some(TokenType::Way)));
-        tokens.insert(String::from("west"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
-        tokens.insert(String::from("east"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
-        tokens.insert(String::from("south"), ParsedToken::new(String::from("s"), Some(TokenType::Cardinal)));
-        tokens.insert(String::from("northwest"), ParsedToken::new(String::from("nw"), Some(TokenType::Cardinal)));
-        tokens.insert(String::from("nw"), ParsedToken::new(String::from("nw"), Some(TokenType::Cardinal)));
-        tokens.insert(String::from("s"), ParsedToken::new(String::from("s"), Some(TokenType::Cardinal)));
-        tokens.insert(String::from("w"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
-        tokens.insert(String::from("e"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
+        let mut tokens: Vec<Token> = Vec::new();
+        tokens.push(Token::new(String::from("saint"), String::from("st"), None, false).unwrap());
+        tokens.push(Token::new(String::from("street"), String::from("st"), Some(TokenType::Way), false).unwrap());
+        tokens.push(Token::new(String::from("st"), String::from("st"), Some(TokenType::Way), false).unwrap());
+        tokens.push(Token::new(String::from("lake"), String::from("lk"), None, false).unwrap());
+        tokens.push(Token::new(String::from("lk"), String::from("lk"), None, false).unwrap());
+        tokens.push(Token::new(String::from("road"), String::from("rd"), Some(TokenType::Way), false).unwrap());
+        tokens.push(Token::new(String::from("rd"), String::from("rd"), Some(TokenType::Way), false).unwrap());
+        tokens.push(Token::new(String::from("avenue"), String::from("ave"), Some(TokenType::Way), false).unwrap());
+        tokens.push(Token::new(String::from("ave"), String::from("ave"), Some(TokenType::Way), false).unwrap());
+        tokens.push(Token::new(String::from("west"), String::from("w"), Some(TokenType::Cardinal), false).unwrap());
+        tokens.push(Token::new(String::from("east"), String::from("e"), Some(TokenType::Cardinal), false).unwrap());
+        tokens.push(Token::new(String::from("south"), String::from("s"), Some(TokenType::Cardinal), false).unwrap());
+        tokens.push(Token::new(String::from("northwest"), String::from("nw"), Some(TokenType::Cardinal), false).unwrap());
+        tokens.push(Token::new(String::from("nw"), String::from("nw"), Some(TokenType::Cardinal), false).unwrap());
+        tokens.push(Token::new(String::from("s"), String::from("s"), Some(TokenType::Cardinal), false).unwrap());
+        tokens.push(Token::new(String::from("w"), String::from("w"), Some(TokenType::Cardinal), false).unwrap());
+        tokens.push(Token::new(String::from("e"), String::from("e"), Some(TokenType::Cardinal), false).unwrap());
 
         let context = Context::new(String::from("us"), None, Tokens::new(tokens));
 

@@ -12,7 +12,6 @@ mod replace;
 pub use self::diacritics::diacritics;
 pub use self::tokens::Tokens;
 pub use self::tokens::Tokenized;
-pub use self::tokens::ParsedToken;
 
 use std::collections::HashMap;
 use regex::{Regex, RegexSet};
@@ -526,7 +525,7 @@ mod tests {
 
     #[test]
     fn test_is_drivethrough() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         assert_eq!(is_drivethrough(
             &String::from("Main St NE"),
@@ -538,7 +537,7 @@ mod tests {
             &context
         ), false);
 
-        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("de"), None, Tokens::new(Vec::new()));
         assert_eq!(is_drivethrough(
             &String::from("McDonalds einfahrt"),
             &context
@@ -567,7 +566,7 @@ mod tests {
 
     #[test]
     fn test_syn_us_cr() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         assert_eq!(syn_us_cr(&Name::new(String::from(""), 0, &context), &context), vec![]);
 
@@ -582,7 +581,7 @@ mod tests {
 
     #[test]
     fn test_syn_ca_french() {
-        let context = Context::new(String::from("ca"), Some(String::from("qc")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("ca"), Some(String::from("qc")), Tokens::new(Vec::new()));
 
         assert_eq!(syn_ca_french(&Name::new(String::from(""), 0, &context), &context), vec![]);
 
@@ -600,7 +599,7 @@ mod tests {
 
     #[test]
     fn test_syn_ca_hwy() {
-        let context = Context::new(String::from("ca"), Some(String::from("on")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("ca"), Some(String::from("on")), Tokens::new(Vec::new()));
 
         assert_eq!(syn_ca_hwy(&Name::new(String::from(""), 0, &context), &context), vec![]);
 
@@ -621,7 +620,7 @@ mod tests {
 
     #[test]
     fn test_syn_us_hwy() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         assert_eq!(syn_us_hwy(&Name::new(String::from(""), 0, &context), &context), vec![]);
 
@@ -648,7 +647,7 @@ mod tests {
 
     #[test]
     fn test_syn_state_highway() {
-        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(Vec::new()));
 
         assert_eq!(
             syn_state_hwy(
@@ -726,7 +725,7 @@ mod tests {
 
     #[test]
     fn test_syn_number_suffix() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("1st Avenue"), 0, &context), &context),
@@ -766,7 +765,7 @@ mod tests {
 
     #[test]
     fn test_syn_written_numeric() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         assert_eq!(
             syn_written_numeric(&Name::new(String::from("Twenty-third Avenue NW"), 0, &context), &context),
@@ -799,7 +798,7 @@ mod tests {
 
     #[test]
     fn test_is_numbered() {
-        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(Vec::new()));
 
         assert_eq!(
             is_numbered(&Name::new(String::from("main st"), 0, &context)),
@@ -864,7 +863,7 @@ mod tests {
 
     #[test]
     fn test_is_routish() {
-        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(Vec::new()));
 
         assert_eq!(
             is_routish(&Name::new(String::from("main st"), 0, &context)),

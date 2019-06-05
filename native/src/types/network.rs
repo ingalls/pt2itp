@@ -146,7 +146,6 @@ impl Network {
 mod tests {
     use super::*;
     use crate::{Tokens, Context};
-    use std::collections::HashMap;
 
     #[test]
     fn test_network_simple_geom() {
@@ -164,7 +163,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             Some(String::from("dc")),
-            Tokens::new(HashMap::new())
+            Tokens::new(Vec::new())
         );
 
         let net = Network::new(feat, &context).unwrap();

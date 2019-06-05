@@ -1,9 +1,9 @@
 use std::convert::From;
 use postgres::{Connection, TlsMode};
-use std::collections::HashMap;
 use std::thread;
 use std::fs::File;
 use std::io::{BufWriter, Write};
+use crate::Tokens;
 
 use neon::prelude::*;
 
@@ -58,7 +58,7 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let context = match args.context {
         Some(context) => crate::Context::from(context),
-        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new()))
+        None => crate::Context::new(String::from(""), None, Tokens::new(Vec::new()))
     };
 
     let address = pg::Address::new();

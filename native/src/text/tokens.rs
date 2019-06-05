@@ -5,11 +5,11 @@ use geocoder_abbreviations::{Token, TokenType};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Tokens {
-    tokens: HashMap<String, ParsedToken>
+    tokens: Vec<Token>
 }
 
 impl Tokens {
-    pub fn new(tokens: HashMap<String, ParsedToken>) -> Self {
+    pub fn new(tokens: Vec<Token>) -> Self {
         Tokens {
             tokens: tokens
         }
@@ -17,24 +17,18 @@ impl Tokens {
 
     pub fn generate(languages: Vec<String>) -> Self {
         let import: HashMap<String, Vec<Token>> = geocoder_abbreviations::config(languages).unwrap();
-        let mut map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut v = Vec::new();
 
         for language in import.keys() {
             for group in import.get(language).unwrap() {
-                // if it's a simple, non regex token replacer
-                if !group.regex {
-                    for tk in &group.tokens {
-                        map.insert(
-                            diacritics(&tk.to_lowercase()),
-                            ParsedToken::new(diacritics(&group.canonical.to_lowercase()), group.token_type.to_owned())
-                        );
-                    }
+                if group.regex.is_none() {
+                    v.push(group.clone());
                 }
             }
         }
 
         Tokens {
-            tokens: map
+            tokens: v
         }
     }
 
@@ -44,12 +38,15 @@ impl Tokens {
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
 
         for token in tokens {
-            match self.tokens.get(&token) {
+            match self.tokens.iter().find(|&tk| {
+                let tokens_lc: Vec<String> = tk.tokens.iter().map(|x| x.to_lowercase()).collect();
+                tokens_lc.contains(&token.to_lowercase())
+            }) {
                 None => {
-                    tokenized.push(Tokenized::new(token.to_owned(), None));
+                    tokenized.push(Tokenized::new(token.to_lowercase().to_owned(), None));
                 },
                 Some(t) => {
-                    tokenized.push(Tokenized::new(t.canonical.to_owned(), t.token_type.to_owned()));
+                    tokenized.push(Tokenized::new(t.canonical.to_lowercase().to_owned(), t.token_type.to_owned()));
                 }
             };
         }
@@ -92,23 +89,6 @@ impl Tokens {
     }
 }
 
-/// Simplified struct from geocoder_abbreviations::Token
-/// @TODO replace with geocoder_abbreviations::Token when additional traits are derived
-#[derive(Debug, PartialEq, Clone)]
-pub struct ParsedToken {
-    canonical: String,
-    token_type: Option<TokenType>
-}
-
-impl ParsedToken {
-    pub fn new(canonical: String, token_type: Option<TokenType>) -> Self {
-        ParsedToken {
-            canonical,
-            token_type
-        }
-    }
-}
-
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct Tokenized {
     pub token: String,
@@ -139,7 +119,7 @@ mod tests {
 
     #[test]
     fn test_remove_diacritics() {
-        let tokens = Tokens::new(HashMap::new());
+        let tokens = Tokens::new(Vec::new());
 
         // diacritics are removed from latin text
         assert_eq!(tokenized_string(tokens.process(&String::from("Hérê àrë søme wöřdš, including diacritics and puncatuation!"))), String::from("here are some words including diacritics and puncatuation"));
@@ -159,7 +139,7 @@ mod tests {
 
     #[test]
     fn test_tokenize() {
-        let tokens = Tokens::new(HashMap::new());
+        let tokens = Tokens::new(Vec::new());
 
         assert_eq!(tokenized_string(tokens.process(&String::from(""))), String::from(""));
 
@@ -191,12 +171,11 @@ mod tests {
 
     #[test]
     fn test_replacement_tokens() {
-        let mut map: HashMap<String, ParsedToken> = HashMap::new();
-        map.insert(String::from("barter"), ParsedToken::new(String::from("foo"), None));
-        map.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));
-        map.insert(String::from("street"), ParsedToken::new(String::from("st"), Some(TokenType::Way)));
-
-        let tokens = Tokens::new(map);
+        let mut v: Vec<Token> = Vec::new();
+        v.push(Token::new(String::from("barter"), String::from("foo"), None, false).unwrap());
+        v.push(Token::new(String::from("saint"), String::from("st"), None, false).unwrap());
+        v.push(Token::new(String::from("street"), String::from("st"), Some(TokenType::Way), false).unwrap());
+        let tokens = Tokens::new(v);
 
         assert_eq!(tokens.process(&String::from("Main Street")),
             vec![

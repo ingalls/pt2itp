@@ -334,12 +334,11 @@ impl Name {
 mod tests {
     use serde_json::json;
     use super::*;
-    use std::collections::HashMap;
     use crate::Tokens;
 
     #[test]
     fn test_name() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         assert_eq!(Name::new(String::from("Main St NW"), 0, &context), Name {
             display: String::from("Main St NW"),
@@ -355,7 +354,7 @@ mod tests {
 
     #[test]
     fn test_names_sort() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         let mut names = Names::new(vec![
             Name::new(String::from("Highway 123"), -1, &context),
@@ -376,7 +375,7 @@ mod tests {
 
     #[test]
     fn test_names_concat() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         let mut names = Names::new(vec![
             Name::new(String::from("Highway 123"), -1, &context),
@@ -398,7 +397,7 @@ mod tests {
 
     #[test]
     fn test_names_dedupe() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         let mut names = Names::new(vec![
             Name::new(String::from("Highway 123"), -1, &context),
@@ -416,7 +415,7 @@ mod tests {
 
     #[test]
     fn test_names_from_value() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         let expected = Names::new(vec![Name::new(String::from("Main St NE"), 0, &context)], &context);
 
@@ -430,7 +429,7 @@ mod tests {
 
     #[test]
     fn test_names_has_diff() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         let a_name = Names::new(vec![Name::new("Main St", 0, &context)], &context);
         let b_name = Names::new(vec![Name::new("Main St", 0, &context)], &context);
@@ -451,7 +450,7 @@ mod tests {
 
     #[test]
     fn test_names() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(Vec::new()));
 
         assert_eq!(Names::new(vec![], &context), Names {
             names: Vec::new()

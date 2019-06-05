@@ -25,8 +25,8 @@ serde_json = "1.0"
 serde_derive = "1.0"
 serde = "1.0"
 fancy-regex = "0.1.0"
-memchr = "2.0.2"
-geocoder-abbreviations = { git = "https://github.com/mapbox/geocoder-abbreviations", rev = "master" }
+memchr = "2.2.0"
+geocoder-abbreviations = { git = "https://github.com/mapbox/geocoder-abbreviations", rev = "regex" }
 
 [dependencies.postgres]
 version = "0.15.2"
