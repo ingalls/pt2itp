@@ -247,5 +247,20 @@ mod tests {
                 Tokenized::new(String::from("av"), Some(TokenType::Way)),
                 Tokenized::new(String::from("nw"), Some(TokenType::Cardinal))
             ]);
+
+        assert_eq!(tokens.process(&String::from("Saint Peter Street")),
+            vec![
+                Tokenized::new(String::from("st"), None),
+                Tokenized::new(String::from("peter"), None),
+                Tokenized::new(String::from("st"), Some(TokenType::Way))
+            ]);
+
+        // tokens.process identifies all 'st' tokens as 'street'
+        assert_eq!(tokens.process(&String::from("St Peter St")),
+            vec![
+                Tokenized::new(String::from("st"), Some(TokenType::Way)),
+                Tokenized::new(String::from("peter"), None),
+                Tokenized::new(String::from("st"), Some(TokenType::Way))
+            ]);
     }
 }
