@@ -201,7 +201,7 @@ pub fn intersections(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let intersections = pg::Intersections::new();
     intersections.create(&conn);
-    intersections.generate(&conn, &db);
+    intersections.generate(&conn);
     intersections.index(&conn);
 
     Ok(cx.boolean(true))

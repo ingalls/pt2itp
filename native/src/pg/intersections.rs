@@ -1,6 +1,5 @@
-use postgres::{Connection, TlsMode};
+use postgres::Connection;
 use super::Table;
-use std::thread;
 
 pub struct Intersections ();
 
@@ -12,67 +11,28 @@ impl Intersections {
     ///
     /// Create intersections from network data
     ///
-    pub fn generate(&self, conn: &postgres::Connection, table: impl ToString) {
-        let count = conn.query("
-            SELECT count(*) FROM network_cluster;
+    pub fn generate(&self, conn: &postgres::Connection) {
+        conn.execute("
+            INSERT INTO intersections (a_id, b_id, geom) (
+                SELECT
+                    a.id,
+                    b.id,
+                    ST_PointOnSurface(ST_Intersection(a.geom, b.geom)) AS geom
+                FROM
+                    network_cluster AS a
+                    INNER JOIN network_cluster AS b
+                    ON
+                        a.id != b.id
+                        AND ST_Intersects(a.geom, b.geom)
+            )
         ", &[]).unwrap();
-        let count: i64 = count.get(0).get(0);
-
-        let cpus = num_cpus::get() as i64;
-        let mut web = Vec::new();
-
-        let batch_extra = count % cpus;
-        let batch = (count - batch_extra) / cpus;
-
-        for cpu in 0..cpus {
-            let db_conn = table.to_string();
-
-            let strand = thread::Builder::new().name(format!("Intersection #{}", &cpu)).spawn(move || {
-                let mut min_id = batch * cpu;
-                let max_id = batch * cpu + batch + batch_extra;
-
-                if cpu != 0 {
-                    min_id = min_id + batch_extra + 1;
-                }
-
-                let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db_conn).as_str(), TlsMode::None) {
-                    Ok(conn) => conn,
-                    Err(err) => panic!("Connection Error: {}", err.to_string())
-                };
-
-                conn.execute(format!("
-                    INSERT INTO intersections (a_id, b_id, b_street, geom) (
-                        SELECT
-                            a.id,
-                            b.id,
-                            b.names::TEXT AS b_street,
-                            ST_PointOnSurface(ST_Intersection(a.geom, b.geom)) AS geom
-                        FROM
-                            network_cluster AS a
-                            INNER JOIN network_cluster AS b
-                            ON
-                                a.id != b.id
-                                AND ST_Intersects(a.geom, b.geom)
-                        WHERE
-                            a.id >= {min_id}
-                            AND a.id <= {max_id}
-                    )
-                ", min_id = min_id, max_id = max_id).as_str(), &[]).unwrap();
-            }).unwrap();
-
-            web.push(strand);
-        }
-
-        for strand in web {
-            strand.join().unwrap();
-        }
 
         conn.execute("
-            ALTER TABLE intersections
-                ALTER COLUMN b_street
-                SET DATA TYPE JSONB
-            USING b_street::JSONB
-        ", &[]);
+            UPDATE intersections
+                SET b_street = network_cluster.names
+                FROM network_cluster
+                WHERE intersections.b_id = network_cluster.id
+        ", &[]).unwrap();
     }
 }
 
@@ -90,7 +50,7 @@ impl Table for Intersections {
             CREATE UNLOGGED TABLE intersections (
                 a_id BIGINT,
                 b_id BIGINT,
-                b_street TEXT,
+                b_street JSONB,
                 geom GEOMETRY(POINT, 4326)
             )
         "#, &[]).unwrap();
