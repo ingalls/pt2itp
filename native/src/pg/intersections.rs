@@ -70,10 +70,6 @@ impl Table for Intersections {
 
     fn index(&self, conn: &Connection) {
         conn.execute("
-            CREATE INDEX IF NOT EXISTS intersections_idx ON intersections (id);
-        ", &[]).unwrap();
-
-        conn.execute("
             CREATE INDEX IF NOT EXISTS intersections_gix ON intersections USING GIST (geom);
         ", &[]).unwrap();
     }
