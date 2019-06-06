@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v23.2.0
+
+- :bug: Significantly increase speed of intersection generation
+
 ### v23.1.0
 
 - :bug: Ensure local names take precidence over standardized highway names
