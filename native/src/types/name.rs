@@ -226,7 +226,7 @@ impl Names {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Name {
     /// Street Name
     pub display: String,

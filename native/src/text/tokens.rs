@@ -109,7 +109,7 @@ impl ParsedToken {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Tokenized {
     pub token: String,
     pub token_type: Option<TokenType>
