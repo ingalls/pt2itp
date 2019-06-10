@@ -14,7 +14,6 @@ pub use self::tokens::{Tokens, Tokenized, ParsedToken};
 
 use std::collections::HashMap;
 use regex::{Regex, RegexSet};
-use geocoder_abbreviations::TokenType;
 use crate::{Name, Context};
 
 ///
@@ -492,45 +491,6 @@ pub fn syn_state_hwy(name: &Name, context: &Context) -> Vec<Name> {
     syns
 }
 
-///
-/// Change 'st' token_type to TokenType::Way ('Street')  or None ('Saint')
-///
-
-pub fn st_type(mut name: Name) -> Name {
-    // find the position of all 'st' tokens
-    let mut st_pos: Vec<usize> = name.tokenized.iter().enumerate().fold(vec![], |mut acc, (i, tk)| {
-        if tk.token == String::from("st") {
-            acc.push(i);
-        }
-        acc
-    });
-    match st_pos.len() {
-        0 => return name,
-        // if there's only one 'st'
-        1 => {
-            let mut no_st = name.clone();
-            no_st.tokenized.remove(st_pos[0]);
-            // if there are non-st way tokens, st => saint
-            if no_st.has_type(Some(TokenType::Way)) {
-                name.tokenized[st_pos[0]].token_type = None;
-            // if there is only one 'st' token, it's likely a way, st => street
-            } else {
-                name.tokenized[st_pos[0]].token_type = Some(TokenType::Way);
-            }
-        },
-        // if there are multiple 'st's
-        _ => {
-            let last = st_pos.pop().unwrap();
-            // all but the last 'st' are likely not ways
-            for i in st_pos {
-                name.tokenized[i].token_type = None;
-            }
-            name.tokenized[last].token_type = Some(TokenType::Way);
-        }
-    }
-    name
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -774,45 +734,6 @@ mod tests {
                 &context
             ), results
         );
-    }
-
-    #[test]
-    fn test_st_type() {
-        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
-
-        assert_eq!(st_type(Name::new(String::from("main st"), 0, &context)).tokenized,
-            vec![
-                Tokenized::new(String::from("main"), None),
-                Tokenized::new(String::from("st"), Some(TokenType::Way))
-            ]);
-
-        assert_eq!(st_type(Name::new(String::from("st peter st"), 0, &context)).tokenized,
-            vec![
-                Tokenized::new(String::from("st"), None),
-                Tokenized::new(String::from("peter"), None),
-                Tokenized::new(String::from("st"), Some(TokenType::Way))
-            ]);
-
-        assert_eq!(st_type(Name::new(String::from("st peter"), 0, &context)).tokenized,
-            vec![
-                Tokenized::new(String::from("st"), Some(TokenType::Way)),
-                Tokenized::new(String::from("peter"), None),
-            ]);
-
-        assert_eq!(st_type(Name::new(String::from("st peter av"), 0, &context)).tokenized,
-            vec![
-                Tokenized::new(String::from("st"), None),
-                Tokenized::new(String::from("peter"), None),
-                Tokenized::new(String::from("av"), Some(TokenType::Way))
-            ]);
-
-        assert_eq!(st_type(Name::new(String::from("Rue St Francois St"), 0, &context)).tokenized,
-            vec![
-                Tokenized::new(String::from("rue"), None),
-                Tokenized::new(String::from("st"), None),
-                Tokenized::new(String::from("francois"), None),
-                Tokenized::new(String::from("st"), Some(TokenType::Way))
-            ]);
     }
 
     #[test]
