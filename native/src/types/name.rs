@@ -99,6 +99,8 @@ impl Names {
 
         names.names.append(&mut synonyms);
 
+        names.empty();
+
         names
     }
 
@@ -223,6 +225,13 @@ impl Names {
                 name.source = source.clone();
             }
         }
+    }
+
+    ///
+    /// Remove all Name instances where display is whitespace
+    ///
+    pub fn empty(&mut self) {
+        self.names.retain(|name| name.display.trim() != String::from(""));
     }
 }
 
@@ -461,6 +470,11 @@ mod tests {
             names: vec![Name::new(String::from("Main St NW"), 0, &context)]
         });
 
+        // Ensure invalid whitespace-only names are removed
+        assert_eq!(Names::new(vec![Name::new(String::from(""), 0, &context), Name::new(String::from("\t  \n"), 0, &context)], &context), Names {
+            names: Vec::new()
+        });
+
         // Ensure synonyms are being applied correctly
         assert_eq!(Names::new(vec![Name::new(String::from("US Route 1"), 0, &context)], &context), Names {
             names: vec![
@@ -530,5 +544,22 @@ mod tests {
         assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(Some(TokenType::Way)), false);
         assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(Some(TokenType::Cardinal)), false);
         assert_eq!(Name::new(String::from("foo bar"), 0, &context).has_type(None), true);
+    }
+
+    #[test]
+    fn test_empty() {
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
+        let mut empty_a = Names::new(vec![Name::new(String::from(""), 0, &context)], &context);
+        empty_a.empty();
+        assert_eq!(empty_a, Names { names: Vec::new() });
+
+        let mut empty_b = Names::new(vec![Name::new(String::from("\t  \n"), 0, &context)], &context);
+        empty_b.empty();
+        assert_eq!(empty_b, Names { names: Vec::new() });
+
+        let mut empty_c = Names::new(vec![Name::new(String::from(""), 0, &context), Name::new(String::from("\t  \n"), 0, &context)], &context);
+        empty_c.empty();
+        assert_eq!(empty_c, Names { names: Vec::new() });
     }
 }

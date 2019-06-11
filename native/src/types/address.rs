@@ -88,6 +88,10 @@ impl Address {
 
         let mut names = Names::from_value(street, &context)?;
 
+        if names.names.len() == 0 {
+            return Err(String::from("Feature has no valid non-whitespace name"));
+        }
+
         names.set_source(String::from("address"));
 
         let mut addr = Address {
