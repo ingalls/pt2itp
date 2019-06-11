@@ -37,7 +37,7 @@ impl Tokens {
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
 
-        for token in tokens {
+        for token in &tokens {
             match self.tokens.iter().find(|&tk| {
                 let tokens_lc: Vec<String> = tk.tokens.iter().map(|x| x.to_lowercase()).collect();
                 tokens_lc.contains(&token.to_lowercase())
@@ -92,7 +92,7 @@ impl Tokens {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Tokenized {
     pub token: String,
     pub token_type: Option<TokenType>
