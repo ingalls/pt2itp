@@ -1,4 +1,4 @@
-use postgres::{Connection};
+use postgres::Connection;
 use super::Table;
 
 pub struct Intersections ();
@@ -11,23 +11,35 @@ impl Intersections {
     ///
     /// Create intersections from network data
     ///
-    pub fn generate(&self, conn: &postgres::Connection) {
-        conn.execute(r#"
-            INSERT INTO intersections (a_id, b_id, a_street, b_street, geom) (
+    pub fn generate(&self, conn: &Connection) {
+        conn.execute("
+            INSERT INTO intersections (a_id, b_id, geom) (
                 SELECT
                     a.id,
                     b.id,
-                    a.names AS a_street,
-                    b.names AS b_street,
                     ST_PointOnSurface(ST_Intersection(a.geom, b.geom)) AS geom
                 FROM
-                    network_cluster AS a,
-                    network_cluster AS b
-                WHERE
-                    a.id != b.id
-                    AND ST_Intersects(a.geom, b.geom)
+                    network_cluster AS a
+                    INNER JOIN network_cluster AS b
+                    ON
+                        a.id != b.id
+                        AND ST_Intersects(a.geom, b.geom)
             )
-        "#, &[]).unwrap();
+        ", &[]).unwrap();
+
+        conn.execute("
+            UPDATE intersections
+                SET b_street = network_cluster.names
+                FROM network_cluster
+                WHERE intersections.b_id = network_cluster.id
+        ", &[]).unwrap();
+
+        conn.execute("
+            UPDATE intersections
+                SET a_street = network_cluster.names
+                FROM network_cluster
+                WHERE intersections.a_id = network_cluster.id
+        ", &[]).unwrap();
     }
 }
 
@@ -66,10 +78,6 @@ impl Table for Intersections {
     }
 
     fn index(&self, conn: &Connection) {
-        conn.execute("
-            CREATE INDEX IF NOT EXISTS intersections_idx ON intersections (id);
-        ", &[]).unwrap();
-
         conn.execute("
             CREATE INDEX IF NOT EXISTS intersections_gix ON intersections USING GIST (geom);
         ", &[]).unwrap();
