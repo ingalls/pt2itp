@@ -99,6 +99,8 @@ impl Names {
 
         names.names.append(&mut synonyms);
 
+        names.empty();
+
         names
     }
 
@@ -466,6 +468,11 @@ mod tests {
 
         assert_eq!(Names::new(vec![Name::new(String::from("Main St NW"), 0, &context)], &context), Names {
             names: vec![Name::new(String::from("Main St NW"), 0, &context)]
+        });
+
+        // Ensure invalid whitespace-only names are removed
+        assert_eq!(Names::new(vec![Name::new(String::from(""), 0, &context), Name::new(String::from("\t  \n"), 0, &context)], &context), Names {
+            names: Vec::new()
         });
 
         // Ensure synonyms are being applied correctly

@@ -67,8 +67,6 @@ impl Network {
 
         let mut names = Names::from_value(street, &context)?;
 
-        names.empty();
-
         if names.names.len() == 0 {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
