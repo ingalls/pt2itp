@@ -10,8 +10,7 @@ mod replace;
 //
 
 pub use self::diacritics::diacritics;
-pub use self::tokens::Tokens;
-pub use self::tokens::Tokenized;
+pub use self::tokens::{Tokens, Tokenized};
 
 use std::collections::HashMap;
 use regex::{Regex, RegexSet};
@@ -424,9 +423,9 @@ pub fn syn_state_hwy(name: &Name, context: &Context) -> Vec<Name> {
     lazy_static! {
         static ref PRE_HWY: Regex = Regex::new(r"(?ix)^
             (?P<prefix>
-              # State 123
+              # St Rte 123
               # State Highway 123
-              (State\s(highway|hwy|route|rte)\s)
+              ((St|State)\s(highway|hwy|route|rte)\s)
 
               # North Carolina 123
               # North Carolina Highway 123
@@ -665,6 +664,20 @@ mod tests {
             Name::new(String::from("State Route 123"), -1, &context),
             Name::new(String::from("Pennsylvania Highway 123"), 1, &context)
         ];
+
+        assert_eq!(
+            syn_state_hwy(
+                &Name::new(String::from("St Hwy 123"), 0, &context),
+                &context
+            ), results
+        );
+
+        assert_eq!(
+            syn_state_hwy(
+                &Name::new(String::from("St Rte 123"), 0, &context),
+                &context
+            ), results
+        );
 
         assert_eq!(
             syn_state_hwy(

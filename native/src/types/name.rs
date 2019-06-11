@@ -226,7 +226,7 @@ impl Names {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Name {
     /// Street Name
     pub display: String,
@@ -255,7 +255,7 @@ impl Name {
     pub fn new(display: impl ToString, priority: i8, context: &Context) -> Self {
         let mut display = display.to_string();
 
-        let tokenized = context.tokens.process(&display);
+        let tokenized = context.tokens.process(&display, &context.country);
 
         display = display
             .replace(r#"""#, "")
@@ -346,7 +346,7 @@ mod tests {
             source: String::from(""),
             tokenized: vec![
                 Tokenized::new(String::from("main"), None),
-                Tokenized::new(String::from("st"), None),
+                Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("nw"), None)],
             freq: 1
         });
