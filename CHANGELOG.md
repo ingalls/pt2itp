@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v23.2.1
+
+- :bug: Ensure empty `Names` structs are rejected when used in the context of an `Address` or `Network`
+
 ### v23.2.0
 
 - :bug: Significantly increase speed of intersection generation
