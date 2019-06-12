@@ -194,7 +194,9 @@ pub fn syn_ca_french(name: &Name, context: &Context) -> Vec<Name> {
     let standalone = vec![String::from("r"), String::from("ch"), String::from("av"), String::from("bd")];
     let eliminator = vec![String::from("du"), String::from("des"), String::from("de")];
 
-    if
+    if name.tokenized.len() <= 1 {
+        return syns;
+    } else if
         standalone.contains(&name.tokenized[0].token)
         && !eliminator.contains(&name.tokenized[1].token)
     {
