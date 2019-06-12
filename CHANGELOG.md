@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v23.2.2
+
+- :bug: Fix french synonym bug
+
 ### v23.2.1
 
 - :bug: Ensure empty `Names` structs are rejected when used in the context of an `Address` or `Network`
