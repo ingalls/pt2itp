@@ -44,6 +44,7 @@ register_module!(mut m, {
     m.export_function("pg_init", map::pg_init)?;
     m.export_function("pg_optimize", map::pg_optimize)?;
 
+    m.export_function("import_stats", map::import_stats)?;
     m.export_function("import_addr", map::import_addr)?;
     m.export_function("import_net", map::import_net)?;
 
