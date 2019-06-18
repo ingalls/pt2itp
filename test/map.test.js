@@ -123,6 +123,7 @@ test('map - good run', (t) => {
     worker({
         'in-address': path.resolve(__dirname, './fixtures/sg-address.geojson'),
         'in-network': path.resolve(__dirname, './fixtures/sg-network.geojson'),
+        stats: path.resolve(__dirname, './fixtures/sg-stats'),
         output: '/tmp/itp.geojson',
         'error-network': '/tmp/error-network',
         'error-address': '/tmp/error-address',
