@@ -2,11 +2,17 @@
 
 const worker = require('../lib/map');
 
+const pretest = require('./pretest');
 const test = require('tape');
 const fs = require('fs');
 const db = require('./lib/db');
 
 db.init(test);
+
+test('map - has pretest files', (t) => {
+    pretest.has();
+    t.end();
+});
 
 test('map - in-address error', (t) => {
     worker({
