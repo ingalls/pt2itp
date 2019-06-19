@@ -185,6 +185,7 @@ pub fn import_stats(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     ", &[]).unwrap();
 
     conn.execute("ALTER TABLE bounds ADD COLUMN total BIGINT", &[]).unwrap();
+    conn.execute("ALTER TABLE bounds ADD COLUMN postcodes BIGINT", &[]).unwrap();
     conn.execute("ALTER TABLE bounds ADD COLUMN accuracy_parcel BIGINT", &[]).unwrap();
     conn.execute("ALTER TABLE bounds ADD COLUMN accuracy_rooftop BIGINT", &[]).unwrap();
     conn.execute("ALTER TABLE bounds ADD COLUMN accuracy_point BIGINT", &[]).unwrap();
@@ -260,6 +261,26 @@ pub fn import_stats(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 address
             WHERE
                 props->> 'accuracy' = 'point'
+            GROUP BY
+                bound
+        ) as addr
+        WHERE
+            bounds.id = addr.bound
+     ", &[]).unwrap();
+
+    conn.execute("
+        UPDATE
+            bounds
+        SET
+            postcodes = addr.cnt
+        FROM (
+            SELECT
+                bound,
+                count(*) as cnt
+            FROM
+                address
+            WHERE
+                props->> 'postcode' IS NOT NULL
             GROUP BY
                 bound
         ) as addr
