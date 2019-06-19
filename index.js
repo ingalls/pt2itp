@@ -78,13 +78,6 @@ if (require.main === module) {
                 process.exit(0);
             });
             break;
-        case ('analyze'):
-            require('./lib/analyze')(process.argv, (err) => {
-                if (err) throw err;
-
-                process.exit(0);
-            });
-            break;
         case ('convert'): {
             const convert_arg = require('minimist')(process.argv, {
                 string: ['input', 'output']
@@ -201,7 +194,6 @@ if (require.main === module) {
         map: require('./lib/map'),
         test: require('./lib/test'),
         testcsv: require('./lib/testcsv'),
-        strip: require('./lib/strip'),
-        analyze: require('./lib/analyze')
+        strip: require('./lib/strip')
     };
 }
