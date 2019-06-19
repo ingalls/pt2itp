@@ -76,8 +76,15 @@ test('map - good run', (t) => {
         'in-network': '/tmp/us_dc_str.geojson',
         stats: '/tmp/counties.geojson',
         output: '/tmp/itp.geojson',
+        props: [
+            'override:postcode',
+            'accuracy'
+        ],
+        intersections: true,
         'error-network': '/tmp/error-network',
         'error-address': '/tmp/error-address',
+        country: 'us',
+        region: 'dc',
         languages: 'en',
         debug: true,
         db: 'pt_test'
