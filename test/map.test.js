@@ -1,6 +1,5 @@
 'use strict';
 
-const ReadLine = require('readline');
 const worker = require('../lib/map');
 
 const test = require('tape');
