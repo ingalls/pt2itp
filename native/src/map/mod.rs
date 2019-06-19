@@ -7,9 +7,12 @@ use crate::Tokens;
 
 use neon::prelude::*;
 
-use super::stream::GeoStream;
-use super::stream::AddrStream;
-use super::stream::NetStream;
+use super::stream::{
+    GeoStream,
+    AddrStream,
+    NetStream,
+    PolyStream
+};
 
 use super::pg;
 use super::pg::{Table, InputTable};
@@ -164,16 +167,105 @@ pub fn import_stats(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
 
-    let context = match args.context {
-        Some(context) => CrateContext::from(context),
-        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
-    };
-
     let polygon = pg::Polygon::new("bounds");
     polygon.create(&conn);
-    polygon.input(&conn, NetStream::new(GeoStream::new(args.input), context, args.errors));
+    polygon.input(&conn, PolyStream::new(GeoStream::new(args.input), args.errors));
     polygon.seq_id(&conn);
     polygon.index(&conn);
+
+    conn.execute("ALTER TABLE address ADD COLUMN bound BIGINT", &[]).unwrap();
+    conn.execute("
+        UPDATE address
+            SET
+                bound = bounds.id
+            FROM
+                bounds
+            WHERE
+                ST_Intersects(address.geom, bounds.geom)
+    ", &[]).unwrap();
+
+    conn.execute("ALTER TABLE bounds ADD COLUMN total BIGINT", &[]).unwrap();
+    conn.execute("ALTER TABLE bounds ADD COLUMN accuracy_parcel BIGINT", &[]).unwrap();
+    conn.execute("ALTER TABLE bounds ADD COLUMN accuracy_rooftop BIGINT", &[]).unwrap();
+    conn.execute("ALTER TABLE bounds ADD COLUMN accuracy_point BIGINT", &[]).unwrap();
+
+    conn.execute("
+        UPDATE
+            bounds
+        SET
+            total = addr.cnt
+        FROM (
+            SELECT
+                bound,
+                count(*) as cnt
+            FROM
+                address
+            GROUP BY
+                bound
+        ) as addr
+        WHERE
+            bounds.id = addr.bound
+     ", &[]).unwrap();
+
+    conn.execute("
+        UPDATE
+            bounds
+        SET
+            accuracy_parcel = addr.cnt
+        FROM (
+            SELECT
+                bound,
+                count(*) as cnt
+            FROM
+                address
+            WHERE
+                props->> 'accuracy' = 'parcel'
+            GROUP BY
+                bound
+        ) as addr
+        WHERE
+            bounds.id = addr.bound
+     ", &[]).unwrap();
+
+    conn.execute("
+        UPDATE
+            bounds
+        SET
+            accuracy_rooftop = addr.cnt
+        FROM (
+            SELECT
+                bound,
+                count(*) as cnt
+            FROM
+                address
+            WHERE
+                props->> 'accuracy' = 'rooftop'
+            GROUP BY
+                bound
+        ) as addr
+        WHERE
+            bounds.id = addr.bound
+     ", &[]).unwrap();
+
+    conn.execute("
+        UPDATE
+            bounds
+        SET
+            accuracy_point = addr.cnt
+        FROM (
+            SELECT
+                bound,
+                count(*) as cnt
+            FROM
+                address
+            WHERE
+                props->> 'accuracy' = 'point'
+            GROUP BY
+                bound
+        ) as addr
+        WHERE
+            bounds.id = addr.bound
+     ", &[]).unwrap();
 
     Ok(cx.boolean(true))
 }

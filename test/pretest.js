@@ -3,7 +3,9 @@
 'use strict';
 
 const files = [
-    'counties.geojson'
+    'counties.geojson',
+    'us_dc_addr.geojson',
+    'us_dc_str.geojson'
 ]
 
 const Q = require('d3-queue').queue;
