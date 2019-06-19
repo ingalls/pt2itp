@@ -9,11 +9,8 @@ const files = [
 ];
 
 const Q = require('d3-queue').queue;
-const AWS = require('aws-sdk');
 const fs = require('fs');
-const s3 = new AWS.S3({
-    region: 'us-east-1'
-});
+const request = require('request');
 
 if (require.main === module) {
     return get();
@@ -28,10 +25,7 @@ function get() {
         } catch (err) {
             q.defer((file, done) => {
                 const output = fs.createWriteStream(`/tmp/${file}`).on('close', done);
-                s3.getObject({
-                    Bucket: 'mapbox',
-                    Key: `pt2itp/fixtures/${file}`
-                }).createReadStream().pipe(output);
+                request(`https://mapbox.s3.amazonaws.com/pt2itp/fixtures/${file}`).pipe(output);
             }, file);
         }
     }

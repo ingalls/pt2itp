@@ -55,6 +55,7 @@
     "pg-cursor": "^2.0.0",
     "pluralize": "^8.0.0",
     "progress": "^2.0.0",
+    "request": "^2.88.0",
     "simple-statistics": "^7.0.0",
     "split": "^1.0.0",
     "talisman": "^0.21.0",
@@ -62,7 +63,6 @@
     "wellknown": "^0.5.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.477.0",
     "coveralls": "^3.0.0",
     "documentation": "^11.0.1",
     "eslint": "^5.3.0",
