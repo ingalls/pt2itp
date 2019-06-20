@@ -10,8 +10,7 @@ use neon::prelude::*;
 use super::stream::{
     GeoStream,
     AddrStream,
-    NetStream,
-    PolyStream
+    NetStream
 };
 
 use super::pg;

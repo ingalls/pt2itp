@@ -17,7 +17,15 @@ test('Stats - MultiPoint Orphan', (t) => {
         addresses: 2,
         intersections: 0,
         address_orphans: 1,
-        network_orphans: 0
+        network_orphans: 0,
+        custom: {
+            postcodes: 0,
+            accuracy: {
+                rooftop: 0,
+                parcel: 0,
+                point: 0
+            }
+        }
     }, 'has 2 addresses');
 
     t.end();
@@ -35,7 +43,15 @@ test('Stats - GeometryCollection Orphan', (t) => {
         addresses: 2,
         intersections: 0,
         address_orphans: 1,
-        network_orphans: 0
+        network_orphans: 0,
+        custom: {
+            postcodes: 0,
+            accuracy: {
+                rooftop: 0,
+                parcel: 0,
+                point: 0
+            }
+        }
     }, 'has 2 addresses');
 
     t.end();
@@ -53,7 +69,15 @@ test('Stats - MultiLine', (t) => {
         addresses: 4,
         intersections: 0,
         address_orphans: 2,
-        network_orphans: 0
+        network_orphans: 0,
+        custom: {
+            postcodes: 0,
+            accuracy: {
+                rooftop: 0,
+                parcel: 0,
+                point: 0
+            }
+        }
     }, 'has 4 addresses');
 
     t.end();
@@ -71,7 +95,15 @@ test('Stats - Cluster', (t) => {
         addresses: 2,
         intersections: 1,
         address_orphans: 0,
-        network_orphans: 0
+        network_orphans: 0,
+        custom: {
+            postcodes: 0,
+            accuracy: {
+                rooftop: 0,
+                parcel: 0,
+                point: 0
+            }
+        }
     }, 'has 1 cluster');
 
     t.end();
@@ -89,7 +121,15 @@ test('Stats - Network Orphan', (t) => {
         addresses: 0,
         intersections: 0,
         address_orphans: 0,
-        network_orphans: 1
+        network_orphans: 1,
+        custom: {
+            postcodes: 0,
+            accuracy: {
+                rooftop: 0,
+                parcel: 0,
+                point: 0
+            }
+        }
     }, 'has 1 cluster');
 
     t.end();
@@ -107,7 +147,15 @@ test('Stats - Invalid', (t) => {
         addresses: 0,
         intersections: 0,
         address_orphans: 0,
-        network_orphans: 0
+        network_orphans: 0,
+        custom: {
+            postcodes: 0,
+            accuracy: {
+                rooftop: 0,
+                parcel: 0,
+                point: 0
+            }
+        }
     }, 'has 1 cluster');
 
     t.end();

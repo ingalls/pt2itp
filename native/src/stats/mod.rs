@@ -2,8 +2,6 @@ use neon::prelude::*;
 use super::stream::GeoStream;
 use std::collections::HashMap;
 use std::convert::TryInto;
-use std::hash::{Hash, Hasher};
-use rstar::RTreeObject;
 use geo::algorithm::{
     bounding_rect::BoundingRect
 };
@@ -36,7 +34,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
     };
 
-    let mut boundmap: HashMap<String, Stats> = HashMap::new();
+    let mut boundmap: HashMap<String, StatsBound> = HashMap::new();
 
     let is_bounded = args.bounds.is_some();
 
@@ -52,7 +50,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
             };
 
             let name = match feat.properties.unwrap().get(&String::from("name")) {
-                Some(name) => name,
+                Some(name) => name.to_string(),
                 None => panic!("Add bounds features must have .properties.name string")
             };
 
@@ -64,7 +62,9 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                 _ => panic!("Bound must be (Multi)Polygon Features")
             };
 
-            let rect = Rect::new(geom, "test");
+            boundmap.insert(name.clone(), StatsBound::new());
+
+            let rect = Rect::new(geom, name);
 
             tree_contents.push(rect);
         }
@@ -72,61 +72,68 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
     let mut tree = rstar::RTree::bulk_load(tree_contents);
 
-    let feat_stream = GeoStream::new(args.input);
-
     let mut stats = Stats::new();
 
-    for geo in feat_stream {
-        match geo {
-            geojson::GeoJson::Feature(feat) => {
-                stats.feats = stats.feats + 1;
+    for geo in GeoStream::new(args.input) {
+        let feat = match geo {
+            geojson::GeoJson::Feature(feat) => feat,
+            _ => {
+                stats.invalid = stats.invalid + 1;
+                continue;
+            }
+        };
 
-                if feat.geometry.is_none() { continue; }
+        if feat.geometry.is_none() {
+            stats.invalid = stats.invalid + 1;
+            continue;
+        }
 
-                match feat.geometry.as_ref().unwrap().value {
-                    geojson::Value::MultiPoint(_) => {
-                        let addr = count_addresses(&feat);
-                        let intsec = count_intersections(&feat);
+        stats.feats = stats.feats + 1;
 
-                        if intsec > 0 {
-                            stats.intersections = stats.intersections + intsec;
-                        } if addr > 0 {
-                            stats.addresses = stats.addresses + addr;
-                            stats.address_orphans = stats.address_orphans + 1;
-                        } else {
-                            stats.invalid = stats.invalid + 1;
-                        }
-                    },
-                    geojson::Value::GeometryCollection(_) => {
-                        let addr = count_addresses(&feat);
-                        let net = count_networks(&feat);
-                        let intsec = count_intersections(&feat);
+        match &feat.geometry.as_ref().unwrap().value {
+            geojson::Value::MultiPoint(mp) => {
+                for mp_it in 0..mp.len() {
+                    let pt = &mp[mp_it];
 
-                        if addr == 0 && net == 0 && intsec == 0 {
-                            stats.invalid = stats.invalid + 1;
-                        } else if addr > 0 && net > 0 {
-                            stats.addresses = stats.addresses + count_addresses(&feat);
-
-                            stats.clusters = stats.clusters + 1;
-                        } else if addr > 0 {
-                            stats.addresses = stats.addresses + count_addresses(&feat);
-
-                            stats.address_orphans = stats.address_orphans + 1;
-                        } else if net > 0 {
-                            stats.network_orphans = stats.network_orphans + 1;
-                        }
-
-                        stats.intersections = stats.intersections + intsec;
-                    },
-                    _ => {
-                        stats.invalid = stats.invalid + 1;
-                    }
+                    tree.locate_all_at_point(&[pt[0], pt[1]]);
                 }
+
+                let addr = count_addresses(&feat);
+                let intsec = count_intersections(&feat);
+                if intsec > 0 {
+                    stats.intersections = stats.intersections + intsec;
+                } if addr > 0 {
+                    stats.addresses = stats.addresses + addr;
+                    stats.address_orphans = stats.address_orphans + 1;
+                } else {
+                    stats.invalid = stats.invalid + 1;
+                }
+            },
+            geojson::Value::GeometryCollection(gc) => {
+                let addr = count_addresses(&feat);
+                let net = count_networks(&feat);
+                let intsec = count_intersections(&feat);
+
+                if addr == 0 && net == 0 && intsec == 0 {
+                    stats.invalid = stats.invalid + 1;
+                } else if addr > 0 && net > 0 {
+                    stats.addresses = stats.addresses + count_addresses(&feat);
+
+                    stats.clusters = stats.clusters + 1;
+                } else if addr > 0 {
+                    stats.addresses = stats.addresses + count_addresses(&feat);
+
+                    stats.address_orphans = stats.address_orphans + 1;
+                } else if net > 0 {
+                    stats.network_orphans = stats.network_orphans + 1;
+                }
+
+                stats.intersections = stats.intersections + intsec;
             },
             _ => {
                 stats.invalid = stats.invalid + 1;
             }
-        };
+        }
     }
 
     Ok(neon_serde::to_value(&mut cx, &stats)?)
@@ -212,17 +219,22 @@ fn count_networks(feat: &geojson::Feature) -> i64 {
 }
 
 struct Rect {
-    pub bound: geo::Rect<f64>,
     pub geom: geo::MultiPolygon<f64>,
-    pub name: String
+    pub name: String,
+    pub rect: rstar::primitives::Rectangle<[f64; 2]>
 }
 
 impl Rect {
     pub fn new(geom: geo::MultiPolygon<f64>, name: impl ToString) -> Self {
+        let bound = geom.bounding_rect().unwrap();
+
         Rect {
-            bound: geom.bounding_rect().unwrap(),
             geom: geom,
-            name: name.to_string()
+            name: name.to_string(),
+            rect: rstar::primitives::Rectangle::from_corners(
+                [bound.min.x, bound.min.y],
+                [bound.max.x, bound.max.y]
+            )
         }
     }
 }
@@ -231,10 +243,13 @@ impl rstar::RTreeObject for Rect {
     type Envelope = rstar::AABB<[f64; 2]>;
 
     fn envelope(&self) -> Self::Envelope {
-        rstar::AABB::from_corners(
-            [self.bound.min.x, self.bound.min.y],
-            [self.bound.max.x, self.bound.max.y]
-        )
+        self.rect.envelope()
+    }
+}
+
+impl rstar::PointDistance for Rect {
+    fn distance_2(&self, point: &[f64; 2]) -> f64 {
+        self.rect.distance_2(point)
     }
 }
 
@@ -265,6 +280,22 @@ impl Stats {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StatsBound {
+    addresses: i64,
+    intersections: i64,
+    custom: StatsCustom
+}
+
+impl StatsBound {
+    fn new() -> Self {
+        StatsBound {
+            addresses: 0,
+            intersections: 0,
+            custom: StatsCustom::new()
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatsCustom {
