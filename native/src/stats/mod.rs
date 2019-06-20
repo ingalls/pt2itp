@@ -59,9 +59,13 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
     };
 
-    let boundmap: HashMap<i64, String> = HashMap::new();
+    let mut boundmap: HashMap<String, String> = HashMap::new();
 
-    if args.bounds.is_some() {
+    let is_bounded = args.bounds.is_some();
+
+    let mut tree_contents = Vec::new();
+
+    if is_bounded {
         let bounds_stream = GeoStream::new(args.bounds);
 
         for bound in bounds_stream {
@@ -78,9 +82,15 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                 _ => panic!("Bound must be (Multi)Polygon Features")
             };
 
-            let bound = geom.bounding_rect();
+            let bound = geom.bounding_rect().unwrap();
+
+            tree_contents.push(rstar::primitives::Rectangle::from_corners(
+                [bound.min.x, bound.min.y],
+                [bound.max.x, bound.max.y]
+            ));
         }
     }
+    let mut tree = rstar::RTree::bulk_load(tree_contents);
 
     let feat_stream = GeoStream::new(args.input);
 
