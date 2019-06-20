@@ -27,7 +27,7 @@
   },
   "author": "Nicholas Ingalls <nicholas.ingalls@gmail.com>",
   "dependencies": {
-    "@mapbox/carmen": "27.2.0",
+    "@mapbox/carmen": "29.0.2",
     "@mapbox/eslint-config-geocoding": "^2.0.0",
     "@mapbox/geocoder-abbreviations": "2.4.1",
     "@mapbox/geojson-area": "^0.2.2",
