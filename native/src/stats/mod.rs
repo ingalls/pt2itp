@@ -1,15 +1,22 @@
 use neon::prelude::*;
 use super::stream::GeoStream;
+use std::collections::HashMap;
+use std::convert::TryInto;
+use geo::algorithm::{
+    bounding_rect::BoundingRect
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct StatsArgs {
-    input: Option<String>
+    input: Option<String>,
+    bounds: Option<String>
 }
 
 impl StatsArgs {
     pub fn new() -> Self {
         StatsArgs {
-            input: None
+            input: None,
+            bounds: None
         }
     }
 }
@@ -52,11 +59,34 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
     };
 
-    let stream = GeoStream::new(args.input);
+    let boundmap: HashMap<i64, String> = HashMap::new();
+
+    if args.bounds.is_some() {
+        let bounds_stream = GeoStream::new(args.bounds);
+
+        for bound in bounds_stream {
+            let feat = match bound {
+                geojson::GeoJson::Feature(feat) => feat,
+                _ => panic!("Bounds must be (Multi)Polygon Features")
+            };
+
+            let geom: geo::Geometry<f64> = feat.geometry.unwrap().value.try_into().unwrap();
+
+            let geom = match geom {
+                geo::Geometry::Polygon(poly) => geo::MultiPolygon(vec![poly]),
+                geo::Geometry::MultiPolygon(mpoly) => mpoly,
+                _ => panic!("Bound must be (Multi)Polygon Features")
+            };
+
+            let bound = geom.bounding_rect();
+        }
+    }
+
+    let feat_stream = GeoStream::new(args.input);
 
     let mut stats = Stats::new();
 
-    for geo in stream {
+    for geo in feat_stream {
         match geo {
             geojson::GeoJson::Feature(feat) => {
                 stats.feats = stats.feats + 1;

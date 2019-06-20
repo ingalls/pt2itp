@@ -6,7 +6,8 @@ const path = require('path');
 
 test('Stats - MultiPoint Orphan', (t) => {
     const res = stats({
-        input: String(path.resolve(__dirname, 'fixtures/stats.orphan-mp'))
+        input: String(path.resolve(__dirname, 'fixtures/stats.orphan-mp')),
+        bounds: '/tmp/counties.geojson'
     });
 
     t.deepEquals(res, {

@@ -74,7 +74,6 @@ test('map - good run', (t) => {
     worker({
         'in-address': '/tmp/us_dc_addr.geojson',
         'in-network': '/tmp/us_dc_str.geojson',
-        stats: '/tmp/counties.geojson',
         output: '/tmp/itp.geojson',
         props: [
             'override:postcode',
