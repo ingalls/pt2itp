@@ -58,60 +58,34 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
             continue;
         }
 
-        stats.feats = stats.feats + 1;
-
-        match &feat.geometry.as_ref().unwrap().value {
-            geojson::Value::MultiPoint(mp) => {
-                let addr = count::addresses(&feat);
-                let intsec = count::intersections(&feat);
-                if intsec > 0 {
-                    stats.intersections = stats.intersections + intsec;
-                } if addr > 0 {
-                    stats.addresses = stats.addresses + addr;
-                    stats.address_orphans = stats.address_orphans + 1;
-                } else {
-                    stats.invalid = stats.invalid + 1;
-                }
-            },
-            geojson::Value::GeometryCollection(gc) => {
-                for geom in gc {
-
-                    /*
-                    for mp_it in 0..mp.len() {
-                        let pt = &mp[mp_it];
-
-                        println!("{}, {}", pt[0], pt[1]);
-                        for bound in tree.locate_all_at_point(&[pt[0], pt[1]]) {
-                            println!("{:?}", bound.name);
-                        }
-                    }
-                    */
-                }
-
-                let addr = count::addresses(&feat);
-                let net = count::networks(&feat);
-                let intsec = count::intersections(&feat);
-
-                if addr == 0 && net == 0 && intsec == 0 {
-                    stats.invalid = stats.invalid + 1;
-                } else if addr > 0 && net > 0 {
-                    stats.addresses = stats.addresses + count::addresses(&feat);
-
-                    stats.clusters = stats.clusters + 1;
-                } else if addr > 0 {
-                    stats.addresses = stats.addresses + count::addresses(&feat);
-
-                    stats.address_orphans = stats.address_orphans + 1;
-                } else if net > 0 {
-                    stats.network_orphans = stats.network_orphans + 1;
-                }
-
-                stats.intersections = stats.intersections + intsec;
+        match feat.geometry.as_ref().unwrap().value {
+            geojson::Value::MultiPoint(_)
+            | geojson::Value::GeometryCollection(_) => {
+                stats.feats = stats.feats + 1;
             },
             _ => {
                 stats.invalid = stats.invalid + 1;
+                continue;
             }
+        };
+
+        let addr = count::addresses(&feat);
+        let intsec = count::intersections(&feat);
+        let net = count::networks(&feat);
+
+        stats.addresses = stats.addresses + addr;
+        stats.intersections = stats.intersections + intsec;
+
+        if addr == 0 && net == 0 && intsec == 0 {
+            stats.invalid = stats.invalid + 1;
+        } else if addr > 0 && net > 0 {
+            stats.clusters = stats.clusters + 1;
+        } else if addr > 0 {
+            stats.address_orphans = stats.address_orphans + 1;
+        } else if net > 0 {
+            stats.network_orphans = stats.network_orphans + 1;
         }
+
     }
 
     Ok(neon_serde::to_value(&mut cx, &stats)?)
