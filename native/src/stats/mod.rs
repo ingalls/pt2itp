@@ -1,10 +1,9 @@
 use neon::prelude::*;
 use super::stream::GeoStream;
 use std::collections::HashMap;
-use std::convert::TryInto;
-use geo::algorithm::{
-    bounding_rect::BoundingRect
-};
+
+mod count;
+mod tree;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct StatsArgs {
@@ -38,39 +37,10 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
     let is_bounded = args.bounds.is_some();
 
-    let mut tree_contents: Vec<Rect> = Vec::new();
-
-    if is_bounded {
-        let bounds_stream = GeoStream::new(args.bounds);
-
-        for bound in bounds_stream {
-            let feat = match bound {
-                geojson::GeoJson::Feature(feat) => feat,
-                _ => panic!("Bounds must be (Multi)Polygon Features")
-            };
-
-            let name = match feat.properties.unwrap().get(&String::from("name")) {
-                Some(name) => name.to_string(),
-                None => panic!("Add bounds features must have .properties.name string")
-            };
-
-            let geom: geo::Geometry<f64> = feat.geometry.unwrap().value.try_into().unwrap();
-
-            let geom = match geom {
-                geo::Geometry::Polygon(poly) => geo::MultiPolygon(vec![poly]),
-                geo::Geometry::MultiPolygon(mpoly) => mpoly,
-                _ => panic!("Bound must be (Multi)Polygon Features")
-            };
-
-            boundmap.insert(name.clone(), StatsBound::new());
-
-            let rect = Rect::new(geom, name);
-
-            tree_contents.push(rect);
-        }
-    }
-
-    let mut tree = rstar::RTree::bulk_load(tree_contents);
+    let mut tree = match is_bounded {
+        true => tree::create(args.bounds, &mut boundmap),
+        false => rstar::RTree::bulk_load(vec![])
+    };
 
     let mut stats = Stats::new();
 
@@ -92,14 +62,8 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
         match &feat.geometry.as_ref().unwrap().value {
             geojson::Value::MultiPoint(mp) => {
-                for mp_it in 0..mp.len() {
-                    let pt = &mp[mp_it];
-
-                    tree.locate_all_at_point(&[pt[0], pt[1]]);
-                }
-
-                let addr = count_addresses(&feat);
-                let intsec = count_intersections(&feat);
+                let addr = count::addresses(&feat);
+                let intsec = count::intersections(&feat);
                 if intsec > 0 {
                     stats.intersections = stats.intersections + intsec;
                 } if addr > 0 {
@@ -110,18 +74,32 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                 }
             },
             geojson::Value::GeometryCollection(gc) => {
-                let addr = count_addresses(&feat);
-                let net = count_networks(&feat);
-                let intsec = count_intersections(&feat);
+                for geom in gc {
+
+                    /*
+                    for mp_it in 0..mp.len() {
+                        let pt = &mp[mp_it];
+
+                        println!("{}, {}", pt[0], pt[1]);
+                        for bound in tree.locate_all_at_point(&[pt[0], pt[1]]) {
+                            println!("{:?}", bound.name);
+                        }
+                    }
+                    */
+                }
+
+                let addr = count::addresses(&feat);
+                let net = count::networks(&feat);
+                let intsec = count::intersections(&feat);
 
                 if addr == 0 && net == 0 && intsec == 0 {
                     stats.invalid = stats.invalid + 1;
                 } else if addr > 0 && net > 0 {
-                    stats.addresses = stats.addresses + count_addresses(&feat);
+                    stats.addresses = stats.addresses + count::addresses(&feat);
 
                     stats.clusters = stats.clusters + 1;
                 } else if addr > 0 {
-                    stats.addresses = stats.addresses + count_addresses(&feat);
+                    stats.addresses = stats.addresses + count::addresses(&feat);
 
                     stats.address_orphans = stats.address_orphans + 1;
                 } else if net > 0 {
@@ -137,120 +115,6 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
     }
 
     Ok(neon_serde::to_value(&mut cx, &stats)?)
-}
-
-fn count_addresses(feat: &geojson::Feature) -> i64 {
-    match feat.properties {
-        None => 0,
-        Some(ref props) => match props.get(&String::from("carmen:addressnumber")) {
-            None => 0,
-            Some(prop) => match prop.as_array() {
-                None => 0,
-                Some(ref array) => {
-                    if array.len() == 0 {
-                        return 0;
-                    }
-
-                    let mut addr = 0;
-
-                    for ele in array.iter() {
-                        if ele.is_array() {
-                            for elenest in ele.as_array().unwrap() {
-                                if elenest.is_number() || elenest.is_string() {
-                                    addr = addr + 1;
-                                }
-                            }
-                        } else if ele.is_number() || ele.is_string() {
-                            addr = addr + 1;
-                        }
-                    }
-
-                    addr
-                }
-            }
-        }
-    }
-}
-
-fn count_intersections(feat: &geojson::Feature) -> i64 {
-    match feat.properties {
-        None => 0,
-        Some(ref props) => match props.get(&String::from("carmen:intersections")) {
-            None => 0,
-            Some(prop) => match prop.as_array() {
-                None => 0,
-                Some(ref array) => {
-                    if array.len() == 0 {
-                        return 0;
-                    }
-
-                    let mut intsecs = 0;
-
-                    for ele in array.iter() {
-                        if ele.is_array() {
-                            for elenest in ele.as_array().unwrap() {
-                                if elenest.is_number() || elenest.is_string() {
-                                    intsecs = intsecs + 1;
-                                }
-                            }
-                        } else if ele.is_string() {
-                            intsecs = intsecs + 1;
-                        }
-                    }
-
-                    intsecs
-                }
-            }
-        }
-    }
-}
-
-fn count_networks(feat: &geojson::Feature) -> i64 {
-    match feat.properties {
-        None => 0,
-        Some(ref props) => {
-            if props.contains_key(&String::from("carmen:rangetype")) {
-                1
-            } else {
-                0
-            }
-        }
-    }
-}
-
-struct Rect {
-    pub geom: geo::MultiPolygon<f64>,
-    pub name: String,
-    pub rect: rstar::primitives::Rectangle<[f64; 2]>
-}
-
-impl Rect {
-    pub fn new(geom: geo::MultiPolygon<f64>, name: impl ToString) -> Self {
-        let bound = geom.bounding_rect().unwrap();
-
-        Rect {
-            geom: geom,
-            name: name.to_string(),
-            rect: rstar::primitives::Rectangle::from_corners(
-                [bound.min.x, bound.min.y],
-                [bound.max.x, bound.max.y]
-            )
-        }
-    }
-}
-
-impl rstar::RTreeObject for Rect {
-    type Envelope = rstar::AABB<[f64; 2]>;
-
-    fn envelope(&self) -> Self::Envelope {
-        self.rect.envelope()
-    }
-}
-
-impl rstar::PointDistance for Rect {
-    fn distance_2(&self, point: &[f64; 2]) -> f64 {
-        self.rect.distance_2(point)
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -160,3 +160,29 @@ test('Stats - Invalid', (t) => {
 
     t.end();
 });
+
+test('Stats - Real World Data', (t) => {
+    const res = stats({
+        input: String(path.resolve(__dirname, 'fixtures/stats.actual'))
+    });
+
+    t.deepEquals(res, {
+        feats: 1,
+        clusters: 1,
+        invalid: 0,
+        addresses: 2,
+        intersections: 1,
+        address_orphans: 0,
+        network_orphans: 0,
+        custom: {
+            postcodes: 0,
+            accuracy: {
+                rooftop: 0,
+                parcel: 0,
+                point: 0
+            }
+        }
+    }, 'has 1 cluster');
+
+    t.end();
+});
