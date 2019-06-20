@@ -2,6 +2,8 @@ use neon::prelude::*;
 use super::stream::GeoStream;
 use std::collections::HashMap;
 use std::convert::TryInto;
+use std::hash::{Hash, Hasher};
+use rstar::RTreeObject;
 use geo::algorithm::{
     bounding_rect::BoundingRect
 };
@@ -63,7 +65,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
     let is_bounded = args.bounds.is_some();
 
-    let mut tree_contents = Vec::new();
+    let mut tree_contents: Vec<Rect> = Vec::new();
 
     if is_bounded {
         let bounds_stream = GeoStream::new(args.bounds);
@@ -82,12 +84,9 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                 _ => panic!("Bound must be (Multi)Polygon Features")
             };
 
-            let bound = geom.bounding_rect().unwrap();
+            let rect = Rect::new(geom, "test");
 
-            tree_contents.push(rstar::primitives::Rectangle::from_corners(
-                [bound.min.x, bound.min.y],
-                [bound.max.x, bound.max.y]
-            ));
+            tree_contents.push(rect);
         }
     }
     let mut tree = rstar::RTree::bulk_load(tree_contents);
@@ -228,5 +227,32 @@ fn count_networks(feat: &geojson::Feature) -> i64 {
                 0
             }
         }
+    }
+}
+
+struct Rect {
+    pub bound: geo::Rect<f64>,
+    pub geom: geo::MultiPolygon<f64>,
+    pub name: String
+}
+
+impl Rect {
+    pub fn new(geom: geo::MultiPolygon<f64>, name: impl ToString) -> Self {
+        Rect {
+            bound: geom.bounding_rect().unwrap(),
+            geom: geom,
+            name: name.to_string()
+        }
+    }
+}
+
+impl rstar::RTreeObject for Rect {
+    type Envelope = rstar::AABB<[f64; 2]>;
+
+    fn envelope(&self) -> Self::Envelope {
+        rstar::AABB::from_corners(
+            [self.bound.min.x, self.bound.min.y],
+            [self.bound.max.x, self.bound.max.y]
+        )
     }
 }
