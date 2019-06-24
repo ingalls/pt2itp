@@ -39,7 +39,10 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
     let is_bounded = args.bounds.is_some();
 
     let tree = match is_bounded {
-        true => tree::create(args.bounds, &mut boundmap),
+        true => {
+            println!("ok - loading bounds");
+            tree::create(args.bounds, &mut boundmap)
+        },
         false => rstar::RTree::bulk_load(vec![])
     };
 

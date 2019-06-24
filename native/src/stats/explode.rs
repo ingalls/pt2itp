@@ -2,7 +2,8 @@ use crate::Address;
 
 #[derive(Debug, PartialEq)]
 pub struct StatAddress {
-    geom: [f64; 2],
+    geom: Vec<f64>,
+    number: String,
     accuracy: Option<String>,
     postcode: Option<String>
 }
@@ -11,9 +12,9 @@ pub struct StatAddress {
 /// Take a GeoJSON feature and explode it into a vector of individual address points
 ///
 pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
-    let addrs = Vec::new();
+    let mut addrs = Vec::new();
 
-    let (numbers, coords) = match feat.properties {
+    let (numbers, ele) = match feat.properties {
         None => {
             return addrs;
         },
@@ -33,8 +34,10 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                 }
 
                 if array[0].is_number() || array[0].is_string() {
+                    // Feature is a MultiPoint
                     (array, 0)
                 } else {
+                    // Feature is a GeometryCollection
                     let mut ele = 0;
                     for arr in array {
                         if arr.is_array() && arr.as_array().unwrap().len() > 0 {
@@ -44,13 +47,38 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                         }
                     }
 
-                    (array[ele].as_array().unwrap(), 0)
+                    (array[ele].as_array().unwrap(), ele)
                 }
             }
         }
     };
 
-    println!("{:?}", addrs);
+    let coords = match &feat.geometry {
+        Some(geom) => match &geom.value {
+            geojson::Value::MultiPoint(mp) => mp,
+            geojson::Value::GeometryCollection(gc) => match &gc[ele].value {
+                geojson::Value::MultiPoint(mp) => mp,
+                _ => panic!("Expected MultiPoint geometry")
+            }
+            _ => panic!("Only MultiPoint & GeometryCollections are supported")
+        },
+        None => panic!("geometry required")
+    };
+
+    if coords.len() != numbers.len() {
+        panic!("coordinate array must equal numbers array");
+    }
+
+    for ele in 0..numbers.len() {
+        let stat = StatAddress {
+            geom: coords[ele].clone(),
+            number: numbers[ele].to_string(),
+            accuracy: None,
+            postcode: None,
+        };
+
+        addrs.push(stat);
+    }
 
     addrs
 }
