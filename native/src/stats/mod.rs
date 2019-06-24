@@ -2,6 +2,7 @@ use neon::prelude::*;
 use super::stream::GeoStream;
 use std::collections::HashMap;
 
+mod explode;
 mod count;
 mod tree;
 
@@ -37,7 +38,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
     let is_bounded = args.bounds.is_some();
 
-    let mut tree = match is_bounded {
+    let tree = match is_bounded {
         true => tree::create(args.bounds, &mut boundmap),
         false => rstar::RTree::bulk_load(vec![])
     };
@@ -84,6 +85,10 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
             stats.address_orphans = stats.address_orphans + 1;
         } else if net > 0 {
             stats.network_orphans = stats.network_orphans + 1;
+        }
+
+        for addr in explode::addresses(&feat) {
+            println!("ADDR");
         }
 
     }
