@@ -91,6 +91,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
 
         for addr in explode::addresses(&feat) {
+            tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]);
             println!("{:?}", addr);
         }
     }

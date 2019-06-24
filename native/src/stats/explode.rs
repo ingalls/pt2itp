@@ -2,10 +2,10 @@ use crate::Address;
 
 #[derive(Debug, PartialEq)]
 pub struct StatAddress {
-    geom: Vec<f64>,
-    number: String,
-    accuracy: Option<String>,
-    postcode: Option<String>
+    pub geom: Vec<f64>,
+    pub number: String,
+    pub accuracy: Option<String>,
+    pub postcode: Option<String>
 }
 
 ///
