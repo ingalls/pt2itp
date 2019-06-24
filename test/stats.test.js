@@ -17,14 +17,7 @@ test('Stats - MultiPoint Orphan', (t) => {
         intersections: 0,
         address_orphans: 1,
         network_orphans: 0,
-        custom: {
-            postcodes: 0,
-            accuracy: {
-                rooftop: 0,
-                parcel: 0,
-                point: 0
-            }
-        }
+        bounds: {}
     }, 'has 2 addresses');
 
     t.end();
@@ -43,14 +36,7 @@ test('Stats - GeometryCollection Orphan', (t) => {
         intersections: 0,
         address_orphans: 1,
         network_orphans: 0,
-        custom: {
-            postcodes: 0,
-            accuracy: {
-                rooftop: 0,
-                parcel: 0,
-                point: 0
-            }
-        }
+        bounds: {}
     }, 'has 2 addresses');
 
     t.end();
@@ -69,14 +55,7 @@ test('Stats - MultiLine', (t) => {
         intersections: 0,
         address_orphans: 2,
         network_orphans: 0,
-        custom: {
-            postcodes: 0,
-            accuracy: {
-                rooftop: 0,
-                parcel: 0,
-                point: 0
-            }
-        }
+        bounds: {}
     }, 'has 4 addresses');
 
     t.end();
@@ -95,14 +74,7 @@ test('Stats - Cluster', (t) => {
         intersections: 1,
         address_orphans: 0,
         network_orphans: 0,
-        custom: {
-            postcodes: 0,
-            accuracy: {
-                rooftop: 0,
-                parcel: 0,
-                point: 0
-            }
-        }
+        bounds: {}
     }, 'has 1 cluster');
 
     t.end();
@@ -121,14 +93,7 @@ test('Stats - Network Orphan', (t) => {
         intersections: 0,
         address_orphans: 0,
         network_orphans: 1,
-        custom: {
-            postcodes: 0,
-            accuracy: {
-                rooftop: 0,
-                parcel: 0,
-                point: 0
-            }
-        }
+        bounds: {}
     }, 'has 1 cluster');
 
     t.end();
@@ -147,14 +112,7 @@ test('Stats - Invalid', (t) => {
         intersections: 0,
         address_orphans: 0,
         network_orphans: 0,
-        custom: {
-            postcodes: 0,
-            accuracy: {
-                rooftop: 0,
-                parcel: 0,
-                point: 0
-            }
-        }
+        bounds: {}
     }, 'has 1 cluster');
 
     t.end();
@@ -166,23 +124,55 @@ test('Stats - Real World Data', (t) => {
         bounds: '/tmp/counties.geojson'
     });
 
-    t.deepEquals(res, {
-        feats: 1,
-        clusters: 1,
-        invalid: 0,
-        addresses: 2,
-        intersections: 1,
-        address_orphans: 0,
-        network_orphans: 0,
-        custom: {
-            postcodes: 0,
-            accuracy: {
-                rooftop: 0,
-                parcel: 0,
-                point: 0
-            }
+    t.deepEquals(Object.keys(res).sort(), [
+        'feats',
+        'clusters',
+        'addresses',
+        'invalid',
+        'intersections',
+        'address_orphans',
+        'network_orphans',
+        'bounds'
+    ].sort());
+
+    t.equals(res.feats, 1);
+    t.equals(res.clusters, 1);
+    t.equals(res.invalid, 0);
+    t.equals(res.addresses, 2);
+    t.equals(res.intersections, 1);
+    t.equals(res.address_orphans, 0);
+    t.equals(res.network_orphans, 0);
+
+    for (const bound of Object.keys(res.bounds)) {
+        if (bound === '11001') {
+            t.deepEquals(res.bounds[bound], {
+                addresses: 2,
+                intersections: 0,
+                custom: {
+                    postcodes: 1,
+                    accuracy: {
+                        rooftop: 1,
+                        parcel: 0,
+                        point: 1
+                    }
+                }
+
+            }, 'DC should have data');
+        } else {
+            t.deepEquals(res.bounds[bound], {
+                addresses: 0,
+                intersections: 0,
+                custom: {
+                    postcodes: 0,
+                    accuracy: {
+                        rooftop: 0,
+                        parcel: 0,
+                        point: 0
+                    }
+                }
+            }, bound);
         }
-    }, 'has 1 cluster');
+    }
 
     t.end();
 });

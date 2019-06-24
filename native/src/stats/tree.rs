@@ -53,7 +53,10 @@ pub fn create(bound: Option<String>, boundmap: &mut HashMap<String, StatsBound>)
         };
 
         let name = match feat.properties.unwrap().get(&String::from("name")) {
-            Some(name) => name.to_string(),
+            Some(name) => match name {
+                serde_json::Value::String(string) => string.to_string(),
+                _ => panic!("bounds features must have string .propeties.name value")
+            },
             None => panic!("Add bounds features must have .properties.name string")
         };
 

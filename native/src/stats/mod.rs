@@ -93,14 +93,15 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
         for addr in explode::addresses(&feat) {
             for bound in tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]) {
-                let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
-
-                bm_item.addresses = bm_item.addresses + 1;
-
                 if bound.geom.contains(&geo::Point::new(addr.geom[0], addr.geom[1])) {
+                    let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
+
+                    bm_item.addresses = bm_item.addresses + 1;
+
                     if addr.postcode.is_some() {
                         bm_item.custom.postcodes = bm_item.custom.postcodes + 1;
                     }
+
                     match &addr.accuracy {
                         Some(accuracy) => {
                             if accuracy == &String::from("rooftop") {
@@ -122,19 +123,21 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
     }
 
+    stats.bounds = boundmap;
+
     Ok(neon_serde::to_value(&mut cx, &stats)?)
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Stats {
-    feats: i64, // Total number of features
-    clusters: i64, // Total number of addr/network clusters
-    invalid: i64, // Total number of unrecognized features (not counted in feats)
-    addresses: i64, // Total number of address points in clusters/orphans
-    intersections: i64, // Total number of address features
-    address_orphans: i64, // Total number of address orphans
-    network_orphans: i64, // Total number of network orphans
-    custom: StatsCustom
+    pub feats: i64, // Total number of features
+    pub clusters: i64, // Total number of addr/network clusters
+    pub invalid: i64, // Total number of unrecognized features (not counted in feats)
+    pub addresses: i64, // Total number of address points in clusters/orphans
+    pub intersections: i64, // Total number of address features
+    pub address_orphans: i64, // Total number of address orphans
+    pub network_orphans: i64, // Total number of network orphans
+    pub bounds: HashMap<String, StatsBound>
 }
 
 impl Stats {
@@ -147,16 +150,16 @@ impl Stats {
             intersections: 0,
             address_orphans: 0,
             network_orphans: 0,
-            custom: StatsCustom::new()
+            bounds: HashMap::new()
         }
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatsBound {
-    addresses: i64,
-    intersections: i64,
-    custom: StatsCustom
+    pub addresses: i64,
+    pub intersections: i64,
+    pub custom: StatsCustom
 }
 
 impl StatsBound {
@@ -171,8 +174,8 @@ impl StatsBound {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatsCustom {
-    postcodes: i64,
-    accuracy: StatsAccuracy
+    pub postcodes: i64,
+    pub accuracy: StatsAccuracy
 }
 
 impl StatsCustom {
@@ -186,9 +189,9 @@ impl StatsCustom {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatsAccuracy {
-    rooftop: i64,
-    parcel: i64,
-    point: i64
+    pub rooftop: i64,
+    pub parcel: i64,
+    pub point: i64
 }
 
 impl StatsAccuracy {
