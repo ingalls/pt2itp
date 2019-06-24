@@ -84,3 +84,33 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
 
     addrs
 }
+
+fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: i64) -> Option<serde_json::Value> {
+    let key = key.to_string();
+    match feat.properties {
+        None => None,
+        Some(ref props) => match props.get(&key) {
+            Some(prop) => match get_override(props, &key, ele) {
+                None => Some(prop.clone()),
+                Some(override_prop) => Some(override_prop)
+            },
+            None => match get_override(props, &key, ele) {
+                None => None,
+                Some(override_prop) => Some(override_prop)
+            }
+        }
+    }
+}
+
+fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String, ele: i64) -> Option<serde_json::Value> {
+    match props.get(&String::from("carmen:addressprops")) {
+        None => None,
+        Some(ref props) => match props.get(&key) {
+            None => None,
+            Some(prop) => match prop.get(&ele.to_string()) {
+                None => None,
+                Some(prop_value) => Some(prop_value.clone())
+            }
+        }
+    }
+}
