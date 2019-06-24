@@ -6,8 +6,7 @@ const path = require('path');
 
 test('Stats - MultiPoint Orphan', (t) => {
     const res = stats({
-        input: String(path.resolve(__dirname, 'fixtures/stats.orphan-mp')),
-        bounds: '/tmp/counties.geojson'
+        input: String(path.resolve(__dirname, 'fixtures/stats.orphan-mp'))
     });
 
     t.deepEquals(res, {
@@ -163,7 +162,8 @@ test('Stats - Invalid', (t) => {
 
 test('Stats - Real World Data', (t) => {
     const res = stats({
-        input: String(path.resolve(__dirname, 'fixtures/stats.actual'))
+        input: String(path.resolve(__dirname, 'fixtures/stats.actual')),
+        bounds: '/tmp/counties.geojson'
     });
 
     t.deepEquals(res, {

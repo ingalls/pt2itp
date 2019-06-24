@@ -1,5 +1,3 @@
-use crate::Address;
-
 #[derive(Debug, PartialEq)]
 pub struct StatAddress {
     pub geom: Vec<f64>,

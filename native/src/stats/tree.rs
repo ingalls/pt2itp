@@ -72,6 +72,8 @@ pub fn create(bound: Option<String>, boundmap: &mut HashMap<String, StatsBound>)
         tree_contents.push(rect);
     }
 
+    println!("ok - {} bounds loaded into rtree", tree_contents.len());
+
     rstar::RTree::bulk_load(tree_contents)
 }
 

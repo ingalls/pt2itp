@@ -1,6 +1,7 @@
 use neon::prelude::*;
 use super::stream::GeoStream;
 use std::collections::HashMap;
+use geo::algorithm::contains::Contains;
 
 mod explode;
 mod count;
@@ -91,8 +92,11 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
 
         for addr in explode::addresses(&feat) {
-            tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]);
-            println!("{:?}", addr);
+            for bound in tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]) {
+                if bound.geom.contains(&geo::Point::new(addr.geom[0], addr.geom[1])) {
+                    println!("{}: {:?}", bound.name, addr);
+                }
+            };
         }
     }
 
