@@ -91,9 +91,8 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
 
         for addr in explode::addresses(&feat) {
-            println!("ADDR");
+            println!("{:?}", addr);
         }
-
     }
 
     Ok(neon_serde::to_value(&mut cx, &stats)?)

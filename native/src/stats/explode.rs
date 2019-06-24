@@ -72,7 +72,11 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
     for ele in 0..numbers.len() {
         let stat = StatAddress {
             geom: coords[ele].clone(),
-            number: numbers[ele].to_string(),
+            number: match &numbers[ele] {
+                serde_json::Value::String(string) => string.to_string(),
+                serde_json::Value::Number(num) => num.to_string(),
+                _ => panic!("Address numbers must be a string/numeric")
+            },
             accuracy: None,
             postcode: None,
         };
