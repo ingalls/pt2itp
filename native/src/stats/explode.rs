@@ -75,8 +75,18 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                 serde_json::Value::Number(num) => num.to_string(),
                 _ => panic!("Address numbers must be a string/numeric")
             },
-            accuracy: None,
-            postcode: None,
+            accuracy: match get_prop(&feat, "accuracy", ele.to_string()) {
+                None => None,
+                Some(serde_json::Value::String(string)) => Some(string),
+                _ => panic!("accuracy property should be string")
+            },
+            postcode: match get_prop(&feat, "override:postcode", ele.to_string()) {
+                None => None,
+                Some(serde_json::Value::String(string)) => Some(string),
+                Some(serde_json::Value::Number(num)) => Some(num.to_string()),
+                _ => panic!("accuracy property should be string/number")
+
+            }
         };
 
         addrs.push(stat);
@@ -85,7 +95,7 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
     addrs
 }
 
-fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: i64) -> Option<serde_json::Value> {
+fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: String) -> Option<serde_json::Value> {
     let key = key.to_string();
     match feat.properties {
         None => None,
@@ -102,12 +112,12 @@ fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: i64) -> Option<ser
     }
 }
 
-fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String, ele: i64) -> Option<serde_json::Value> {
+fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String, ele: String) -> Option<serde_json::Value> {
     match props.get(&String::from("carmen:addressprops")) {
         None => None,
         Some(ref props) => match props.get(&key) {
             None => None,
-            Some(prop) => match prop.get(&ele.to_string()) {
+            Some(prop) => match prop.get(&ele) {
                 None => None,
                 Some(prop_value) => Some(prop_value.clone())
             }
