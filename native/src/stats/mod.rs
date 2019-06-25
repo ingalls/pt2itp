@@ -92,6 +92,21 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
 
         if is_bounded {
+            let names: Vec<String> = match &feat.properties {
+                None => vec![],
+                Some(ref props) => match props.get(&String::from("carmen:text")) {
+                    None => vec![],
+                    Some(ref names) => match names {
+                        serde_json::Value::String(string) => {
+                            string.split(",").map(|name| {
+                                String::from(name)  
+                            }).collect()
+                        },
+                        _ => vec![]
+                    }
+                }
+            };
+
             for addr in explode::addresses(&feat) {
                 for bound in tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]) {
                     if bound.geom.contains(&geo::Point::new(addr.geom[0], addr.geom[1])) {
@@ -167,6 +182,8 @@ impl Stats {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatsBound {
+    pub names: Vec<String>,
+    pub synonyms: Vec<String>,
     pub addresses: i64,
     pub intersections: i64,
     pub custom: StatsCustom
@@ -175,6 +192,8 @@ pub struct StatsBound {
 impl StatsBound {
     fn new() -> Self {
         StatsBound {
+            names: Vec::new(),
+            synonyms: Vec::new(),
             addresses: 0,
             intersections: 0,
             custom: StatsCustom::new()
