@@ -147,7 +147,7 @@ test('Stats - Real World Data', (t) => {
         if (bound === '11001') {
             t.deepEquals(res.bounds[bound], {
                 addresses: 2,
-                intersections: 0,
+                intersections: 1,
                 custom: {
                     postcodes: 1,
                     accuracy: {
@@ -156,7 +156,6 @@ test('Stats - Real World Data', (t) => {
                         point: 1
                     }
                 }
-
             }, 'DC should have data');
         } else {
             t.deepEquals(res.bounds[bound], {

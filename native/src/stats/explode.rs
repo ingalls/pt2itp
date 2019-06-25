@@ -6,6 +6,11 @@ pub struct StatAddress {
     pub postcode: Option<String>
 }
 
+#[derive(Debug, PartialEq)]
+pub struct StatIntersection {
+    pub geom: Vec<f64>
+}
+
 ///
 /// Take a GeoJSON feature and explode it into a vector of individual address points
 ///
@@ -120,6 +125,61 @@ fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String
             Some(prop) => match prop.get(&ele) {
                 None => None,
                 Some(prop_value) => Some(prop_value.clone())
+            }
+        }
+    }
+}
+
+///
+/// Take a GeoJSON feature and explode it into a vector of individual intersection geometries
+///
+pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
+    let mut ints = Vec::new();
+
+    match feat.properties {
+        None => ints,
+        Some(ref props) => match props.get(&String::from("carmen:intersections")) {
+            None => ints,
+            Some(ref array) => {
+                if !array.is_array() {
+                    return ints;
+                }
+
+                let array = array.as_array().unwrap();
+
+                if array.len() == 0 {
+                    return ints;
+                }
+
+                let mut ele = 0;
+                for arr in array {
+                    if arr.is_array() && arr.as_array().unwrap().len() > 0 {
+                        break;
+                    } else {
+                        ele = ele + 1;
+                    }
+                }
+
+                let coords = match &feat.geometry {
+                    Some(geom) => match &geom.value {
+                        geojson::Value::GeometryCollection(gc) => match &gc[ele].value {
+                            geojson::Value::MultiPoint(mp) => mp,
+                            _ => panic!("Expected MultiPoint geometry")
+                        }
+                        _ => panic!("Only GeometryCollections are supported for intersections")
+                    },
+                    None => panic!("geometry required")
+                };
+
+                for ele in 0..coords.len() {
+                    let stat = StatIntersection {
+                        geom: coords[ele].clone()
+                    };
+
+                    ints.push(stat);
+                }
+
+                ints
             }
         }
     }
