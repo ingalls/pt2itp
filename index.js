@@ -45,14 +45,14 @@ if (require.main === module) {
         case ('stat'):
         case ('stats'): {
             const stat_arg = require('minimist')(process.argv, {
-                string: ['input', 'bounds']
+                string: ['input', 'bounds'],
                 alias: {
                     bounds: 'bound'
                 }
             });
 
             const stats = require('./native/index.node').stats({
-                input: stat_arg.input
+                input: stat_arg.input,
                 bounds: stat_arg.bounds
             });
 

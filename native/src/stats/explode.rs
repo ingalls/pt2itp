@@ -89,7 +89,7 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                 None => None,
                 Some(serde_json::Value::String(string)) => Some(string),
                 Some(serde_json::Value::Number(num)) => Some(num.to_string()),
-                _ => panic!("accuracy property should be string/number")
+                _ => panic!("postcode property should be string/number")
 
             }
         };
