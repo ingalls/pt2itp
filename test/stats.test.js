@@ -149,7 +149,7 @@ test('Stats - Real World Data', (t) => {
                 addresses: 2,
                 intersections: 1,
                 names: ['US Route 101'],
-                synonyms: ['US Route', 'US Route 101', '101'],
+                synonyms: ['101', 'US Route', 'US Route 101'],
                 custom: {
                     postcodes: 1,
                     accuracy: {

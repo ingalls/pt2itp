@@ -162,6 +162,11 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
     }
 
+    for value in boundmap.values_mut() {
+        value.names.sort();
+        value.synonyms.sort();
+    }
+
     stats.bounds = boundmap;
 
     Ok(neon_serde::to_value(&mut cx, &stats)?)
