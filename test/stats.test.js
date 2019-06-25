@@ -148,6 +148,8 @@ test('Stats - Real World Data', (t) => {
             t.deepEquals(res.bounds[bound], {
                 addresses: 2,
                 intersections: 1,
+                names: ['US Route 101'],
+                synonyms: ['US Route', 'US Route 101', '101'],
                 custom: {
                     postcodes: 1,
                     accuracy: {
@@ -161,6 +163,8 @@ test('Stats - Real World Data', (t) => {
             t.deepEquals(res.bounds[bound], {
                 addresses: 0,
                 intersections: 0,
+                names: [],
+                synonyms: [],
                 custom: {
                     postcodes: 0,
                     accuracy: {

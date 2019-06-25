@@ -114,6 +114,20 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
                         bm_item.addresses = bm_item.addresses + 1;
 
+                        if names.len() > 0 {
+                            if !bm_item.names.contains(&names[0]) {
+                                bm_item.names.push(names[0].clone());
+                            }
+
+                            if names.len() > 1 {
+                                for ele in 1..names.len() {
+                                    if !bm_item.synonyms.contains(&names[ele]) {
+                                        bm_item.synonyms.push(names[ele].clone());
+                                    }
+                                }
+                            }
+                        }
+
                         if addr.postcode.is_some() {
                             bm_item.custom.postcodes = bm_item.custom.postcodes + 1;
                         }
