@@ -106,7 +106,13 @@ fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: String) -> Option<
         None => None,
         Some(ref props) => match props.get(&key) {
             Some(prop) => match get_override(props, &key, ele) {
-                None => Some(prop.clone()),
+                None => {
+                    if prop.is_null() {
+                        None
+                    } else {
+                        Some(prop.clone())
+                    }
+                },
                 Some(override_prop) => Some(override_prop)
             },
             None => match get_override(props, &key, ele) {
@@ -124,7 +130,13 @@ fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String
             None => None,
             Some(prop) => match prop.get(&ele) {
                 None => None,
-                Some(prop_value) => Some(prop_value.clone())
+                Some(prop_value) => {
+                    if prop_value.is_null() {
+                        None
+                    } else {
+                        Some(prop_value.clone())
+                    }
+                }
             }
         }
     }

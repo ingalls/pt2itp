@@ -52,7 +52,7 @@ if (require.main === module) {
             });
 
             const stats = require('./native/index.node').stats({
-                input: stat_arg.input,
+                input: stat_arg.input ? stat_arg.input : stat_arg._[3],
                 bounds: stat_arg.bounds
             });
 

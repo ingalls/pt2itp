@@ -91,43 +91,45 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
             stats.network_orphans = stats.network_orphans + 1;
         }
 
-        for addr in explode::addresses(&feat) {
-            for bound in tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]) {
-                if bound.geom.contains(&geo::Point::new(addr.geom[0], addr.geom[1])) {
-                    let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
+        if is_bounded {
+            for addr in explode::addresses(&feat) {
+                for bound in tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]) {
+                    if bound.geom.contains(&geo::Point::new(addr.geom[0], addr.geom[1])) {
+                        let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
 
-                    bm_item.addresses = bm_item.addresses + 1;
+                        bm_item.addresses = bm_item.addresses + 1;
 
-                    if addr.postcode.is_some() {
-                        bm_item.custom.postcodes = bm_item.custom.postcodes + 1;
+                        if addr.postcode.is_some() {
+                            bm_item.custom.postcodes = bm_item.custom.postcodes + 1;
+                        }
+
+                        match &addr.accuracy {
+                            Some(accuracy) => {
+                                if accuracy == &String::from("rooftop") {
+                                    bm_item.custom.accuracy.rooftop = bm_item.custom.accuracy.rooftop + 1;
+                                } else if accuracy == &String::from("point") {
+                                    bm_item.custom.accuracy.point = bm_item.custom.accuracy.point + 1;
+                                } else if accuracy == &String::from("parcel") {
+                                    bm_item.custom.accuracy.parcel = bm_item.custom.accuracy.parcel + 1;
+                                } else {
+                                    panic!("accuracy must be rooftop/parcel/point not {}", accuracy);
+                                }
+                            },
+                            None => ()
+                        };
                     }
+                };
+            }
 
-                    match &addr.accuracy {
-                        Some(accuracy) => {
-                            if accuracy == &String::from("rooftop") {
-                                bm_item.custom.accuracy.rooftop = bm_item.custom.accuracy.rooftop + 1;
-                            } else if accuracy == &String::from("point") {
-                                bm_item.custom.accuracy.point = bm_item.custom.accuracy.point + 1;
-                            } else if accuracy == &String::from("parcel") {
-                                bm_item.custom.accuracy.parcel = bm_item.custom.accuracy.parcel + 1;
-                            } else {
-                                panic!("accuracy must be rooftop/parcel/point not {}", accuracy);
-                            }
-                        },
-                        None => ()
-                    };
-                }
-            };
-        }
+            for intersection in explode::intersections(&feat) {
+                for bound in tree.locate_all_at_point(&[intersection.geom[0], intersection.geom[1]]) {
+                    if bound.geom.contains(&geo::Point::new(intersection.geom[0], intersection.geom[1])) {
+                        let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
 
-        for intersection in explode::intersections(&feat) {
-            for bound in tree.locate_all_at_point(&[intersection.geom[0], intersection.geom[1]]) {
-                if bound.geom.contains(&geo::Point::new(intersection.geom[0], intersection.geom[1])) {
-                    let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
-
-                    bm_item.intersections = bm_item.intersections + 1;
-                }
-            };
+                        bm_item.intersections = bm_item.intersections + 1;
+                    }
+                };
+            }
         }
     }
 
