@@ -1,7 +1,7 @@
 use postgis::ewkb::EwkbWrite;
 
 ///
-/// A representation of a single Address
+/// A representation of a single polygon
 ///
 #[derive(Debug)]
 pub struct Polygon {

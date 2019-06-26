@@ -13,13 +13,6 @@ test('help - main', (t) => {
     st.end();
 });
 
-test('help - analyze', (t) => {
-    const st = spawn(t, `${__dirname}/../index.js analyze --help`);
-
-    st.stdout.match(/Analyses text in the address_cluster and network_cluster tables/);
-    st.end();
-});
-
 test('help - convert', (t) => {
     const st = spawn(t, `${__dirname}/../index.js convert --help`);
 

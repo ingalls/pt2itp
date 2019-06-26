@@ -67,7 +67,7 @@ test('test', (t) => {
         t.test('Return correct error messages in csv', (t) => {
             const csvErrs = [];
 
-            csv.fromPath(output, { headers: true })
+            csv.parseFile(output, { headers: true })
                 .on('data', (data) => {
                     csvErrs.push(data);
                 }).on('end', () => {
@@ -101,7 +101,7 @@ test('testcsv', (t) => {
     t.test('Return correct error messages in csv', (t) => {
         const csvErrs = [];
 
-        csv.fromPath('/tmp/testcsv-ri.err', { headers: true })
+        csv.parseFile('/tmp/testcsv-ri.err', { headers: true })
             .on('data', (data) => { csvErrs.push(data); })
             .on('end', () => {
                 t.equal(csvErrs.length, 9);
