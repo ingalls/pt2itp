@@ -10,6 +10,12 @@
 
 ## Version History
 
+### v24.0.0
+
+- :rocket: Remove `analyze` mode which we haven't used in quite some time
+- :white_check_mark: Switch `map` integration tests from `SG` data to more complete `DC` data
+- :tada: Add the ability to do bounds based stats in `stat` mode
+
 ### v23.2.2
 
 - :bug: Fix french synonym bug
