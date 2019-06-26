@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.0.1
+
+- :arrow_up: ESLint@6
+
 ### v24.0.0
 
 - :rocket: Remove `analyze` mode which we haven't used in quite some time
