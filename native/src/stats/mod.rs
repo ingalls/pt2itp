@@ -22,6 +22,86 @@ impl StatsArgs {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Stats {
+    pub feats: i64, // Total number of features
+    pub clusters: i64, // Total number of addr/network clusters
+    pub invalid: i64, // Total number of unrecognized features (not counted in feats)
+    pub addresses: i64, // Total number of address points in clusters/orphans
+    pub intersections: i64, // Total number of address features
+    pub address_orphans: i64, // Total number of address orphans
+    pub network_orphans: i64, // Total number of network orphans
+    pub bounds: HashMap<String, StatsBound>
+}
+
+impl Stats {
+    fn new() -> Self {
+        Stats {
+            feats: 0,
+            clusters: 0,
+            invalid: 0,
+            addresses: 0,
+            intersections: 0,
+            address_orphans: 0,
+            network_orphans: 0,
+            bounds: HashMap::new()
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StatsBound {
+    pub names: Vec<String>,
+    pub synonyms: Vec<String>,
+    pub addresses: i64,
+    pub intersections: i64,
+    pub custom: StatsCustom
+}
+
+impl StatsBound {
+    fn new() -> Self {
+        StatsBound {
+            names: Vec::new(),
+            synonyms: Vec::new(),
+            addresses: 0,
+            intersections: 0,
+            custom: StatsCustom::new()
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StatsCustom {
+    pub postcodes: i64,
+    pub accuracy: StatsAccuracy
+}
+
+impl StatsCustom {
+    pub fn new() -> Self {
+        StatsCustom {
+            postcodes: 0,
+            accuracy: StatsAccuracy::new()
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StatsAccuracy {
+    pub rooftop: i64,
+    pub parcel: i64,
+    pub point: i64
+}
+
+impl StatsAccuracy {
+    pub fn new() -> Self {
+        StatsAccuracy {
+            rooftop: 0,
+            parcel: 0,
+            point: 0
+        }
+    }
+}
+
 pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
     let args: StatsArgs = match cx.argument_opt(0) {
         None => StatsArgs::new(),
@@ -170,84 +250,4 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
     stats.bounds = boundmap;
 
     Ok(neon_serde::to_value(&mut cx, &stats)?)
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Stats {
-    pub feats: i64, // Total number of features
-    pub clusters: i64, // Total number of addr/network clusters
-    pub invalid: i64, // Total number of unrecognized features (not counted in feats)
-    pub addresses: i64, // Total number of address points in clusters/orphans
-    pub intersections: i64, // Total number of address features
-    pub address_orphans: i64, // Total number of address orphans
-    pub network_orphans: i64, // Total number of network orphans
-    pub bounds: HashMap<String, StatsBound>
-}
-
-impl Stats {
-    fn new() -> Self {
-        Stats {
-            feats: 0,
-            clusters: 0,
-            invalid: 0,
-            addresses: 0,
-            intersections: 0,
-            address_orphans: 0,
-            network_orphans: 0,
-            bounds: HashMap::new()
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct StatsBound {
-    pub names: Vec<String>,
-    pub synonyms: Vec<String>,
-    pub addresses: i64,
-    pub intersections: i64,
-    pub custom: StatsCustom
-}
-
-impl StatsBound {
-    fn new() -> Self {
-        StatsBound {
-            names: Vec::new(),
-            synonyms: Vec::new(),
-            addresses: 0,
-            intersections: 0,
-            custom: StatsCustom::new()
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct StatsCustom {
-    pub postcodes: i64,
-    pub accuracy: StatsAccuracy
-}
-
-impl StatsCustom {
-    pub fn new() -> Self {
-        StatsCustom {
-            postcodes: 0,
-            accuracy: StatsAccuracy::new()
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct StatsAccuracy {
-    pub rooftop: i64,
-    pub parcel: i64,
-    pub point: i64
-}
-
-impl StatsAccuracy {
-    pub fn new() -> Self {
-        StatsAccuracy {
-            rooftop: 0,
-            parcel: 0,
-            point: 0
-        }
-    }
 }
