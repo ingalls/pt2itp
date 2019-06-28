@@ -60,6 +60,7 @@ impl Names {
                 highway_synonyms.append(&mut text::syn_state_hwy(&name, &context));
                 highway_synonyms.append(&mut text::syn_us_hwy(&name, &context));
                 highway_synonyms.append(&mut text::syn_us_cr(&name, &context));
+                highway_synonyms.append(&mut text::syn_us_famous(&name, &context));
 
                 if name.priority == top_priority {
                     // Name is high priority - pass through standardized highway names
