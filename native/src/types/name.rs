@@ -262,7 +262,7 @@ impl Name {
     ///
     /// ```
     pub fn new(display: impl ToString, priority: i8, context: &Context) -> Self {
-        let mut display = display.to_string();
+        let mut display = display.to_string().trim().to_string();
 
         let tokenized = context.tokens.process(&display);
 

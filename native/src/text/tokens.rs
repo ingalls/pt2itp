@@ -62,6 +62,8 @@ impl Tokens {
     /// returning a vector of component tokens
     ///
     fn tokenize(&self, text: &String) -> Vec<String> {
+        let text = text.trim();
+
         lazy_static! {
             static ref UP: Regex = Regex::new(r"[\^]+").unwrap();
 
