@@ -88,6 +88,13 @@ impl Tokens {
 
         let tokens: Vec<String> = normalized.split(" ").map(|split| {
             String::from(split)
+        }).filter(|token| {
+            // Remove Empty Tokens (Double Space/Non Trimmed Input)
+            if token.len() == 0 {
+                false
+            } else {
+                true
+            }
         }).collect();
 
         tokens
@@ -166,7 +173,9 @@ mod tests {
         assert_eq!(tokenized_string(tokens.process(&String::from(""))), String::from(""));
 
         assert_eq!(tokenized_string(tokens.process(&String::from("foo"))), String::from("foo"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo bar"))), String::from("foo bar"));
+        assert_eq!(tokenized_string(tokens.process(&String::from(" foo bar"))), String::from("foo bar"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("foo bar "))), String::from("foo bar"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("foo  bar"))), String::from("foo bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("foo-bar"))), String::from("foo bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("foo+bar"))), String::from("foo bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("foo_bar"))), String::from("foo bar"));
