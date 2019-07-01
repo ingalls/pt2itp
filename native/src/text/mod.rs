@@ -402,7 +402,7 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
 
         syns.push(Name::new(format!("MLK Jr{}", &strtype), -1, &context));
         syns.push(Name::new(format!("M L K Jr{}", &strtype), -1, &context));
-        syns.push(Name::new(format!("Martin Luther King Junior{}", &strtype), 1, &context));
+        syns.push(Name::new(format!("Martin Luther King Jr{}", &strtype), 1, &context));
 
     } else if MLK.is_match(name.display.as_str()) {
         let strtype: String = match MLK.captures(name.display.as_str()) {
@@ -652,7 +652,7 @@ mod tests {
         let results = vec![
             Name::new("MLK Jr", -1, &context),
             Name::new("M L K Jr", -1, &context),
-            Name::new("Martin Luther King Junior", 1, &context)
+            Name::new("Martin Luther King Jr", 1, &context)
         ];
 
         assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr"), 0, &context), &context), results);
@@ -667,7 +667,7 @@ mod tests {
         let results = vec![
             Name::new("MLK Jr Highway", -1, &context),
             Name::new("M L K Jr Highway", -1, &context),
-            Name::new("Martin Luther King Junior Highway", 1, &context)
+            Name::new("Martin Luther King Jr Highway", 1, &context)
         ];
 
         assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr Highway"), 0, &context), &context), results);
