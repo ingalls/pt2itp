@@ -375,9 +375,9 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
     let mut syns: Vec<Name> = Vec::new();
 
     lazy_static! {
-        static ref JFK: Regex = Regex::new(r"(?i)^j(ohn)?\s?f\s?k(ennedy)?(?P<type>\s.*)?$").unwrap();
-        static ref MLK: Regex = Regex::new(r"(?i)^m(artin)?\s?l(uther)?\s?k(ing)?(?P<type>\s.*)?$$").unwrap();
-        static ref MLKJR: Regex = Regex::new(r"(?i)^m(artin)?\s?l(uther)?\s?k(ing)?\s(jr|junior)(?P<type>\s.*)?$$").unwrap();
+        static ref JFK: Regex = Regex::new(r"(?i)^j(\.|ohn)?\s?f(\.)?\s?k(\.|ennedy)?(?P<type>\s.*)?$").unwrap();
+        static ref MLK: Regex = Regex::new(r"(?i)^m(\.|artin)?\s?l(\.|uther)?\s?k(\.|ing)?(?P<type>\s.*)?$$").unwrap();
+        static ref MLKJR: Regex = Regex::new(r"(?i)^m(\.|artin)?\s?l(\.|uther)?\s?k(\.|ing)?\s(jr(\.)?|junior)(?P<type>\s.*)?$$").unwrap();
     }
 
     if JFK.is_match(name.display.as_str()) {
@@ -632,8 +632,11 @@ mod tests {
         ];
 
         assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K."), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("J F K"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K."), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("John F. Kennedy"), 0, &context), &context), results);
 
         let results = vec![
             Name::new("John F Kennedy Highway", 1, &context),
@@ -641,7 +644,9 @@ mod tests {
         ];
 
         assert_eq!(syn_us_famous(&Name::new(String::from("JFK Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("J F K Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K. Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy Highway"), 0, &context), &context), results);
 
         let results = vec![
@@ -654,6 +659,8 @@ mod tests {
         assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("m l k jr"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("m l k junior"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. jr."), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. junior"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Jr"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior"), 0, &context), &context), results);
 
