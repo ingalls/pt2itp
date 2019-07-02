@@ -369,6 +369,59 @@ pub fn syn_us_cr(name: &Name, context: &Context) -> Vec<Name> {
 }
 
 ///
+/// Generate synonyms for names like "MLK" => "Martin Luther King"
+///
+pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
+    let mut syns: Vec<Name> = Vec::new();
+
+    lazy_static! {
+        static ref JFK: Regex = Regex::new(r"(?i)^j(\.|ohn)?\s?f(\.)?\s?k(\.|ennedy)?(?P<type>\s.*)?$").unwrap();
+        static ref MLK: Regex = Regex::new(r"(?i)^m(\.|artin)?\s?l(\.|uther)?\s?k(\.|ing)?(?P<type>\s.*)?$$").unwrap();
+        static ref MLKJR: Regex = Regex::new(r"(?i)^m(\.|artin)?\s?l(\.|uther)?\s?k(\.|ing)?\s(jr(\.)?|junior)(?P<type>\s.*)?$$").unwrap();
+    }
+
+    if JFK.is_match(name.display.as_str()) {
+        let strtype: String = match JFK.captures(name.display.as_str()) {
+            Some(capture) => match capture.name("type") {
+                Some(name) => name.as_str().to_string(),
+                None => String::from("")
+            },
+            None => String::from("")
+        };
+
+        syns.push(Name::new(format!("John F Kennedy{}", &strtype), 1, &context));
+        syns.push(Name::new(format!("JFK{}", &strtype), -1, &context));
+    } else if MLKJR.is_match(name.display.as_str()) {
+        let strtype: String = match MLKJR.captures(name.display.as_str()) {
+            Some(capture) => match capture.name("type") {
+                Some(name) => name.as_str().to_string(),
+                None => String::from("")
+            },
+            None => String::from("")
+        };
+
+        syns.push(Name::new(format!("MLK Jr{}", &strtype), -1, &context));
+        syns.push(Name::new(format!("M L K Jr{}", &strtype), -1, &context));
+        syns.push(Name::new(format!("Martin Luther King Jr{}", &strtype), 1, &context));
+
+    } else if MLK.is_match(name.display.as_str()) {
+        let strtype: String = match MLK.captures(name.display.as_str()) {
+            Some(capture) => match capture.name("type") {
+                Some(name) => name.as_str().to_string(),
+                None => String::from("")
+            },
+            None => String::from("")
+        };
+
+        syns.push(Name::new(format!("MLK{}", &strtype), -1, &context));
+        syns.push(Name::new(format!("M L K{}", &strtype), -1, &context));
+        syns.push(Name::new(format!("Martin Luther King{}", &strtype), 1, &context));
+    }
+
+    syns
+}
+
+///
 /// Generate synonyms for names like "US 81" => "US Route 81"
 ///
 pub fn syn_us_hwy(name: &Name, context: &Context) -> Vec<Name> {
@@ -565,6 +618,90 @@ mod tests {
             &String::from("McDonalds Drivethru"),
             &context
         ), true);
+    }
+
+    #[test]
+    fn test_syn_us_famous() {
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
+        assert_eq!(syn_us_famous(&Name::new(String::from(""), 0, &context), &context), vec![]);
+
+        let results = vec![
+            Name::new("John F Kennedy", 1, &context),
+            Name::new("JFK", -1, &context),
+        ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K."), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J F K"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K."), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("John F. Kennedy"), 0, &context), &context), results);
+
+        let results = vec![
+            Name::new("John F Kennedy Highway", 1, &context),
+            Name::new("JFK Highway", -1, &context),
+        ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("JFK Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J F K Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K. Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy Highway"), 0, &context), &context), results);
+
+        let results = vec![
+            Name::new("MLK Jr", -1, &context),
+            Name::new("M L K Jr", -1, &context),
+            Name::new("Martin Luther King Jr", 1, &context)
+        ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k jr"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k junior"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. jr."), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. junior"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Jr"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior"), 0, &context), &context), results);
+
+        let results = vec![
+            Name::new("MLK Jr Highway", -1, &context),
+            Name::new("M L K Jr Highway", -1, &context),
+            Name::new("Martin Luther King Jr Highway", 1, &context)
+        ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k jr Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k junior Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Jr Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior Highway"), 0, &context), &context), results);
+
+        let results = vec![
+            Name::new("MLK", -1, &context),
+            Name::new("M L K", -1, &context),
+            Name::new("Martin Luther King", 1, &context)
+        ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King"), 0, &context), &context), results);
+
+        let results = vec![
+            Name::new("MLK Highway", -1, &context),
+            Name::new("M L K Highway", -1, &context),
+            Name::new("Martin Luther King Highway", 1, &context)
+        ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Highway"), 0, &context), &context), results);
     }
 
     #[test]
