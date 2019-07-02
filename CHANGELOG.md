@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.1.0
+
+- :rocket: Add support for `MLK` & `JFK` synonym generation
+
 ### v24.0.1
 
 - :arrow_up: ESLint@6
