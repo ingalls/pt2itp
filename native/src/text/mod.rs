@@ -430,7 +430,7 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
             None => String::from("")
         };
 
-        let strpre: String = match MLKJR.captures(name.display.as_str()) {
+        let strpre: String = match MLK.captures(name.display.as_str()) {
             Some(capture) => match capture.name("pre") {
                 Some(name) => name.as_str().to_string(),
                 None => String::from("")
