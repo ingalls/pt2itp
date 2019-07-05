@@ -10,6 +10,24 @@
 
 ## Version History
 
+### v24.1.0
+
+- :rocket: Add support for `MLK` & `JFK` synonym generation
+
+### v24.0.1
+
+- :arrow_up: ESLint@6
+
+### v24.0.0
+
+- :rocket: Remove `analyze` mode which we haven't used in quite some time
+- :white_check_mark: Switch `map` integration tests from `SG` data to more complete `DC` data
+- :tada: Add the ability to do bounds based stats in `stat` mode
+
+### v23.2.2
+
+- :bug: Fix french synonym bug
+
 ### v23.2.1
 
 - :bug: Ensure empty `Names` structs are rejected when used in the context of an `Address` or `Network`

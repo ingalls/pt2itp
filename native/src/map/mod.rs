@@ -7,9 +7,11 @@ use crate::Tokens;
 
 use neon::prelude::*;
 
-use super::stream::GeoStream;
-use super::stream::AddrStream;
-use super::stream::NetStream;
+use super::stream::{
+    GeoStream,
+    AddrStream,
+    NetStream
+};
 
 use super::pg;
 use super::pg::{Table, InputTable};

@@ -60,6 +60,7 @@ impl Names {
                 highway_synonyms.append(&mut text::syn_state_hwy(&name, &context));
                 highway_synonyms.append(&mut text::syn_us_hwy(&name, &context));
                 highway_synonyms.append(&mut text::syn_us_cr(&name, &context));
+                highway_synonyms.append(&mut text::syn_us_famous(&name, &context));
 
                 if name.priority == top_priority {
                     // Name is high priority - pass through standardized highway names
@@ -262,7 +263,7 @@ impl Name {
     ///
     /// ```
     pub fn new(display: impl ToString, priority: i8, context: &Context) -> Self {
-        let mut display = display.to_string();
+        let mut display = display.to_string().trim().to_string();
 
         let tokenized = context.tokens.process(&display, &context.country);
 

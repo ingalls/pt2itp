@@ -7,7 +7,9 @@ extern crate crossbeam;
 extern crate num_cpus;
 extern crate postgres;
 extern crate geojson;
+extern crate rstar;
 extern crate regex;
+extern crate geo;
 
 // Internal Helper Libraries
 pub mod util;

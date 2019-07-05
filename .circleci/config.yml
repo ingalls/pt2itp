@@ -48,6 +48,9 @@ jobs:
                 name: "Yarn Lint"
                 command: "yarn run lint"
             - run:
+                name: "Yarn PreTest"
+                command: "yarn run pretest"
+            - run:
                 name: "Yarn Doc"
                 command: "yarn run doc"
             - run:

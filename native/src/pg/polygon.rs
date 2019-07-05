@@ -11,9 +11,9 @@ pub struct Polygon {
 }
 
 impl Polygon {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: impl ToString) -> Self {
         Polygon {
-            name: name
+            name: name.to_string()
         }
     }
 }
