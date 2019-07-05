@@ -10,7 +10,7 @@
 
 ## Version History
 
-### v24.1.0-st
+### v24.1.0-st.1
 
 - :rocket: Add support for ambiguous 'st' token detection
 
