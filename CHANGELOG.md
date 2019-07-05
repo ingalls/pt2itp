@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.1.0-st
+
+- :rocket: Add support for ambiguous 'st' token detection
+
 ### v24.1.0
 
 - :rocket: Add support for `MLK` & `JFK` synonym generation
