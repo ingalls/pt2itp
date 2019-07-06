@@ -10,7 +10,7 @@
 
 ## Version History
 
-### v24.1.0-mlk
+### v24.1.1
 
 - :bug: Add support for pre tokens in `MLK` & `JFK` synonym generation
 
