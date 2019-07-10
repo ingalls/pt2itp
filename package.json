@@ -56,7 +56,7 @@
     "pluralize": "^8.0.0",
     "progress": "^2.0.0",
     "request": "^2.88.0",
-    "simple-statistics": "^7.0.0",
+    "simple-statistics": "7.0.2",
     "split": "^1.0.0",
     "talisman": "^0.21.0",
     "turf-line-slice-at-intersection": "^1.0.1",
