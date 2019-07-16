@@ -68,7 +68,7 @@ pub fn create(bound: Option<String>, boundmap: &mut HashMap<String, StatsBound>)
             _ => panic!("Bound must be (Multi)Polygon Features")
         };
 
-        boundmap.insert(name.clone(), StatsBound::new());
+        boundmap.insert(name.clone(), StatsBound::new(name.clone()));
 
         let rect = Rect::new(geom, name);
 

@@ -51,6 +51,7 @@ impl Stats {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatsBound {
+    pub id: String,
     pub names: Vec<String>,
     pub synonyms: Vec<String>,
     pub addresses: i64,
@@ -59,8 +60,9 @@ pub struct StatsBound {
 }
 
 impl StatsBound {
-    fn new() -> Self {
+    fn new(id: impl ToString) -> Self {
         StatsBound {
+            id: id.to_string(),
             names: Vec::new(),
             synonyms: Vec::new(),
             addresses: 0,
