@@ -376,8 +376,7 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
 
     lazy_static! {
         static ref JFK: Regex = Regex::new(r"(?i)^(?P<pre>.*\s)?j(\.|ohn)?\s?f(\.)?\s?k(\.|ennedy)?(?P<post>\s.*)?$").unwrap();
-        static ref MLK: Regex = Regex::new(r"(?i)^(?P<pre>.*\s)?m(\.|artin)?\s?l(\.|uther)?\s?k(\.|ing)?(?P<post>\s.*)?$$").unwrap();
-        static ref MLKJR: Regex = Regex::new(r"(?i)^(?P<pre>.*\s)?m(\.|artin)?\s?l(\.|uther)?\s?k(\.|ing)?\s(jr(\.)?|junior)(?P<post>\s.*)?$$").unwrap();
+        static ref MLKJR: Regex = Regex::new(r"(?i)^(?P<pre>.*\s)?m(\.|artin)?\s?l(\.|uther)?\s?k(\.|ing)?\s?(jr(\.)?|junior)?(?P<post>\s.*)?$").unwrap();
     }
 
     if JFK.is_match(name.display.as_str()) {
@@ -415,32 +414,12 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
             },
             None => String::from("")
         };
-
+        syns.push(Name::new(format!("{}MLK{}", &strpre, &strpost), -1, &context));
+        syns.push(Name::new(format!("{}M L K{}", &strpre, &strpost), -1, &context));
+        syns.push(Name::new(format!("{}Martin Luther King{}", &strpre, &strpost), -1, &context));
         syns.push(Name::new(format!("{}MLK Jr{}", &strpre, &strpost), -1, &context));
         syns.push(Name::new(format!("{}M L K Jr{}", &strpre, &strpost), -1, &context));
         syns.push(Name::new(format!("{}Martin Luther King Jr{}", &strpre, &strpost), 1, &context));
-
-
-    } else if MLK.is_match(name.display.as_str()) {
-        let strpost: String = match MLK.captures(name.display.as_str()) {
-            Some(capture) => match capture.name("post") {
-                Some(name) => name.as_str().to_string(),
-                None => String::from("")
-            },
-            None => String::from("")
-        };
-
-        let strpre: String = match MLK.captures(name.display.as_str()) {
-            Some(capture) => match capture.name("pre") {
-                Some(name) => name.as_str().to_string(),
-                None => String::from("")
-            },
-            None => String::from("")
-        };
-
-        syns.push(Name::new(format!("{}MLK{}", &strpre, &strpost), -1, &context));
-        syns.push(Name::new(format!("{}M L K{}", &strpre, &strpost), -1, &context));
-        syns.push(Name::new(format!("{}Martin Luther King{}", &strpre, &strpost), 1, &context));
     }
 
     syns
@@ -686,10 +665,18 @@ mod tests {
         assert_eq!(syn_us_famous(&Name::new(String::from("NE John F Kennedy Highway"), 0, &context), &context), results);
 
         let results = vec![
+            Name::new("MLK", -1, &context),
+            Name::new("M L K", -1, &context),
+            Name::new("Martin Luther King", -1, &context),
             Name::new("MLK Jr", -1, &context),
             Name::new("M L K Jr", -1, &context),
             Name::new("Martin Luther King Jr", 1, &context)
         ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King"), 0, &context), &context), results);
 
         assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr"), 0, &context), &context), results);
@@ -701,10 +688,18 @@ mod tests {
         assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior"), 0, &context), &context), results);
 
         let results = vec![
+            Name::new("MLK Highway", -1, &context),
+            Name::new("M L K Highway", -1, &context),
+            Name::new("Martin Luther King Highway", -1, &context),
             Name::new("MLK Jr Highway", -1, &context),
             Name::new("M L K Jr Highway", -1, &context),
             Name::new("Martin Luther King Jr Highway", 1, &context)
         ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Highway"), 0, &context), &context), results);
 
         assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr Highway"), 0, &context), &context), results);
@@ -714,10 +709,18 @@ mod tests {
         assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior Highway"), 0, &context), &context), results);
 
         let results = vec![
+            Name::new("West MLK Highway", -1, &context),
+            Name::new("West M L K Highway", -1, &context),
+            Name::new("West Martin Luther King Highway", -1, &context),
             Name::new("West MLK Jr Highway", -1, &context),
             Name::new("West M L K Jr Highway", -1, &context),
             Name::new("West Martin Luther King Jr Highway", 1, &context)
         ];
+
+        assert_eq!(syn_us_famous(&Name::new(String::from("West mlk Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West m l king Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West m l k Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Highway"), 0, &context), &context), results);
 
         assert_eq!(syn_us_famous(&Name::new(String::from("West mlk jr Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("West m l king jr Highway"), 0, &context), &context), results);
@@ -725,45 +728,6 @@ mod tests {
         assert_eq!(syn_us_famous(&Name::new(String::from("West m l k junior Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Jr Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Junior Highway"), 0, &context), &context), results);
-
-        let results = vec![
-            Name::new("MLK", -1, &context),
-            Name::new("M L K", -1, &context),
-            Name::new("Martin Luther King", 1, &context)
-        ];
-
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l king"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King"), 0, &context), &context), results);
-
-        let results = vec![
-            Name::new("MLK Highway", -1, &context),
-            Name::new("M L K Highway", -1, &context),
-            Name::new("Martin Luther King Highway", 1, &context)
-        ];
-
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l king Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Highway"), 0, &context), &context), results);
-
-        let results = vec![
-            Name::new("South MLK Highway", -1, &context),
-            Name::new("South M L K Highway", -1, &context),
-            Name::new("South Martin Luther King Highway", 1, &context)
-        ];
-
-        assert_eq!(syn_us_famous(&Name::new(String::from("South mlk Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("South m l king Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("South m l k Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("South m l k Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("South Martin Luther King Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("South Martin Luther King Highway"), 0, &context), &context), results);
     }
 
     #[test]
