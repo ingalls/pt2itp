@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.1.2
+
+- :bug: Standardize all `MLK` variations to `Marin Luther King Jr`
+
 ### v24.1.1
 
 - :bug: Add support for pre tokens in `MLK` & `JFK` synonym generation
