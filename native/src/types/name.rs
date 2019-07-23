@@ -48,7 +48,6 @@ impl Names {
 
         if context.country == String::from("US") {
             for name in names.names.iter_mut() {
-                name.display = text::str_remove_octo(&name.display);
 
                 synonyms.append(&mut text::syn_number_suffix(&name, &context));
                 synonyms.append(&mut text::syn_written_numeric(&name, &context));
@@ -67,6 +66,8 @@ impl Names {
                     synonyms.append(&mut highway_synonyms);
                 } else {
                     // Downgrade each highway synonym
+                    // @TODO set custom priorities within text/mod.rs synonym generating functions
+                    // we may not always set priority to -1 if it's not the top_priority synonym
                     for mut synonym in highway_synonyms {
                         synonym.priority = -1;
                         synonyms.push(synonym);
@@ -272,6 +273,7 @@ impl Name {
             .replace("\t", "")
             .replace("\n", "");
 
+        // @TODO titlecase and normalize display name here
         Name {
             display: display,
             priority: priority,
@@ -461,7 +463,7 @@ mod tests {
 
     #[test]
     fn test_names() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
         assert_eq!(Names::new(vec![], &context), Names {
             names: Vec::new()
@@ -502,6 +504,81 @@ mod tests {
                 Name::new(String::from("US Highway 1"), -1, &context).set_source("generated"),
                 Name::new(String::from("United States Route 1"), -1, &context).set_source("generated"),
                 Name::new(String::from("United States Highway 1"), -1, &context).set_source("generated"),
+            ]
+        });
+        context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Names::new(vec![
+            Name::new("NE M L King Blvd", 0, &context).set_freq(1480),
+            Name::new("NE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(110),
+            Name::new("NE M L KING BLVD", 0, &context).set_freq(18),
+            Name::new("SE M L King Blvd", 0, &context).set_freq(7),
+            Name::new("N M L King Blvd", 0, &context).set_freq(3),
+            Name::new("SE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(2),
+            Name::new("NE MLK", 0, &context).set_freq(1),
+            Name::new("Northeast Martin Luther King Junior Boulevard", 0, &context).set_freq(1),
+            Name::new("OR 99E", 0, &context).set_freq(1),
+            Name::new("State Highway 99E", 0, &context).set_freq(1)
+        ], &context), Names {
+            names: vec![
+                Name::new("NE M L King Blvd", 0, &context).set_freq(1480).set_source("address"),
+                Name::new("NE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(110).set_source("address"),
+                Name::new("NE M L KING BLVD", 0, &context).set_freq(18).set_source("address"),
+                Name::new("SE M L King Blvd", 0, &context).set_freq(7).set_source("address"),
+                Name::new("N M L King Blvd", 0, &context).set_freq(3).set_source("address"),
+                Name::new("SE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(2).set_source("address"),
+                Name::new("NE MLK", 0, &context).set_freq(1).set_source("network"),
+                Name::new("Northeast Martin Luther King Junior Boulevard", 0, &context).set_freq(1).set_source("network"),
+                Name::new("OR 99E", 0, &context).set_freq(1).set_source("network"),
+                Name::new("State Highway 99E", 0, &context).set_freq(1).set_source("network"),
+                Name::new("NE MLK Blvd", -1, &context).set_source("generated"),
+                Name::new("NE M L K Blvd", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King Blvd", -1, &context).set_source("generated"),
+                Name::new("NE MLK Jr Blvd", -1, &context).set_source("generated"),
+                Name::new("NE M L K Jr Blvd", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
+                Name::new("NE MLK BLVD", -1, &context).set_source("generated"),
+                Name::new("NE M L K BLVD", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King BLVD", -1, &context).set_source("generated"),
+                Name::new("NE MLK Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("NE M L K Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
+                Name::new("NE MLK BLVD", -1, &context).set_source("generated"),
+                Name::new("NE M L K BLVD", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King BLVD", -1, &context).set_source("generated"),
+                Name::new("NE MLK Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("NE M L K Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
+                Name::new("SE MLK Blvd", -1, &context).set_source("generated"),
+                Name::new("SE M L K Blvd", -1, &context).set_source("generated"),
+                Name::new("SE Martin Luther King Blvd", -1, &context).set_source("generated"),
+                Name::new("SE MLK Jr Blvd", -1, &context).set_source("generated"),
+                Name::new("SE M L K Jr Blvd", -1, &context).set_source("generated"),
+                Name::new("SE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
+                Name::new("N MLK Blvd", -1, &context).set_source("generated"),
+                Name::new("N M L K Blvd", -1, &context).set_source("generated"),
+                Name::new("N Martin Luther King Blvd", -1, &context).set_source("generated"),
+                Name::new("N MLK Jr Blvd", -1, &context).set_source("generated"),
+                Name::new("N M L K Jr Blvd", -1, &context).set_source("generated"),
+                Name::new("N Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
+                Name::new("SE MLK BLVD", -1, &context).set_source("generated"),
+                Name::new("SE M L K BLVD", -1, &context).set_source("generated"),
+                Name::new("SE Martin Luther King BLVD", -1, &context).set_source("generated"),
+                Name::new("SE MLK Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("SE M L K Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("SE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
+                Name::new("NE MLK", -1, &context).set_source("generated"),
+                Name::new("NE M L K", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King", -1, &context).set_source("generated"),
+                Name::new("NE MLK Jr", -1, &context).set_source("generated"),
+                Name::new("NE M L K Jr", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King Jr", 1, &context).set_source("generated"),
+                Name::new("Northeast MLK Boulevard", -1, &context).set_source("generated"),
+                Name::new("Northeast M L K Boulevard", -1, &context).set_source("generated"),
+                Name::new("Northeast Martin Luther King Boulevard", -1, &context).set_source("generated"),
+                Name::new("Northeast MLK Jr Boulevard", -1, &context).set_source("generated"),
+                Name::new("Northeast M L K Jr Boulevard", -1, &context).set_source("generated"),
+                Name::new("Northeast Martin Luther King Jr Boulevard", 1, &context).set_source("generated")
             ]
         });
     }

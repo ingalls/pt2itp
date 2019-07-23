@@ -626,7 +626,7 @@ mod tests {
 
     #[test]
     fn test_syn_us_famous() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
         assert_eq!(syn_us_famous(&Name::new(String::from(""), 0, &context), &context), vec![]);
 
@@ -728,6 +728,80 @@ mod tests {
         assert_eq!(syn_us_famous(&Name::new(String::from("West m l k junior Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Jr Highway"), 0, &context), &context), results);
         assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Junior Highway"), 0, &context), &context), results);
+
+        context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        let input = vec![
+            Name::new(String::from("NE M L King Blvd"), 0, &context),
+            Name::new(String::from("NE MARTIN LUTHER KING JR BLVD"), 0, &context),
+            Name::new(String::from("NE M L KING BLVD"), 0, &context),
+            Name::new(String::from("SE M L King Blvd"), 0, &context),
+            Name::new(String::from("N M L King Blvd"), 0, &context),
+            Name::new(String::from("SE MARTIN LUTHER KING JR BLVD"), 0, &context),
+            Name::new(String::from("NE MLK"), 0, &context),
+            Name::new(String::from("Northeast Martin Luther King Junior Boulevard"), 0, &context),
+            Name::new(String::from("OR 99E"), 0, &context),
+            Name::new(String::from("State Highway 99E"), 0, &context)
+        ];
+        let mut output = vec![];
+
+        for name in input {
+            let synonyms = syn_us_famous(&name,  &context);
+            for synonym in synonyms {
+                output.push(synonym);
+            }
+        }
+
+        assert_eq!(vec![
+            Name::new("NE MLK Blvd", -1, &context),
+            Name::new("NE M L K Blvd", -1, &context),
+            Name::new("NE Martin Luther King Blvd", -1, &context),
+            Name::new("NE MLK Jr Blvd", -1, &context),
+            Name::new("NE M L K Jr Blvd", -1, &context),
+            Name::new("NE Martin Luther King Jr Blvd", 1, &context),
+            Name::new("NE MLK BLVD", -1, &context),
+            Name::new("NE M L K BLVD", -1, &context),
+            Name::new("NE Martin Luther King BLVD", -1, &context),
+            Name::new("NE MLK Jr BLVD", -1, &context),
+            Name::new("NE M L K Jr BLVD", -1, &context),
+            Name::new("NE Martin Luther King Jr BLVD", 1, &context),
+            Name::new("NE MLK BLVD", -1, &context),
+            Name::new("NE M L K BLVD", -1, &context),
+            Name::new("NE Martin Luther King BLVD", -1, &context),
+            Name::new("NE MLK Jr BLVD", -1, &context),
+            Name::new("NE M L K Jr BLVD", -1, &context),
+            Name::new("NE Martin Luther King Jr BLVD", 1, &context),
+            Name::new("SE MLK Blvd", -1, &context),
+            Name::new("SE M L K Blvd", -1, &context),
+            Name::new("SE Martin Luther King Blvd", -1, &context),
+            Name::new("SE MLK Jr Blvd", -1, &context),
+            Name::new("SE M L K Jr Blvd", -1, &context),
+            Name::new("SE Martin Luther King Jr Blvd", 1, &context),
+            Name::new("N MLK Blvd", -1, &context),
+            Name::new("N M L K Blvd", -1, &context),
+            Name::new("N Martin Luther King Blvd", -1, &context),
+            Name::new("N MLK Jr Blvd", -1, &context),
+            Name::new("N M L K Jr Blvd", -1, &context),
+            Name::new("N Martin Luther King Jr Blvd", 1, &context),
+            Name::new("SE MLK BLVD", -1, &context),
+            Name::new("SE M L K BLVD", -1, &context),
+            Name::new("SE Martin Luther King BLVD", -1, &context),
+            Name::new("SE MLK Jr BLVD", -1, &context),
+            Name::new("SE M L K Jr BLVD", -1, &context),
+            Name::new("SE Martin Luther King Jr BLVD", 1, &context),
+            Name::new("NE MLK", -1, &context),
+            Name::new("NE M L K", -1, &context),
+            Name::new("NE Martin Luther King", -1, &context),
+            Name::new("NE MLK Jr", -1, &context),
+            Name::new("NE M L K Jr", -1, &context),
+            Name::new("NE Martin Luther King Jr", 1, &context),
+            Name::new("Northeast MLK Boulevard", -1, &context),
+            Name::new("Northeast M L K Boulevard", -1, &context),
+            Name::new("Northeast Martin Luther King Boulevard", -1, &context),
+            Name::new("Northeast MLK Jr Boulevard", -1, &context),
+            Name::new("Northeast M L K Jr Boulevard", -1, &context),
+            Name::new("Northeast Martin Luther King Jr Boulevard", 1, &context)
+        ], output);
     }
 
     #[test]
