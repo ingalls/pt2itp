@@ -42,61 +42,25 @@ impl Names {
 
         names.sort();
 
-        let top_priority = names.names[0].priority;
-
         let mut synonyms: Vec<Name> = Vec::new();
 
         if context.country == String::from("US") {
             for name in names.names.iter_mut() {
-
                 synonyms.append(&mut text::syn_number_suffix(&name, &context));
                 synonyms.append(&mut text::syn_written_numeric(&name, &context));
-
-                // don't allow highway names to take the place of a local name
-                // if the highway name is not the primary name as defined by the
-                // input data
-                let mut highway_synonyms: Vec<Name> = Vec::new();
-                highway_synonyms.append(&mut text::syn_state_hwy(&name, &context));
-                highway_synonyms.append(&mut text::syn_us_hwy(&name, &context));
-                highway_synonyms.append(&mut text::syn_us_cr(&name, &context));
-                highway_synonyms.append(&mut text::syn_us_famous(&name, &context));
-
-                if name.priority == top_priority {
-                    // Name is high priority - pass through standardized highway names
-                    synonyms.append(&mut highway_synonyms);
-                } else {
-                    // Downgrade each highway synonym
-                    // @TODO set custom priorities within text/mod.rs synonym generating functions
-                    // we may not always set priority to -1 if it's not the top_priority synonym
-                    for mut synonym in highway_synonyms {
-                        synonym.priority = -1;
-                        synonyms.push(synonym);
-                    }
-                }
+                synonyms.append(&mut text::syn_state_hwy(&name, &context));
+                synonyms.append(&mut text::syn_us_hwy(&name, &context));
+                synonyms.append(&mut text::syn_us_cr(&name, &context));
+                synonyms.append(&mut text::syn_us_famous(&name, &context));
             }
         } else if context.country == String::from("CA") {
             for name in names.names.iter_mut() {
-                name.display = text::str_remove_octo(&name.display);
-
-                let mut highway_synonyms: Vec<Name> = Vec::new();
-                highway_synonyms.append(&mut text::syn_ca_hwy(&name, &context));
-                if name.priority == top_priority {
-                    synonyms.append(&mut highway_synonyms);
-                } else {
-                    for mut synonym in highway_synonyms {
-                        synonym.priority = -1;
-                        synonyms.push(synonym);
-                    }
-                }
+                synonyms.append(&mut text::syn_ca_hwy(&name, &context));
 
                 if context.region.is_some() && context.region.as_ref().unwrap() == "QC" {
                     synonyms.append(&mut text::syn_ca_french(&name, &context));
                 }
             }
-        }
-
-        for synonym in synonyms.iter_mut() {
-            synonym.source = String::from("generated");
         }
 
         names.names.append(&mut synonyms);
@@ -274,6 +238,10 @@ impl Name {
             .replace("\n", "");
 
         // @TODO titlecase and normalize display name here
+        if context.country == String::from("US") || context.country == String::from("CA") {
+            display = text::str_remove_octo(&display);
+        }
+
         Name {
             display: display,
             priority: priority,
@@ -361,6 +329,17 @@ mod tests {
                 Tokenized::new(String::from("main"), None),
                 Tokenized::new(String::from("st"), None),
                 Tokenized::new(String::from("nw"), None)],
+            freq: 1
+        });
+
+        assert_eq!(Name::new(String::from("Highway #12 West"), 0, &context), Name {
+            display: String::from("Highway 12 West"),
+            priority: 0,
+            source: String::from(""),
+            tokenized: vec![
+                Tokenized::new(String::from("highway"), None),
+                Tokenized::new(String::from("12"), None),
+                Tokenized::new(String::from("west"), None)],
             freq: 1
         });
     }
@@ -482,8 +461,8 @@ mod tests {
         assert_eq!(Names::new(vec![Name::new(String::from("US Route 1"), 0, &context)], &context), Names {
             names: vec![
                 Name::new(String::from("US Route 1"), 0, &context),
-                Name::new(String::from("US 1"), -1, &context).set_source("generated"),
                 Name::new(String::from("US Route 1"), 1, &context).set_source("generated"),
+                Name::new(String::from("US 1"), -1, &context).set_source("generated"),
                 Name::new(String::from("US Highway 1"), -1, &context).set_source("generated"),
                 Name::new(String::from("United States Route 1"), -1, &context).set_source("generated"),
                 Name::new(String::from("United States Highway 1"), -1, &context).set_source("generated"),
@@ -499,26 +478,28 @@ mod tests {
             names: vec![
                 Name::new(String::from("Main St"), 0, &context),
                 Name::new(String::from("US Route 1"), -1, &context),
-                Name::new(String::from("US 1"), -1, &context).set_source("generated"),
                 Name::new(String::from("US Route 1"), -1, &context).set_source("generated"),
-                Name::new(String::from("US Highway 1"), -1, &context).set_source("generated"),
-                Name::new(String::from("United States Route 1"), -1, &context).set_source("generated"),
-                Name::new(String::from("United States Highway 1"), -1, &context).set_source("generated"),
+                Name::new(String::from("US 1"), -2, &context).set_source("generated"),
+                Name::new(String::from("US Highway 1"), -2, &context).set_source("generated"),
+                Name::new(String::from("United States Route 1"), -2, &context).set_source("generated"),
+                Name::new(String::from("United States Highway 1"), -2, &context).set_source("generated"),
             ]
         });
+
+        // @TODO remove, real world test case
         context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
 
         assert_eq!(Names::new(vec![
-            Name::new("NE M L King Blvd", 0, &context).set_freq(1480),
-            Name::new("NE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(110),
-            Name::new("NE M L KING BLVD", 0, &context).set_freq(18),
-            Name::new("SE M L King Blvd", 0, &context).set_freq(7),
-            Name::new("N M L King Blvd", 0, &context).set_freq(3),
-            Name::new("SE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(2),
-            Name::new("NE MLK", 0, &context).set_freq(1),
-            Name::new("Northeast Martin Luther King Junior Boulevard", 0, &context).set_freq(1),
-            Name::new("OR 99E", 0, &context).set_freq(1),
-            Name::new("State Highway 99E", 0, &context).set_freq(1)
+            Name::new("NE M L King Blvd", 0, &context).set_freq(1480).set_source("address"),
+            Name::new("NE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(110).set_source("address"),
+            Name::new("NE M L KING BLVD", 0, &context).set_freq(18).set_source("address"),
+            Name::new("SE M L King Blvd", 0, &context).set_freq(7).set_source("address"),
+            Name::new("N M L King Blvd", 0, &context).set_freq(3).set_source("address"),
+            Name::new("SE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(2).set_source("address"),
+            Name::new("Northeast Martin Luther King Junior Boulevard", 0, &context).set_freq(1).set_source("network"),
+            Name::new("NE MLK", -1, &context).set_freq(1).set_source("network"),
+            Name::new("OR 99E", -1, &context).set_freq(1).set_source("network"),
+            Name::new("State Highway 99E", -1, &context).set_freq(1).set_source("network")
         ], &context), Names {
             names: vec![
                 Name::new("NE M L King Blvd", 0, &context).set_freq(1480).set_source("address"),
@@ -527,21 +508,16 @@ mod tests {
                 Name::new("SE M L King Blvd", 0, &context).set_freq(7).set_source("address"),
                 Name::new("N M L King Blvd", 0, &context).set_freq(3).set_source("address"),
                 Name::new("SE MARTIN LUTHER KING JR BLVD", 0, &context).set_freq(2).set_source("address"),
-                Name::new("NE MLK", 0, &context).set_freq(1).set_source("network"),
                 Name::new("Northeast Martin Luther King Junior Boulevard", 0, &context).set_freq(1).set_source("network"),
-                Name::new("OR 99E", 0, &context).set_freq(1).set_source("network"),
-                Name::new("State Highway 99E", 0, &context).set_freq(1).set_source("network"),
+                Name::new("NE MLK", -1, &context).set_freq(1).set_source("network"),
+                Name::new("OR 99E", -1, &context).set_freq(1).set_source("network"),
+                Name::new("State Highway 99E", -1, &context).set_freq(1).set_source("network"),
+                Name::new("NE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
                 Name::new("NE MLK Blvd", -1, &context).set_source("generated"),
                 Name::new("NE M L K Blvd", -1, &context).set_source("generated"),
                 Name::new("NE Martin Luther King Blvd", -1, &context).set_source("generated"),
                 Name::new("NE MLK Jr Blvd", -1, &context).set_source("generated"),
                 Name::new("NE M L K Jr Blvd", -1, &context).set_source("generated"),
-                Name::new("NE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
-                Name::new("NE MLK BLVD", -1, &context).set_source("generated"),
-                Name::new("NE M L K BLVD", -1, &context).set_source("generated"),
-                Name::new("NE Martin Luther King BLVD", -1, &context).set_source("generated"),
-                Name::new("NE MLK Jr BLVD", -1, &context).set_source("generated"),
-                Name::new("NE M L K Jr BLVD", -1, &context).set_source("generated"),
                 Name::new("NE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
                 Name::new("NE MLK BLVD", -1, &context).set_source("generated"),
                 Name::new("NE M L K BLVD", -1, &context).set_source("generated"),
@@ -549,36 +525,41 @@ mod tests {
                 Name::new("NE MLK Jr BLVD", -1, &context).set_source("generated"),
                 Name::new("NE M L K Jr BLVD", -1, &context).set_source("generated"),
                 Name::new("NE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
+                Name::new("NE MLK BLVD", -1, &context).set_source("generated"),
+                Name::new("NE M L K BLVD", -1, &context).set_source("generated"),
+                Name::new("NE Martin Luther King BLVD", -1, &context).set_source("generated"),
+                Name::new("NE MLK Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("NE M L K Jr BLVD", -1, &context).set_source("generated"),
+                Name::new("SE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
                 Name::new("SE MLK Blvd", -1, &context).set_source("generated"),
                 Name::new("SE M L K Blvd", -1, &context).set_source("generated"),
                 Name::new("SE Martin Luther King Blvd", -1, &context).set_source("generated"),
                 Name::new("SE MLK Jr Blvd", -1, &context).set_source("generated"),
                 Name::new("SE M L K Jr Blvd", -1, &context).set_source("generated"),
-                Name::new("SE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
+                Name::new("N Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
                 Name::new("N MLK Blvd", -1, &context).set_source("generated"),
                 Name::new("N M L K Blvd", -1, &context).set_source("generated"),
                 Name::new("N Martin Luther King Blvd", -1, &context).set_source("generated"),
                 Name::new("N MLK Jr Blvd", -1, &context).set_source("generated"),
                 Name::new("N M L K Jr Blvd", -1, &context).set_source("generated"),
-                Name::new("N Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
+                Name::new("SE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
                 Name::new("SE MLK BLVD", -1, &context).set_source("generated"),
                 Name::new("SE M L K BLVD", -1, &context).set_source("generated"),
                 Name::new("SE Martin Luther King BLVD", -1, &context).set_source("generated"),
                 Name::new("SE MLK Jr BLVD", -1, &context).set_source("generated"),
                 Name::new("SE M L K Jr BLVD", -1, &context).set_source("generated"),
-                Name::new("SE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
-                Name::new("NE MLK", -1, &context).set_source("generated"),
-                Name::new("NE M L K", -1, &context).set_source("generated"),
-                Name::new("NE Martin Luther King", -1, &context).set_source("generated"),
-                Name::new("NE MLK Jr", -1, &context).set_source("generated"),
-                Name::new("NE M L K Jr", -1, &context).set_source("generated"),
-                Name::new("NE Martin Luther King Jr", 1, &context).set_source("generated"),
+                Name::new("Northeast Martin Luther King Jr Boulevard", 1, &context).set_source("generated"),
                 Name::new("Northeast MLK Boulevard", -1, &context).set_source("generated"),
                 Name::new("Northeast M L K Boulevard", -1, &context).set_source("generated"),
                 Name::new("Northeast Martin Luther King Boulevard", -1, &context).set_source("generated"),
                 Name::new("Northeast MLK Jr Boulevard", -1, &context).set_source("generated"),
                 Name::new("Northeast M L K Jr Boulevard", -1, &context).set_source("generated"),
-                Name::new("Northeast Martin Luther King Jr Boulevard", 1, &context).set_source("generated")
+                Name::new("NE Martin Luther King Jr", -1, &context).set_source("generated"),
+                Name::new("NE MLK", -2, &context).set_source("generated"),
+                Name::new("NE M L K", -2, &context).set_source("generated"),
+                Name::new("NE Martin Luther King", -2, &context).set_source("generated"),
+                Name::new("NE MLK Jr", -2, &context).set_source("generated"),
+                Name::new("NE M L K Jr", -2, &context).set_source("generated")
             ]
         });
     }
