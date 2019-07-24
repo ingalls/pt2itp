@@ -227,7 +227,7 @@ impl Name {
     /// * `display` - A string containing the street name (Main St)
     ///
     /// ```
-    pub fn new(display: impl ToString, priority: i8, context: &Context) -> Self {
+    pub fn new(display: impl ToString, mut priority: i8, context: &Context) -> Self {
         let mut display = display.to_string().trim().to_string();
 
         let tokenized = context.tokens.process(&display);
@@ -240,6 +240,10 @@ impl Name {
         // @TODO titlecase and normalize display name here
         if context.country == String::from("US") || context.country == String::from("CA") {
             display = text::str_remove_octo(&display);
+            // penalize less desireable street names
+            if text::is_undesireable(&tokenized) {
+                priority = -1;
+            }
         }
 
         Name {
@@ -340,6 +344,19 @@ mod tests {
                 Tokenized::new(String::from("highway"), None),
                 Tokenized::new(String::from("12"), None),
                 Tokenized::new(String::from("west"), None)],
+            freq: 1
+        });
+
+        assert_eq!(Name::new(String::from("Highway #12 West Ext 1"), 0, &context), Name {
+            display: String::from("Highway 12 West Ext 1"),
+            priority: -1,
+            source: String::from(""),
+            tokenized: vec![
+                Tokenized::new(String::from("highway"), None),
+                Tokenized::new(String::from("12"), None),
+                Tokenized::new(String::from("west"), None),
+                Tokenized::new(String::from("ext"), None),
+                Tokenized::new(String::from("1"), None)],
             freq: 1
         });
     }

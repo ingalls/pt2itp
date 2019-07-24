@@ -139,7 +139,34 @@ pub fn is_drivethrough(text: &String, context: &Context) -> bool {
 }
 
 ///
-/// Removes the octothorpe from names like "HWY #35", to get "HWY 35"
+/// Detects less desireable feature names
+/// e.g. US Hwy 125 Ext 1
+///
+pub fn is_undesireable(tokenized: &Vec<Tokenized>) -> bool {
+    let tokens: Vec<String> = tokenized
+        .iter()
+        .map(|x| x.token.to_owned())
+        .collect();
+
+    let subs = vec![
+            String::from("ext"),
+            String::from("connector"),
+            String::from("br"),
+            String::from("unit"),
+            String::from("apt"),
+            String::from("suite"),
+            String::from("lot")
+        ];
+    for token in tokens {
+        if subs.contains(&token) {
+            return true;
+        }
+    }
+    false
+}
+
+///
+/// Removes the octothorpe from names like "HWY #35" to get "HWY 35"
 ///
 pub fn str_remove_octo(text: &String) -> String {
     lazy_static! {
@@ -634,6 +661,20 @@ mod tests {
             &String::from("McDonalds Drivethru"),
             &context
         ), true);
+    }
+
+    #[test]
+    fn test_is_undesireable() {
+        let tokens = Tokens::generate(vec![String::from("en")]);
+
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE"))), false);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Ext 25"))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Connector 25"))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Branch 25"))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Unit 25"))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Apartment 25"))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Suite 25"))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Lot 25"))), true);
     }
 
     #[test]
