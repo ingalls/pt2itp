@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use crate::{Context, text};
 use crate::Tokenized;
 use geocoder_abbreviations::TokenType;
+use crate::text::titlecase;
 
 ///
 /// InputName is only used internally to serialize a names array to the
@@ -228,16 +229,11 @@ impl Name {
     ///
     /// ```
     pub fn new(display: impl ToString, mut priority: i8, context: &Context) -> Self {
-        let mut display = display.to_string().trim().to_string();
+        let mut display = display.to_string().replace(r#"""#, "");
+        display = titlecase(&display, &context);
 
         let tokenized = context.tokens.process(&display);
 
-        display = display
-            .replace(r#"""#, "")
-            .replace("\t", "")
-            .replace("\n", "");
-
-        // @TODO titlecase and normalize display name here
         if context.country == String::from("US") || context.country == String::from("CA") {
             display = text::str_remove_octo(&display);
             // penalize less desireable street names
@@ -325,7 +321,7 @@ mod tests {
     fn test_name() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
-        assert_eq!(Name::new(String::from("Main St NW"), 0, &context), Name {
+        assert_eq!(Name::new(String::from("main ST nw"), 0, &context), Name {
             display: String::from("Main St NW"),
             priority: 0,
             source: String::from(""),
@@ -336,7 +332,7 @@ mod tests {
             freq: 1
         });
 
-        assert_eq!(Name::new(String::from("Highway #12 West"), 0, &context), Name {
+        assert_eq!(Name::new(String::from("HiGHway #12 \" wEST"), 0, &context), Name {
             display: String::from("Highway 12 West"),
             priority: 0,
             source: String::from(""),
@@ -347,7 +343,7 @@ mod tests {
             freq: 1
         });
 
-        assert_eq!(Name::new(String::from("Highway #12 West Ext 1"), 0, &context), Name {
+        assert_eq!(Name::new(String::from("\thighway #12 west ext 1\n"), 0, &context), Name {
             display: String::from("Highway 12 West Ext 1"),
             priority: -1,
             source: String::from(""),

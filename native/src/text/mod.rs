@@ -11,6 +11,7 @@ mod titlecase;
 //
 
 pub use self::diacritics::diacritics;
+pub use self::titlecase::titlecase;
 pub use self::tokens::Tokens;
 pub use self::tokens::Tokenized;
 pub use self::tokens::ParsedToken;

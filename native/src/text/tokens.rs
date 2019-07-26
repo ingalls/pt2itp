@@ -195,6 +195,7 @@ mod tests {
         assert_eq!(tokenized_string(tokens.process(&String::from("A Coruña"))), String::from("a coruna"));
         assert_eq!(tokenized_string(tokens.process(&String::from("Chamonix-Mont-Blanc"))), String::from("chamonix mont blanc"));
         assert_eq!(tokenized_string(tokens.process(&String::from("Rue d'Argout"))), String::from("rue dargout"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("St Martin's Neck Road"))), String::from("st martins neck road"));
         assert_eq!(tokenized_string(tokens.process(&String::from("Hale’iwa Road"))), String::from("haleiwa road"));
         assert_eq!(tokenized_string(tokens.process(&String::from("москва"))), String::from("москва"));
         assert_eq!(tokenized_string(tokens.process(&String::from("京都市"))), String::from("京都市"));

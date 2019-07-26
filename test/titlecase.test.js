@@ -1,38 +1,6 @@
 'use strict';
 
 const tape = require('tape');
-const titlecase = require('../lib/label/titlecase').titleCase;
-const minors = require('@mapbox/title-case')('en');
-
-tape('title case xformation', (t) => {
-    const tests = [
-        ['Väike-Sõjamäe', 'Väike-Sõjamäe'],
-        ['Väike-sõjamäe', 'Väike-Sõjamäe'],
-        ['väike-sõjamäe', 'Väike-Sõjamäe'],
-        ['väike sõjamäe', 'Väike Sõjamäe'],
-        ['väike  sõjamäe', 'Väike Sõjamäe'],
-        ['Väike Sõjamäe', 'Väike Sõjamäe'],
-        ['VäikeSõjamäe', 'Väikesõjamäe'],
-        ['abra CAda -bra', 'Abra Cada Bra'],
-        ['our lady of whatever', 'Our Lady of Whatever'],
-        ['our lady OF whatever', 'Our Lady of Whatever'],
-        ['St Martin\'s Neck Road', 'St Martin\'s Neck Road'],
-        ['MT. MOOSILAUKE HWY', 'Mt. Moosilauke Hwy'],
-        ['some  miscellaneous rd (what happens to parentheses?)', 'Some Miscellaneous Rd (What Happens to Parentheses?)'],
-        ['main st NE', 'Main St NE'],
-        ['main St NW', 'Main St NW'],
-        ['SW Main St.', 'SW Main St.'],
-        ['Main S.E. St', 'Main SE St'],
-        ['main st ne', 'Main St NE'],
-        ['nE. Main St', 'Ne. Main St']
-    ];
-
-    for (const test of tests) {
-        t.equal(titlecase(test[0], minors), test[1], `${test[0]} => ${test[1]}`);
-    }
-
-    t.end();
-});
 
 tape('label logic, default behavior', (t) => {
     const label = require('../lib/label/titlecase')();
