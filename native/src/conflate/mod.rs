@@ -218,6 +218,9 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 let names_new = Names::from_input(names_new, &context);
 
                 names_base.concat(names_new);
+                names_base.empty();
+                names_base.sort();
+                names_base.dedupe();
             }
 
             props_base_obj.insert(String::from("street"), serde_json::to_value(names_base.names).unwrap());

@@ -65,17 +65,19 @@ impl Tokens {
         let text = text.trim();
 
         lazy_static! {
+            // remove ^ character-- why is this here when it's also below?
             static ref UP: Regex = Regex::new(r"[\^]+").unwrap();
 
-            // collapse apostraphes, periods
+            // remove
             static ref PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07'\.]").unwrap();
 
-            // all other ascii and unicode punctuation except '-' per
+            // replace with space
             // http://stackoverflow.com/questions/4328500 split terms
             static ref SPACEPUNC: Regex = Regex::new(r#"[\u2000-\u206F\u2E00-\u2E7F\\'!"$#%&()*+,./:;<=>?@\[\]^_`{|}~-]"#).unwrap();
 
+            // replace multiple spaces with one space
             static ref SPACE: Regex = Regex::new(r"\s+").unwrap();
-
+            // we don't do anything with this
             static ref IGNORE: Regex = Regex::new(r"(\d+)-(\d+)[a-z]?").unwrap();
         }
 

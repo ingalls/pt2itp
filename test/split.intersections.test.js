@@ -66,8 +66,8 @@ test('Split: Simple Intersection', (t) => {
         t.deepEquals(res.properties, {
             'carmen:intersections': [null, null, [
                 'Germany Valley Road',
-                'Mountaineer Drive',
-                'Wv Route 33'
+                'WV Route 33',
+                'Mountaineer Drive'
             ]],
             'carmen:addressnumber': [null, ['2', '10', '20'], null],
             'carmen:rangetype': 'tiger',

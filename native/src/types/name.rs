@@ -41,8 +41,6 @@ impl Names {
             return names;
         }
 
-        names.sort();
-
         let mut synonyms: Vec<Name> = Vec::new();
 
         if context.country == String::from("US") {
@@ -63,10 +61,10 @@ impl Names {
                 }
             }
         }
-
         names.names.append(&mut synonyms);
-
         names.empty();
+        names.sort();
+        names.dedupe();
 
         names
     }
@@ -110,13 +108,11 @@ impl Names {
     }
 
     ///
-    /// Take a second names object and add any synonyms that do not
-    /// already exist on the original names object based on the
-    /// tokenized version of the string.
+    /// Concatenate two Names structs
+    /// Does not deduplicate existing names
     ///
     pub fn concat(&mut self, new_names: Names) {
         self.names.extend(new_names.names);
-        self.dedupe();
     }
 
     ///
@@ -156,28 +152,48 @@ impl Names {
                 }
             }
         }
+        old_names.reverse();
 
         for name in old_names {
             if tokenized.contains_key(&name.tokenized_string()) {
                 continue;
+            } else {
+                tokenized.insert(name.tokenized_string(), true);
+                self.names.push(name);
             }
-
-            tokenized.insert(name.tokenized_string(), true);
-            self.names.push(name);
         }
     }
 
     ///
-    /// Sort names object by priority
+    /// Sort names object by priority, frequency, and display length
     ///
     pub fn sort(&mut self) {
         self.names.sort_by(|a, b| {
-            if a.priority > b.priority {
+            if a == b {
+                std::cmp::Ordering::Equal
+            } else if a.priority > b.priority {
                 std::cmp::Ordering::Less
             } else if a.priority < b.priority {
                 std::cmp::Ordering::Greater
             } else {
-                std::cmp::Ordering::Equal
+                if a.freq > b.freq {
+                    std::cmp::Ordering::Less
+                } else if a.freq < b.freq {
+                    std::cmp::Ordering::Greater
+                } else {
+                    // only sort on display length if tokenized strings are the same
+                    if a.tokenized_string() == b.tokenized_string() {
+                        if a.display.len() > b.display.len() {
+                            std::cmp::Ordering::Less
+                        } else if a.display.len() < b.display.len() {
+                            std::cmp::Ordering::Greater
+                        } else {
+                            std::cmp::Ordering::Equal
+                        }
+                    } else {
+                        std::cmp::Ordering::Equal
+                    }
+                }
             }
         });
     }
@@ -370,61 +386,110 @@ mod tests {
 
     #[test]
     fn test_names_sort() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
 
-        let mut names = Names::new(vec![
-            Name::new(String::from("Highway 123"), -1, &context),
-            Name::new(String::from("Route 123"), 2, &context),
-            Name::new(String::from("Test 123"), 0, &context)
-        ], &context);
+        let mut names = Names {
+            names: vec![
+                Name::new(String::from("Highway 123"), -1, None, &context),
+                Name::new(String::from("Route 123"), 2, None, &context),
+                Name::new(String::from("Test 123"), 0, None, &context)
+            ]
+        };
 
         names.sort();
 
-        let names_sorted = Names::new(vec![
-            Name::new(String::from("Route 123"), 2, &context),
-            Name::new(String::from("Test 123"), 0, &context),
-            Name::new(String::from("Highway 123"), -1, &context)
-        ], &context);
+        let names_sorted = Names {
+            names: vec![
+                Name::new(String::from("Route 123"), 2, None, &context),
+                Name::new(String::from("Test 123"), 0, None, &context),
+                Name::new(String::from("Highway 123"), -1, None, &context)
+            ]
+        };
 
         assert_eq!(names, names_sorted);
+
+        let mut names = Names {
+            names: vec![
+                Name::new(String::from("hwy 3"), -1, None, &context),
+                Name::new(String::from("highway 3"), -1, None, &context),
+                Name::new(String::from("hwy 2"), -1, None, &context).set_freq(2),
+                Name::new(String::from("hwy 1"), -1, None, &context).set_freq(3),
+                Name::new(String::from("hwy 1"), 1, None, &context)
+            ]
+        };
+
+        names.sort();
+
+        let names_sorted = Names {
+            names: vec![
+                Name::new(String::from("hwy 1"), 1, None, &context),
+                Name::new(String::from("hwy 1"), -1, None, &context).set_freq(3),
+                Name::new(String::from("hwy 2"), -1, None, &context).set_freq(2),
+                Name::new(String::from("highway 3"), -1, None, &context),
+                Name::new(String::from("hwy 3"), -1, None, &context)
+            ]
+        };
+
+        assert_eq!(names, names_sorted);
+
     }
 
     #[test]
     fn test_names_concat() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
-        let mut names = Names::new(vec![
-            Name::new(String::from("Highway 123"), -1, &context),
-        ], &context);
+        let mut names = Names {
+            names: vec![
+                Name::new(String::from("Highway 123"), -1, None, &context),
+                Name::new(String::from("Highway 123"), -1, None, &context)
+            ]
+        };
 
-        let names2 = Names::new(vec![
-            Name::new(String::from("Highway 123"), -1, &context),
-            Name::new(String::from("Highway 123"), -1, &context),
-        ], &context);
+        let names2 = Names {
+            names: vec![
+                Name::new(String::from("Highway 123"), -1, None, &context)
+            ]
+        };
 
         names.concat(names2);
 
-        let names_concat = Names::new(vec![
-            Name::new(String::from("Highway 123"), -1, &context),
-        ], &context);
+        // concat does not dedupe
+        let names_concat = Names {
+            names: vec![
+                Name::new(String::from("Highway 123"), -1, None, &context),
+                Name::new(String::from("Highway 123"), -1, None, &context),
+                Name::new(String::from("Highway 123"), -1, None, &context)
+            ]
+        };
 
         assert_eq!(names, names_concat);
     }
 
     #[test]
     fn test_names_dedupe() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
 
-        let mut names = Names::new(vec![
-            Name::new(String::from("Highway 123"), -1, &context),
-            Name::new(String::from("Highway 123"), -1, &context),
-        ], &context);
+        let mut names = Names {
+            names: vec![
+                Name::new(String::from("hwy 3"), -1, None, &context).set_freq(1),
+                Name::new(String::from("highway 3"), -1, None, &context).set_freq(1),
+                Name::new(String::from("hwy 2"), -1, None, &context).set_freq(1),
+                Name::new(String::from("hwy 2"), -1, None, &context).set_freq(2),
+                Name::new(String::from("hwy 1"), -1, None, &context),
+                Name::new(String::from("hwy 1"), 1, None, &context)
+            ]
+        };
 
         names.dedupe();
 
-        let names_deduped = Names::new(vec![
-            Name::new(String::from("Highway 123"), -1, &context),
-        ], &context);
+        // deduping is arbitrary without first sorting
+        let names_deduped = Names {
+            names: vec![
+                Name::new(String::from("hwy 3"), -1, None, &context).set_freq(1),
+                Name::new(String::from("hwy 2"), -1, None, &context).set_freq(1),
+                Name::new(String::from("hwy 1"), -1, None, &context)
+            ]
+        };
 
         assert_eq!(names, names_deduped);
     }
@@ -466,7 +531,7 @@ mod tests {
 
     #[test]
     fn test_names() {
-        let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let mut context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
 
         assert_eq!(Names::new(vec![], &context), Names {
             names: Vec::new()
@@ -481,14 +546,40 @@ mod tests {
             names: Vec::new()
         });
 
+        // Dedupe identical names
+        assert_eq!(
+            Names::new(
+                vec![Name::new(String::from("Main Street"), 0, None, &context),
+                    Name::new(String::from("Main Street"), 0, None, &context)],
+                    &context),
+            Names { names: vec![Name::new(String::from("Main Street"), 0, None, &context)]}
+        );
+
+        // Dedupe names with the same tokenized name
+        assert_eq!(
+            Names::new(
+                vec![Name::new(String::from("Main Street"), 0, None, &context),
+                    Name::new(String::from("Main St"), 0, None, &context),
+                    Name::new(String::from("E Main Street"), 0, None, &context),
+                    Name::new(String::from("East Main St"), 0, None, &context)],
+                    &context),
+            Names {
+                names: vec![
+                    Name::new(String::from("Main Street"), 0, None, &context),
+                    Name::new(String::from("E Main Street"), 0, None, &context)
+                ]}
+        );
+
+
+
         // Ensure synonyms are being applied correctly
         assert_eq!(Names::new(vec![Name::new(String::from("US Route 1"), 0, None, &context)], &context), Names {
             names: vec![
                 Name::new(String::from("US Route 1"), 1, Some(Source::Generated), &context),
-                Name::new(String::from("United States Highway 1"), -1, Some(Source::Generated), &context),
-                Name::new(String::from("United States Route 1"), -1, Some(Source::Generated), &context),
-                Name::new(String::from("US Highway 1"), -1, Some(Source::Generated), &context),
                 Name::new(String::from("US 1"), -1, Some(Source::Generated), &context),
+                Name::new(String::from("US Highway 1"), -1, Some(Source::Generated), &context),
+                Name::new(String::from("United States Route 1"), -1, Some(Source::Generated), &context),
+                Name::new(String::from("United States Highway 1"), -1, Some(Source::Generated), &context)
             ]
         });
 
@@ -501,10 +592,10 @@ mod tests {
             names: vec![
                 Name::new(String::from("Main St"), 0, None, &context),
                 Name::new(String::from("Us Route 1"), -1, None, &context), // @TODO fix, should be 'US'
-                Name::new(String::from("United States Highway 1"), -2, Some(Source::Generated), &context),
-                Name::new(String::from("United States Route 1"), -2, Some(Source::Generated), &context),
+                Name::new(String::from("US 1"), -2, Some(Source::Generated), &context),
                 Name::new(String::from("US Highway 1"), -2, Some(Source::Generated), &context),
-                Name::new(String::from("US 1"), -2, Some(Source::Generated), &context)
+                Name::new(String::from("United States Route 1"), -2, Some(Source::Generated), &context),
+                Name::new(String::from("United States Highway 1"), -2, Some(Source::Generated), &context)
             ]
         });
 
@@ -524,35 +615,35 @@ mod tests {
             Name::new("State Highway 99E", -1, Some(Source::Network), &context).set_freq(1)
         ], &context), Names {
             names: vec![
-                Name::new("Northeast Martin Luther King Jr Boulevard", 1, Some(Source::Generated), &context),
+                Name::new("NE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
                 Name::new("SE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
                 Name::new("N Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
                 Name::new("NE M L King Blvd", 0, Some(Source::Address), &context).set_freq(1480),
                 Name::new("SE M L King Blvd", 0, Some(Source::Address), &context).set_freq(7),
                 Name::new("N M L King Blvd", 0, Some(Source::Address), &context).set_freq(3),
-                Name::new("Northeast Martin Luther King Boulevard", -1, Some(Source::Generated), &context),
-                Name::new("Northeast M L K Jr Boulevard", -1, Some(Source::Generated), &context),
-                Name::new("SE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
-                Name::new("Northeast MLK Jr Boulevard", -1, Some(Source::Generated), &context),
-                Name::new("N Martin Luther King Blvd", -1, Some(Source::Generated), &context),
-                Name::new("Northeast M L K Boulevard", -1, Some(Source::Generated), &context),
-                Name::new("NE Martin Luther King Jr", -1, Some(Source::Generated), &context),
-                Name::new("Northeast MLK Boulevard", -1, Some(Source::Generated), &context),
-                Name::new("State Highway 99e", -1, Some(Source::Network), &context),
-                Name::new("SE M L K Jr Blvd", -1, Some(Source::Generated), &context),
-                Name::new("N M L K Jr Blvd", -1, Some(Source::Generated), &context),
-                Name::new("SE MLK Jr Blvd", -1, Some(Source::Generated), &context),
-                Name::new("SE M L K Blvd", -1, Some(Source::Generated), &context),
-                Name::new("N MLK Jr Blvd", -1, Some(Source::Generated), &context),
-                Name::new("N M L K Blvd", -1, Some(Source::Generated), &context),
-                Name::new("SE MLK Blvd", -1, Some(Source::Generated), &context),
-                Name::new("N MLK Blvd", -1, Some(Source::Generated), &context),
                 Name::new("NE Mlk", -1, Some(Source::Network), &context),
                 Name::new("or 99e", -1, Some(Source::Network), &context),
+                Name::new("State Highway 99e", -1, Some(Source::Network), &context),
+                Name::new("NE MLK Blvd", -1, Some(Source::Generated), &context),
+                Name::new("NE M L K Blvd", -1, Some(Source::Generated), &context),
+                Name::new("NE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+                Name::new("NE MLK Jr Blvd", -1, Some(Source::Generated), &context),
+                Name::new("NE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+                Name::new("SE MLK Blvd", -1, Some(Source::Generated), &context),
+                Name::new("SE M L K Blvd", -1, Some(Source::Generated), &context),
+                Name::new("SE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+                Name::new("SE MLK Jr Blvd", -1, Some(Source::Generated), &context),
+                Name::new("SE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+                Name::new("N MLK Blvd", -1, Some(Source::Generated), &context),
+                Name::new("N M L K Blvd", -1, Some(Source::Generated), &context),
+                Name::new("N Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+                Name::new("N MLK Jr Blvd", -1, Some(Source::Generated), &context),
+                Name::new("N M L K Jr Blvd", -1, Some(Source::Generated), &context),
+                Name::new("NE Martin Luther King Jr", -1, Some(Source::Generated), &context),
+                Name::new("NE M L K", -2, Some(Source::Generated), &context),
                 Name::new("NE Martin Luther King", -2, Some(Source::Generated), &context),
-                Name::new("NE M L K Jr", -2, Some(Source::Generated), &context),
                 Name::new("NE MLK Jr", -2, Some(Source::Generated), &context),
-                Name::new("NE M L K", -2, Some(Source::Generated), &context)
+                Name::new("NE M L K Jr", -2, Some(Source::Generated), &context)
             ]
         });
     }
