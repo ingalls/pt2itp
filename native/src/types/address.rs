@@ -2,7 +2,7 @@ use postgis::ewkb::AsEwkbPoint;
 use postgis::ewkb::EwkbWrite;
 use regex::{Regex, RegexSet};
 
-use crate::{Context, Names, Name, hecate, types::name::InputName};
+use crate::{Context, Names, Name, Source, hecate, types::name::InputName};
 
 /// A representation of a single Address
 #[derive(Debug)]
@@ -92,7 +92,7 @@ impl Address {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
 
-        names.set_source(String::from("address"));
+        names.set_source(Some(Source::Address));
 
         let mut addr = Address {
             id: match feat.id {
@@ -310,7 +310,7 @@ impl Address {
 
         let names: Vec<InputName> = self.names.names.into_iter().filter(|name| {
             if !generated {
-                name.source != String::from("generated")
+                name.source != Some(Source::Generated)
             } else {
                 true
             }

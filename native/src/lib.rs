@@ -40,6 +40,7 @@ pub use self::text::Tokenized;
 
 pub use self::types::Names;
 pub use self::types::Name;
+pub use self::types::Source;
 
 // Functions registered here will be made avaliable to be called from NodeJS
 register_module!(mut m, {

@@ -19,7 +19,7 @@ pub use self::tokens::ParsedToken;
 use std::collections::HashMap;
 use std::cmp::min;
 use regex::{Regex, RegexSet};
-use crate::{Name, Context};
+use crate::{Name, Source, Context};
 
 ///
 /// Return the Levenshtein distance between two strings
@@ -209,7 +209,7 @@ pub fn syn_number_suffix(name: &Name, context: &Context) -> Vec<Name> {
                 suffix = String::from("th");
             }
 
-            vec![Name::new(format!("{}{} {}", num, suffix, &capture["name"]), -1, &context).set_source("generated")]
+            vec![Name::new(format!("{}{} {}", num, suffix, &capture["name"]), -1, Some(Source::Generated), &context)]
         },
         None => Vec::new()
     }
@@ -236,7 +236,7 @@ pub fn syn_ca_french(name: &Name, context: &Context) -> Vec<Name> {
             .collect();
         let basic = tokens.join(" ").trim().to_string();
 
-        syns.push(Name::new(basic, -1, &context));
+        syns.push(Name::new(basic, -1, Some(Source::Generated), &context));
     }
 
     syns
@@ -293,19 +293,19 @@ pub fn syn_ca_hwy(name: &Name, context: &Context) -> Vec<Name> {
                 // > the address and primary network names. Otherwise ensure it's always > the original name
                 let display_priority = if name.priority >= 0 { name.priority + 1 } else { -1 };
                 // New Brunswick Route 123 (Display Form)
-                syns.push(Name::new(format!("{} {} {}", &region_name, &hwy_type, &num), display_priority, &context).set_source("generated"));
+                syns.push(Name::new(format!("{} {} {}", &region_name, &hwy_type, &num), display_priority, Some(Source::Generated), &context));
 
                 // Ensure non display form synonyms always have a priority of < 0 and < the original name
                 let priority_offset = min(0, name.priority);
 
                 // Highway 123
-                syns.push(Name::new(format!("Highway {}", &num), priority_offset - 1, &context).set_source("generated"));
+                syns.push(Name::new(format!("Highway {}", &num), priority_offset - 1, Some(Source::Generated), &context));
 
                 // Route 123
-                syns.push(Name::new(format!("Route {}", &num), priority_offset - 1, &context).set_source("generated"));
+                syns.push(Name::new(format!("Route {}", &num), priority_offset - 1, Some(Source::Generated), &context));
 
                 // NB 123
-                syns.push(Name::new(format!("{} {}", &region, &num), priority_offset - 2, &context).set_source("generated"));
+                syns.push(Name::new(format!("{} {}", &region, &num), priority_offset - 2, Some(Source::Generated), &context));
 
                 syns
             },
@@ -364,7 +364,7 @@ pub fn syn_written_numeric(name: &Name, context: &Context) -> Vec<Name> {
                 Some(nth) => nth
             };
 
-            vec![Name::new(format!("{}{}{}{}", &capture["pre"], tenth, nth, &capture["post"]), -1, &context).set_source("generated")]
+            vec![Name::new(format!("{}{}{}{}", &capture["pre"], tenth, nth, &capture["post"]), -1, Some(Source::Generated), &context)]
         },
         _ => Vec::new()
     }
@@ -389,11 +389,11 @@ pub fn syn_us_cr(name: &Name, context: &Context) -> Vec<Name> {
     // > the address and primary network names. Otherwise ensure it's always > the original name
     let display_priority = if name.priority >= 0 { name.priority + 1 } else { -1 };
     // County Road 123 (Display Form)
-    syns.push(Name::new(format!("County Road {}", &cr), display_priority, &context).set_source("generated"));
+    syns.push(Name::new(format!("County Road {}", &cr), display_priority, Some(Source::Generated), &context));
 
     // CR 123
     // Ensure non display form synonyms always have a priority of < 0 and < the original name
-    syns.push(Name::new(format!("CR {}", &cr), min(0, name.priority) - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("CR {}", &cr), min(0, name.priority) - 1, Some(Source::Generated), &context));
 
     syns
 }
@@ -431,9 +431,9 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
             None => String::from("")
         };
         // Display Form
-        syns.push(Name::new(format!("{}John F Kennedy{}", &strpre, &strpost), display_priority, &context).set_source("generated"));
+        syns.push(Name::new(format!("{}John F Kennedy{}", &strpre, &strpost), display_priority, Some(Source::Generated), &context));
 
-        syns.push(Name::new(format!("{}JFK{}", &strpre, &strpost), priority_offset - 1, &context).set_source("generated"));
+        syns.push(Name::new(format!("{}JFK{}", &strpre, &strpost), priority_offset - 1, Some(Source::Generated), &context));
 
     } else if MLKJR.is_match(name.display.as_str()) {
         let strpost: String = match MLKJR.captures(name.display.as_str()) {
@@ -453,13 +453,13 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
         };
 
         // Display Form
-        syns.push(Name::new(format!("{}Martin Luther King Jr{}", &strpre, &strpost), display_priority, &context).set_source("generated"));
+        syns.push(Name::new(format!("{}Martin Luther King Jr{}", &strpre, &strpost), display_priority, Some(Source::Generated), &context));
 
-        syns.push(Name::new(format!("{}MLK{}", &strpre, &strpost), priority_offset - 1, &context).set_source("generated"));
-        syns.push(Name::new(format!("{}M L K{}", &strpre, &strpost), priority_offset - 1, &context).set_source("generated"));
-        syns.push(Name::new(format!("{}Martin Luther King{}", &strpre, &strpost), priority_offset - 1, &context).set_source("generated"));
-        syns.push(Name::new(format!("{}MLK Jr{}", &strpre, &strpost), priority_offset - 1, &context).set_source("generated"));
-        syns.push(Name::new(format!("{}M L K Jr{}", &strpre, &strpost), priority_offset - 1, &context).set_source("generated"));
+        syns.push(Name::new(format!("{}MLK{}", &strpre, &strpost), priority_offset - 1, Some(Source::Generated), &context));
+        syns.push(Name::new(format!("{}M L K{}", &strpre, &strpost), priority_offset - 1, Some(Source::Generated), &context));
+        syns.push(Name::new(format!("{}Martin Luther King{}", &strpre, &strpost), priority_offset - 1, Some(Source::Generated), &context));
+        syns.push(Name::new(format!("{}MLK Jr{}", &strpre, &strpost), priority_offset - 1, Some(Source::Generated), &context));
+        syns.push(Name::new(format!("{}M L K Jr{}", &strpre, &strpost), priority_offset - 1, Some(Source::Generated), &context));
     }
 
     syns
@@ -484,22 +484,22 @@ pub fn syn_us_hwy(name: &Name, context: &Context) -> Vec<Name> {
     // > the address and primary network names. Otherwise ensure it's always > the original name
     let display_priority = if name.priority >= 0 { name.priority + 1 } else { -1 };
     // US Route 81 (Display Form)
-    syns.push(Name::new(format!("US Route {}", &highway), display_priority, &context).set_source("generated"));
+    syns.push(Name::new(format!("US Route {}", &highway), display_priority, Some(Source::Generated), &context));
 
     // Ensure non display form synonyms always have a priority of < 0 and < the original name
     let priority_offset = min(0, name.priority);
 
     // US 81
-    syns.push(Name::new(format!("US {}", &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("US {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     // US Highway 81
-    syns.push(Name::new(format!("US Highway {}", &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("US Highway {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     // United States Route 81
-    syns.push(Name::new(format!("United States Route {}", &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("United States Route {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     // United States Highway 81
-    syns.push(Name::new(format!("United States Highway {}", &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("United States Highway {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     syns
 }
@@ -567,28 +567,28 @@ pub fn syn_state_hwy(name: &Name, context: &Context) -> Vec<Name> {
     // > the address and primary network names. Otherwise ensure it's always > the original name
     let display_priority = if name.priority >= 0 { name.priority + 1 } else { -1 };
     // <State> Highway 123 (Display Form)
-    syns.push(Name::new(format!("{} Highway {}", &region_name, &highway), display_priority, &context).set_source("generated"));
+    syns.push(Name::new(format!("{} Highway {}", &region_name, &highway), display_priority, Some(Source::Generated), &context));
 
     // Ensure non display form synonyms always have a priority of < 0 and < the original name
     let priority_offset = min(0, name.priority);
 
     // NC 123 Highway
-    syns.push(Name::new(format!("{} {} Highway", region.to_uppercase(), &highway), priority_offset - 2, &context).set_source("generated"));
+    syns.push(Name::new(format!("{} {} Highway", region.to_uppercase(), &highway), priority_offset - 2, Some(Source::Generated), &context));
 
     // NC 123
-    syns.push(Name::new(format!("{} {}", region.to_uppercase(), &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("{} {}", region.to_uppercase(), &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     // Highway 123
-    syns.push(Name::new(format!("Highway {}", &highway), priority_offset - 2, &context).set_source("generated"));
+    syns.push(Name::new(format!("Highway {}", &highway), priority_offset - 2, Some(Source::Generated), &context));
 
     // SR 123 (State Route)
-    syns.push(Name::new(format!("SR {}", &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("SR {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     //State Highway 123
-    syns.push(Name::new(format!("State Highway {}", &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("State Highway {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     //State Route 123
-    syns.push(Name::new(format!("State Route {}", &highway), priority_offset - 1, &context).set_source("generated"));
+    syns.push(Name::new(format!("State Route {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
 
     syns
 }
@@ -683,151 +683,151 @@ mod tests {
     fn test_syn_us_famous() {
         let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
-        assert_eq!(syn_us_famous(&Name::new(String::from(""), 0, &context), &context), vec![]);
+        assert_eq!(syn_us_famous(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
         // original name priority == 0
         let results = vec![
-            Name::new("John F Kennedy", 1, &context).set_source("generated"),
-            Name::new("JFK", -1, &context).set_source("generated")
+            Name::new("John F Kennedy", 1, Some(Source::Generated), &context),
+            Name::new("JFK", -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K."), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("J F K"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K."), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("John F. Kennedy"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K."), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J F K"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K."), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("John F. Kennedy"), 0, None, &context), &context), results);
 
         let results = vec![
-            Name::new("John F Kennedy Highway", 1, &context).set_source("generated"),
-            Name::new("JFK Highway", -1, &context).set_source("generated")
+            Name::new("John F Kennedy Highway", 1, Some(Source::Generated), &context),
+            Name::new("JFK Highway", -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("JFK Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("J F K Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K. Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("JFK Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J.F.K Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J F K Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("J. F. K. Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("John F Kennedy Highway"), 0, None, &context), &context), results);
 
         let results = vec![
-            Name::new("NE John F Kennedy Highway", 1, &context).set_source("generated"),
-            Name::new("NE JFK Highway", -1, &context).set_source("generated")
+            Name::new("NE John F Kennedy Highway", 1, Some(Source::Generated), &context),
+            Name::new("NE JFK Highway", -1, Some(Source::Generated), &context)
         ];
 
-        assert_eq!(syn_us_famous(&Name::new(String::from("NE JFK Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("NE J.F.K Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("NE J F K Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("NE J. F. K. Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("NE John F Kennedy Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("NE JFK Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("NE J.F.K Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("NE J F K Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("NE J. F. K. Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("NE John F Kennedy Highway"), 0, None, &context), &context), results);
 
         // original name priority < 0
         let results = vec![
-            Name::new("John F Kennedy", -1, &context).set_source("generated"),
-            Name::new("JFK", -2, &context).set_source("generated")
+            Name::new("John F Kennedy", -1, Some(Source::Generated), &context),
+            Name::new("JFK", -2, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), -1, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), -1, None, &context), &context), results);
 
         // original name priority > 0
         let results = vec![
-            Name::new("John F Kennedy", 2, &context).set_source("generated"),
-            Name::new("JFK", -1, &context).set_source("generated")
+            Name::new("John F Kennedy", 2, Some(Source::Generated), &context),
+            Name::new("JFK", -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), 1, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("JFK"), 1, None, &context), &context), results);
 
         // original name priority == 0
         let results = vec![
-            Name::new("Martin Luther King Jr", 1, &context).set_source("generated"),
-            Name::new("MLK", -1, &context).set_source("generated"),
-            Name::new("M L K", -1, &context).set_source("generated"),
-            Name::new("Martin Luther King", -1, &context).set_source("generated"),
-            Name::new("MLK Jr", -1, &context).set_source("generated"),
-            Name::new("M L K Jr", -1, &context).set_source("generated")
+            Name::new("Martin Luther King Jr", 1, Some(Source::Generated), &context),
+            Name::new("MLK", -1, Some(Source::Generated), &context),
+            Name::new("M L K", -1, Some(Source::Generated), &context),
+            Name::new("Martin Luther King", -1, Some(Source::Generated), &context),
+            Name::new("MLK Jr", -1, Some(Source::Generated), &context),
+            Name::new("M L K Jr", -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l king"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k jr"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k junior"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. jr."), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. junior"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Jr"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k jr"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k junior"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. jr."), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m. l. k. junior"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Jr"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior"), 0, None, &context), &context), results);
 
         let results = vec![
-            Name::new("Martin Luther King Jr Highway", 1, &context).set_source("generated"),
-            Name::new("MLK Highway", -1, &context).set_source("generated"),
-            Name::new("M L K Highway", -1, &context).set_source("generated"),
-            Name::new("Martin Luther King Highway", -1, &context).set_source("generated"),
-            Name::new("MLK Jr Highway", -1, &context).set_source("generated"),
-            Name::new("M L K Jr Highway", -1, &context).set_source("generated")
+            Name::new("Martin Luther King Jr Highway", 1, Some(Source::Generated), &context),
+            Name::new("MLK Highway", -1, Some(Source::Generated), &context),
+            Name::new("M L K Highway", -1, Some(Source::Generated), &context),
+            Name::new("Martin Luther King Highway", -1, Some(Source::Generated), &context),
+            Name::new("MLK Jr Highway", -1, Some(Source::Generated), &context),
+            Name::new("M L K Jr Highway", -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l king Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("m l k junior Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l king jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("m l k junior Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("Martin Luther King Junior Highway"), 0, None, &context), &context), results);
 
         let results = vec![
-            Name::new("West Martin Luther King Jr Highway", 1, &context).set_source("generated"),
-            Name::new("West MLK Highway", -1, &context).set_source("generated"),
-            Name::new("West M L K Highway", -1, &context).set_source("generated"),
-            Name::new("West Martin Luther King Highway", -1, &context).set_source("generated"),
-            Name::new("West MLK Jr Highway", -1, &context).set_source("generated"),
-            Name::new("West M L K Jr Highway", -1, &context).set_source("generated")
+            Name::new("West Martin Luther King Jr Highway", 1, Some(Source::Generated), &context),
+            Name::new("West MLK Highway", -1, Some(Source::Generated), &context),
+            Name::new("West M L K Highway", -1, Some(Source::Generated), &context),
+            Name::new("West Martin Luther King Highway", -1, Some(Source::Generated), &context),
+            Name::new("West MLK Jr Highway", -1, Some(Source::Generated), &context),
+            Name::new("West M L K Jr Highway", -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("West mlk Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West m l king Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West m l k Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West mlk jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West m l king jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West m l k jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West m l k junior Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Jr Highway"), 0, &context), &context), results);
-        assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Junior Highway"), 0, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West mlk Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West m l king Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West m l k Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West mlk jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West m l king jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West m l k jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West m l k junior Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Jr Highway"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("West Martin Luther King Junior Highway"), 0, None, &context), &context), results);
 
         // original name priority < 0
         let results = vec![
-            Name::new("Martin Luther King Jr", -1, &context).set_source("generated"),
-            Name::new("MLK", -2, &context).set_source("generated"),
-            Name::new("M L K", -2, &context).set_source("generated"),
-            Name::new("Martin Luther King", -2, &context).set_source("generated"),
-            Name::new("MLK Jr", -2, &context).set_source("generated"),
-            Name::new("M L K Jr", -2, &context).set_source("generated")
+            Name::new("Martin Luther King Jr", -1, Some(Source::Generated), &context),
+            Name::new("MLK", -2, Some(Source::Generated), &context),
+            Name::new("M L K", -2, Some(Source::Generated), &context),
+            Name::new("Martin Luther King", -2, Some(Source::Generated), &context),
+            Name::new("MLK Jr", -2, Some(Source::Generated), &context),
+            Name::new("M L K Jr", -2, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), -1, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), -1, None, &context), &context), results);
 
         // original name priority > 0
         let results = vec![
-            Name::new("Martin Luther King Jr", 2, &context).set_source("generated"),
-            Name::new("MLK", -1, &context).set_source("generated"),
-            Name::new("M L K", -1, &context).set_source("generated"),
-            Name::new("Martin Luther King", -1, &context).set_source("generated"),
-            Name::new("MLK Jr", -1, &context).set_source("generated"),
-            Name::new("M L K Jr", -1, &context).set_source("generated")
+            Name::new("Martin Luther King Jr", 2, Some(Source::Generated), &context),
+            Name::new("MLK", -1, Some(Source::Generated), &context),
+            Name::new("M L K", -1, Some(Source::Generated), &context),
+            Name::new("Martin Luther King", -1, Some(Source::Generated), &context),
+            Name::new("MLK Jr", -1, Some(Source::Generated), &context),
+            Name::new("M L K Jr", -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), 1, &context), &context), results);
+        assert_eq!(syn_us_famous(&Name::new(String::from("mlk"), 1, None, &context), &context), results);
 
         // @TODO remove, real world test case
         context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
 
         let input = vec![
-            Name::new(String::from("NE M L King Blvd"), 0, &context),
-            Name::new(String::from("NE MARTIN LUTHER KING JR BLVD"), 0, &context),
-            Name::new(String::from("NE M L KING BLVD"), 0, &context),
-            Name::new(String::from("SE M L King Blvd"), 0, &context),
-            Name::new(String::from("N M L King Blvd"), 0, &context),
-            Name::new(String::from("SE MARTIN LUTHER KING JR BLVD"), 0, &context),
-            Name::new(String::from("NE MLK"), 0, &context),
-            Name::new(String::from("Northeast Martin Luther King Junior Boulevard"), 0, &context),
-            Name::new(String::from("OR 99E"), 0, &context),
-            Name::new(String::from("State Highway 99E"), 0, &context)
+            Name::new(String::from("NE M L King Blvd"), 0, None, &context),
+            Name::new(String::from("NE MARTIN LUTHER KING JR BLVD"), 0, None, &context),
+            Name::new(String::from("NE M L KING BLVD"), 0, None, &context),
+            Name::new(String::from("SE M L King Blvd"), 0, None, &context),
+            Name::new(String::from("N M L King Blvd"), 0, None, &context),
+            Name::new(String::from("SE MARTIN LUTHER KING JR BLVD"), 0, None, &context),
+            Name::new(String::from("NE MLK"), 0, None, &context),
+            Name::new(String::from("Northeast Martin Luther King Junior Boulevard"), 0, None, &context),
+            Name::new(String::from("OR 99E"), 0, None, &context),
+            Name::new(String::from("State Highway 99E"), 0, None, &context)
         ];
         let mut output = vec![];
 
@@ -839,54 +839,54 @@ mod tests {
         }
 
         assert_eq!(vec![
-            Name::new("NE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
-            Name::new("NE MLK Blvd", -1, &context).set_source("generated"),
-            Name::new("NE M L K Blvd", -1, &context).set_source("generated"),
-            Name::new("NE Martin Luther King Blvd", -1, &context).set_source("generated"),
-            Name::new("NE MLK Jr Blvd", -1, &context).set_source("generated"),
-            Name::new("NE M L K Jr Blvd", -1, &context).set_source("generated"),
-            Name::new("NE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
-            Name::new("NE MLK BLVD", -1, &context).set_source("generated"),
-            Name::new("NE M L K BLVD", -1, &context).set_source("generated"),
-            Name::new("NE Martin Luther King BLVD", -1, &context).set_source("generated"),
-            Name::new("NE MLK Jr BLVD", -1, &context).set_source("generated"),
-            Name::new("NE M L K Jr BLVD", -1, &context).set_source("generated"),
-            Name::new("NE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
-            Name::new("NE MLK BLVD", -1, &context).set_source("generated"),
-            Name::new("NE M L K BLVD", -1, &context).set_source("generated"),
-            Name::new("NE Martin Luther King BLVD", -1, &context).set_source("generated"),
-            Name::new("NE MLK Jr BLVD", -1, &context).set_source("generated"),
-            Name::new("NE M L K Jr BLVD", -1, &context).set_source("generated"),
-            Name::new("SE Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
-            Name::new("SE MLK Blvd", -1, &context).set_source("generated"),
-            Name::new("SE M L K Blvd", -1, &context).set_source("generated"),
-            Name::new("SE Martin Luther King Blvd", -1, &context).set_source("generated"),
-            Name::new("SE MLK Jr Blvd", -1, &context).set_source("generated"),
-            Name::new("SE M L K Jr Blvd", -1, &context).set_source("generated"),
-            Name::new("N Martin Luther King Jr Blvd", 1, &context).set_source("generated"),
-            Name::new("N MLK Blvd", -1, &context).set_source("generated"),
-            Name::new("N M L K Blvd", -1, &context).set_source("generated"),
-            Name::new("N Martin Luther King Blvd", -1, &context).set_source("generated"),
-            Name::new("N MLK Jr Blvd", -1, &context).set_source("generated"),
-            Name::new("N M L K Jr Blvd", -1, &context).set_source("generated"),
-            Name::new("SE Martin Luther King Jr BLVD", 1, &context).set_source("generated"),
-            Name::new("SE MLK BLVD", -1, &context).set_source("generated"),
-            Name::new("SE M L K BLVD", -1, &context).set_source("generated"),
-            Name::new("SE Martin Luther King BLVD", -1, &context).set_source("generated"),
-            Name::new("SE MLK Jr BLVD", -1, &context).set_source("generated"),
-            Name::new("SE M L K Jr BLVD", -1, &context).set_source("generated"),
-            Name::new("NE Martin Luther King Jr", 1, &context).set_source("generated"),
-            Name::new("NE MLK", -1, &context).set_source("generated"),
-            Name::new("NE M L K", -1, &context).set_source("generated"),
-            Name::new("NE Martin Luther King", -1, &context).set_source("generated"),
-            Name::new("NE MLK Jr", -1, &context).set_source("generated"),
-            Name::new("NE M L K Jr", -1, &context).set_source("generated"),
-            Name::new("Northeast Martin Luther King Jr Boulevard", 1, &context).set_source("generated"),
-            Name::new("Northeast MLK Boulevard", -1, &context).set_source("generated"),
-            Name::new("Northeast M L K Boulevard", -1, &context).set_source("generated"),
-            Name::new("Northeast Martin Luther King Boulevard", -1, &context).set_source("generated"),
-            Name::new("Northeast MLK Jr Boulevard", -1, &context).set_source("generated"),
-            Name::new("Northeast M L K Jr Boulevard", -1, &context).set_source("generated")
+            Name::new("NE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
+            Name::new("NE MLK Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE MLK Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
+            Name::new("NE MLK Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE MLK Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
+            Name::new("NE MLK Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE MLK Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
+            Name::new("SE MLK Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE M L K Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE MLK Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("N Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
+            Name::new("N MLK Blvd", -1, Some(Source::Generated), &context),
+            Name::new("N M L K Blvd", -1, Some(Source::Generated), &context),
+            Name::new("N Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+            Name::new("N MLK Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("N M L K Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
+            Name::new("SE MLK Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE M L K Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE MLK Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("SE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+            Name::new("NE Martin Luther King Jr", 1, Some(Source::Generated), &context),
+            Name::new("NE MLK", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K", -1, Some(Source::Generated), &context),
+            Name::new("NE Martin Luther King", -1, Some(Source::Generated), &context),
+            Name::new("NE MLK Jr", -1, Some(Source::Generated), &context),
+            Name::new("NE M L K Jr", -1, Some(Source::Generated), &context),
+            Name::new("Northeast Martin Luther King Jr Boulevard", 1, Some(Source::Generated), &context),
+            Name::new("Northeast MLK Boulevard", -1, Some(Source::Generated), &context),
+            Name::new("Northeast M L K Boulevard", -1, Some(Source::Generated), &context),
+            Name::new("Northeast Martin Luther King Boulevard", -1, Some(Source::Generated), &context),
+            Name::new("Northeast MLK Jr Boulevard", -1, Some(Source::Generated), &context),
+            Name::new("Northeast M L K Jr Boulevard", -1, Some(Source::Generated), &context),
         ], output);
     }
 
@@ -894,47 +894,47 @@ mod tests {
     fn test_syn_us_cr() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
-        assert_eq!(syn_us_cr(&Name::new(String::from(""), 0, &context), &context), vec![]);
+        assert_eq!(syn_us_cr(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
         // original name priority == 0
         let results = vec![
-            Name::new(String::from("County Road 123"), 1, &context).set_source("generated"),
-            Name::new(String::from("CR 123"), -1, &context).set_source("generated"),
+            Name::new(String::from("County Road 123"), 1, Some(Source::Generated), &context),
+            Name::new(String::from("CR 123"), -1, Some(Source::Generated), &context),
         ];
-        assert_eq!(syn_us_cr(&Name::new(String::from("County Road 123"), 0, &context), &context), results);
-        assert_eq!(syn_us_cr(&Name::new(String::from("CR 123"), 0, &context), &context), results);
+        assert_eq!(syn_us_cr(&Name::new(String::from("County Road 123"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_cr(&Name::new(String::from("CR 123"), 0, None, &context), &context), results);
 
         // original name priority < 0
         let results = vec![
-            Name::new(String::from("County Road 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("CR 123"), -2, &context).set_source("generated"),
+            Name::new(String::from("County Road 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("CR 123"), -2, Some(Source::Generated), &context),
         ];
-        assert_eq!(syn_us_cr(&Name::new(String::from("County Road 123"), -1, &context), &context), results);
+        assert_eq!(syn_us_cr(&Name::new(String::from("County Road 123"), -1, None, &context), &context), results);
 
         // original name priority > 0
         let results = vec![
-            Name::new(String::from("County Road 123"), 2, &context).set_source("generated"),
-            Name::new(String::from("CR 123"), -1, &context).set_source("generated"),
+            Name::new(String::from("County Road 123"), 2, Some(Source::Generated), &context),
+            Name::new(String::from("CR 123"), -1, Some(Source::Generated), &context),
         ];
-        assert_eq!(syn_us_cr(&Name::new(String::from("County Road 123"), 1, &context), &context), results);
+        assert_eq!(syn_us_cr(&Name::new(String::from("County Road 123"), 1, None, &context), &context), results);
     }
 
     #[test]
     fn test_syn_ca_french() {
         let context = Context::new(String::from("ca"), Some(String::from("qc")), Tokens::new(HashMap::new()));
 
-        assert_eq!(syn_ca_french(&Name::new(String::from(""), 0, &context), &context), vec![]);
+        assert_eq!(syn_ca_french(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
         // Successful Replacements
-        assert_eq!(syn_ca_french(&Name::new(String::from("r principale"), 0, &context), &context), vec![
-            Name::new(String::from("principale"), -1, &context)
+        assert_eq!(syn_ca_french(&Name::new(String::from("r principale"), 0, None, &context), &context), vec![
+            Name::new(String::from("principale"), -1, Some(Source::Generated), &context)
         ]);
 
         // Ignored Replacements
-        assert_eq!(syn_ca_french(&Name::new(String::from("r des peupliers"), 0, &context), &context), vec![ ]);
-        assert_eq!(syn_ca_french(&Name::new(String::from("ch des hauteurs"), 0, &context), &context), vec![ ]);
-        assert_eq!(syn_ca_french(&Name::new(String::from("r du blizzard"), 0, &context), &context), vec![ ]);
-        assert_eq!(syn_ca_french(&Name::new(String::from("bd de lhotel de vl"), 0, &context), &context), vec![ ]);
+        assert_eq!(syn_ca_french(&Name::new(String::from("r des peupliers"), 0, None, &context), &context), vec![ ]);
+        assert_eq!(syn_ca_french(&Name::new(String::from("ch des hauteurs"), 0, None, &context), &context), vec![ ]);
+        assert_eq!(syn_ca_french(&Name::new(String::from("r du blizzard"), 0, None, &context), &context), vec![ ]);
+        assert_eq!(syn_ca_french(&Name::new(String::from("bd de lhotel de vl"), 0, None, &context), &context), vec![ ]);
     }
 
     #[test]
@@ -942,156 +942,156 @@ mod tests {
         // Route preferencing proveninces
         let context = Context::new(String::from("ca"), Some(String::from("on")), Tokens::new(HashMap::new()));
 
-        assert_eq!(syn_ca_hwy(&Name::new(String::from(""), 0, &context), &context), vec![]);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
         // handle Trans Canada highways
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("1"), 0, &context), &context), vec![]);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("1"), 0, None, &context), &context), vec![]);
 
         // original name priority == 0
         let results = vec![
-            Name::new(String::from("Ontario Route 101"), 1, &context).set_source("generated"),
-            Name::new(String::from("Highway 101"), -1, &context).set_source("generated"),
-            Name::new(String::from("Route 101"), -1, &context).set_source("generated"),
-            Name::new(String::from("ON 101"), -2, &context).set_source("generated")
+            Name::new(String::from("Ontario Route 101"), 1, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 101"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("Route 101"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("ON 101"), -2, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("ON-101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("Kings's Highway 101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("Highway 101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("Route 101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("Ontario Highway 101"), 0, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("ON-101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("Kings's Highway 101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("Highway 101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("Route 101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("Ontario Highway 101"), 0, None, &context), &context), results);
 
         // Highway preferencing proveninces
         let context = Context::new(String::from("ca"), Some(String::from("nb")), Tokens::new(HashMap::new()));
         let results = vec![
-            Name::new(String::from("New Brunswick Highway 101"), 1, &context).set_source("generated"),
-            Name::new(String::from("Highway 101"), -1, &context).set_source("generated"),
-            Name::new(String::from("Route 101"), -1, &context).set_source("generated"),
-            Name::new(String::from("NB 101"), -2, &context).set_source("generated")
+            Name::new(String::from("New Brunswick Highway 101"), 1, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 101"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("Route 101"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("NB 101"), -2, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("NB-101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("Kings's Highway 101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("Highway 101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("Route 101"), 0, &context), &context), results);
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("New Brunswick Highway 101"), 0, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("NB-101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("Kings's Highway 101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("Highway 101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("Route 101"), 0, None, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("New Brunswick Highway 101"), 0, None, &context), &context), results);
 
         // original name priority < 0
         let results = vec![
-            Name::new(String::from("New Brunswick Highway 101"), -1, &context).set_source("generated"),
-            Name::new(String::from("Highway 101"), -2, &context).set_source("generated"),
-            Name::new(String::from("Route 101"), -2, &context).set_source("generated"),
-            Name::new(String::from("NB 101"), -3, &context).set_source("generated")
+            Name::new(String::from("New Brunswick Highway 101"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 101"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("Route 101"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("NB 101"), -3, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), -1, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), -1, None, &context), &context), results);
 
         // original name priority > 0
         let results = vec![
-            Name::new(String::from("New Brunswick Highway 101"), 2, &context).set_source("generated"),
-            Name::new(String::from("Highway 101"), -1, &context).set_source("generated"),
-            Name::new(String::from("Route 101"), -1, &context).set_source("generated"),
-            Name::new(String::from("NB 101"), -2, &context).set_source("generated")
+            Name::new(String::from("New Brunswick Highway 101"), 2, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 101"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("Route 101"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("NB 101"), -2, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), 1, &context), &context), results);
+        assert_eq!(syn_ca_hwy(&Name::new(String::from("101"), 1, None, &context), &context), results);
     }
 
     #[test]
     fn test_syn_us_hwy() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
-        assert_eq!(syn_us_hwy(&Name::new(String::from(""), 0, &context), &context), vec![]);
+        assert_eq!(syn_us_hwy(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
         // original name priority == 0
         let results = vec![
-            Name::new(String::from("US Route 81"), 1, &context).set_source("generated"),
-            Name::new(String::from("US 81"), -1, &context).set_source("generated"),
-            Name::new(String::from("US Highway 81"), -1, &context).set_source("generated"),
-            Name::new(String::from("United States Route 81"), -1, &context).set_source("generated"),
-            Name::new(String::from("United States Highway 81"), -1, &context).set_source("generated")
+            Name::new(String::from("US Route 81"), 1, Some(Source::Generated), &context),
+            Name::new(String::from("US 81"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("US Highway 81"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("United States Route 81"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("United States Highway 81"), -1, Some(Source::Generated), &context)
         ];
 
-        assert_eq!(syn_us_hwy(&Name::new(String::from("us-81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("US 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("U.S. Route 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("US Route 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("US Rte 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("US Hwy 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("US Highway 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("United States 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("United States Route 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("United States Highway 81"), 0, &context), &context), results);
-        assert_eq!(syn_us_hwy(&Name::new(String::from("United States Hwy 81"), 0, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("us-81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("US 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("U.S. Route 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("US Route 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("US Rte 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("US Hwy 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("US Highway 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("United States 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("United States Route 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("United States Highway 81"), 0, None, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("United States Hwy 81"), 0, None, &context), &context), results);
 
         // original name priority < 0
         let results = vec![
-            Name::new(String::from("US Route 81"), -1, &context).set_source("generated"),
-            Name::new(String::from("US 81"), -2, &context).set_source("generated"),
-            Name::new(String::from("US Highway 81"), -2, &context).set_source("generated"),
-            Name::new(String::from("United States Route 81"), -2, &context).set_source("generated"),
-            Name::new(String::from("United States Highway 81"), -2, &context).set_source("generated")
+            Name::new(String::from("US Route 81"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("US 81"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("US Highway 81"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("United States Route 81"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("United States Highway 81"), -2, Some(Source::Generated), &context)
         ];
 
-        assert_eq!(syn_us_hwy(&Name::new(String::from("US Route 81"), -1, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("US Route 81"), -1, None, &context), &context), results);
 
         // original name priority > 0
         let results = vec![
-            Name::new(String::from("US Route 81"), 2, &context).set_source("generated"),
-            Name::new(String::from("US 81"), -1, &context).set_source("generated"),
-            Name::new(String::from("US Highway 81"), -1, &context).set_source("generated"),
-            Name::new(String::from("United States Route 81"), -1, &context).set_source("generated"),
-            Name::new(String::from("United States Highway 81"), -1, &context).set_source("generated")
+            Name::new(String::from("US Route 81"), 2, Some(Source::Generated), &context),
+            Name::new(String::from("US 81"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("US Highway 81"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("United States Route 81"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("United States Highway 81"), -1, Some(Source::Generated), &context)
         ];
 
-        assert_eq!(syn_us_hwy(&Name::new(String::from("US Route 81"), 1, &context), &context), results);
+        assert_eq!(syn_us_hwy(&Name::new(String::from("US Route 81"), 1, None, &context), &context), results);
     }
 
     #[test]
     fn test_syn_state_hwy() {
         let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
 
-        assert_eq!(syn_state_hwy(&Name::new(String::from(""), 0, &context), &context), vec![]);
+        assert_eq!(syn_state_hwy(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
         // original name priority == 0
         let results = vec![
-            Name::new(String::from("Pennsylvania Highway 123"), 1, &context).set_source("generated"),
-            Name::new(String::from("PA 123 Highway"), -2, &context).set_source("generated"),
-            Name::new(String::from("PA 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("Highway 123"), -2, &context).set_source("generated"),
-            Name::new(String::from("SR 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("State Highway 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("State Route 123"), -1, &context).set_source("generated")
+            Name::new(String::from("Pennsylvania Highway 123"), 1, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123 Highway"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 123"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("SR 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("State Highway 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("State Route 123"), -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_state_hwy(&Name::new(String::from("State Highway 123"), 0, &context), &context), results);
-        assert_eq!(syn_state_hwy(&Name::new(String::from("Highway 123"), 0, &context),&context), results);
-        assert_eq!(syn_state_hwy(&Name::new(String::from("Hwy 123"), 0, &context), &context), results);
-        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), 0, &context), &context), results);
-        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Route 123"), 0, &context), &context), results);
-        assert_eq!(syn_state_hwy(&Name::new(String::from("PA 123"), 0, &context), &context), results);
-        assert_eq!(syn_state_hwy(&Name::new(String::from("PA-123"), 0, &context), &context), results);
-        assert_eq!(syn_state_hwy(&Name::new(String::from("US-PA-123"), 0, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("State Highway 123"), 0, None, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("Highway 123"), 0, None, &context),&context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("Hwy 123"), 0, None, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), 0, None, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Route 123"), 0, None, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("PA 123"), 0, None, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("PA-123"), 0, None, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("US-PA-123"), 0, None, &context), &context), results);
 
         // original name priority < 0
         let results = vec![
-            Name::new(String::from("Pennsylvania Highway 123"), 2, &context).set_source("generated"),
-            Name::new(String::from("PA 123 Highway"), -2, &context).set_source("generated"),
-            Name::new(String::from("PA 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("Highway 123"), -2, &context).set_source("generated"),
-            Name::new(String::from("SR 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("State Highway 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("State Route 123"), -1, &context).set_source("generated")
+            Name::new(String::from("Pennsylvania Highway 123"), 2, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123 Highway"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 123"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("SR 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("State Highway 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("State Route 123"), -1, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), 1, &context), &context ), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), 1, None, &context), &context ), results);
 
         // original name priority > 0
         let results = vec![
-            Name::new(String::from("Pennsylvania Highway 123"), -1, &context).set_source("generated"),
-            Name::new(String::from("PA 123 Highway"), -3, &context).set_source("generated"),
-            Name::new(String::from("PA 123"), -2, &context).set_source("generated"),
-            Name::new(String::from("Highway 123"), -3, &context).set_source("generated"),
-            Name::new(String::from("SR 123"), -2, &context).set_source("generated"),
-            Name::new(String::from("State Highway 123"), -2, &context).set_source("generated"),
-            Name::new(String::from("State Route 123"), -2, &context).set_source("generated")
+            Name::new(String::from("Pennsylvania Highway 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123 Highway"), -3, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 123"), -3, Some(Source::Generated), &context),
+            Name::new(String::from("SR 123"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("State Highway 123"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("State Route 123"), -2, Some(Source::Generated), &context)
         ];
-        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), -1, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), -1, None, &context), &context), results);
     }
 
     #[test]
@@ -1099,38 +1099,38 @@ mod tests {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
         assert_eq!(
-            syn_number_suffix(&Name::new(String::from("1st Avenue"), 0, &context), &context),
+            syn_number_suffix(&Name::new(String::from("1st Avenue"), 0, None, &context), &context),
             Vec::new()
         );
 
         assert_eq!(
-            syn_number_suffix(&Name::new(String::from("1 Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("1st Avenue"), -1, &context).set_source("generated")]
+            syn_number_suffix(&Name::new(String::from("1 Avenue"), 0, None, &context), &context),
+            vec![Name::new(String::from("1st Avenue"), -1, Some(Source::Generated), &context)]
         );
 
         assert_eq!(
-            syn_number_suffix(&Name::new(String::from("2 Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("2nd Avenue"), -1, &context).set_source("generated")]
+            syn_number_suffix(&Name::new(String::from("2 Avenue"), 0, None, &context), &context),
+            vec![Name::new(String::from("2nd Avenue"), -1, Some(Source::Generated), &context)]
         );
 
         assert_eq!(
-            syn_number_suffix(&Name::new(String::from("3 Street"), 0, &context), &context),
-            vec![Name::new(String::from("3rd Street"), -1, &context).set_source("generated")]
+            syn_number_suffix(&Name::new(String::from("3 Street"), 0, None, &context), &context),
+            vec![Name::new(String::from("3rd Street"), -1, Some(Source::Generated), &context)]
         );
 
         assert_eq!(
-            syn_number_suffix(&Name::new(String::from("4 Street"), 0, &context), &context),
-            vec![Name::new(String::from("4th Street"), -1, &context).set_source("generated")]
+            syn_number_suffix(&Name::new(String::from("4 Street"), 0, None, &context), &context),
+            vec![Name::new(String::from("4th Street"), -1, Some(Source::Generated), &context)]
         );
 
         assert_eq!(
-            syn_number_suffix(&Name::new(String::from("20 Street"), 0, &context), &context),
-            vec![Name::new(String::from("20th Street"), -1, &context).set_source("generated")]
+            syn_number_suffix(&Name::new(String::from("20 Street"), 0, None, &context), &context),
+            vec![Name::new(String::from("20th Street"), -1, Some(Source::Generated), &context)]
         );
 
         assert_eq!(
-            syn_number_suffix(&Name::new(String::from("21 Street"), 0, &context), &context),
-            vec![Name::new(String::from("21st Street"), -1, &context).set_source("generated")]
+            syn_number_suffix(&Name::new(String::from("21 Street"), 0, None, &context), &context),
+            vec![Name::new(String::from("21st Street"), -1, Some(Source::Generated), &context)]
         );
     }
 
@@ -1139,18 +1139,18 @@ mod tests {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
         assert_eq!(
-            syn_written_numeric(&Name::new(String::from("Twenty-third Avenue NW"), 0, &context), &context),
-            vec![Name::new(String::from("23rd Avenue NW"), -1, &context).set_source("generated")]
+            syn_written_numeric(&Name::new(String::from("Twenty-third Avenue NW"), 0, None, &context), &context),
+            vec![Name::new(String::from("23rd Avenue NW"), -1, Some(Source::Generated), &context)]
         );
 
         assert_eq!(
-            syn_written_numeric(&Name::new(String::from("North twenty-Third Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("North 23rd Avenue"), -1, &context).set_source("generated")]
+            syn_written_numeric(&Name::new(String::from("North twenty-Third Avenue"), 0, None, &context), &context),
+            vec![Name::new(String::from("North 23rd Avenue"), -1, Some(Source::Generated), &context)]
         );
 
         assert_eq!(
-            syn_written_numeric(&Name::new(String::from("TWENTY-THIRD Avenue"), 0, &context), &context),
-            vec![Name::new(String::from("23rd Avenue"), -1, &context).set_source("generated")]
+            syn_written_numeric(&Name::new(String::from("TWENTY-THIRD Avenue"), 0, None, &context), &context),
+            vec![Name::new(String::from("23rd Avenue"), -1, Some(Source::Generated), &context)]
         );
     }
 
@@ -1172,62 +1172,62 @@ mod tests {
         let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("main st"), 0, &context)),
+            is_numbered(&Name::new(String::from("main st"), 0, None, &context)),
             None
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("1st st"), 0, &context)),
+            is_numbered(&Name::new(String::from("1st st"), 0, None, &context)),
             Some(String::from("1st"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("2nd st"), 0, &context)),
+            is_numbered(&Name::new(String::from("2nd st"), 0, None, &context)),
             Some(String::from("2nd"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("west 2nd st"), 0, &context)),
+            is_numbered(&Name::new(String::from("west 2nd st"), 0, None, &context)),
             Some(String::from("2nd"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("3rd st"), 0, &context)),
+            is_numbered(&Name::new(String::from("3rd st"), 0, None, &context)),
             Some(String::from("3rd"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("4th st"), 0, &context)),
+            is_numbered(&Name::new(String::from("4th st"), 0, None, &context)),
             Some(String::from("4th"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("11th ave"), 0, &context)),
+            is_numbered(&Name::new(String::from("11th ave"), 0, None, &context)),
             Some(String::from("11th"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("12th ave"), 0, &context)),
+            is_numbered(&Name::new(String::from("12th ave"), 0, None, &context)),
             Some(String::from("12th"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("21st av"), 0, &context)),
+            is_numbered(&Name::new(String::from("21st av"), 0, None, &context)),
             Some(String::from("21st"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("32nd av"), 0, &context)),
+            is_numbered(&Name::new(String::from("32nd av"), 0, None, &context)),
             Some(String::from("32nd"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("45th av"), 0, &context)),
+            is_numbered(&Name::new(String::from("45th av"), 0, None, &context)),
             Some(String::from("45th"))
         );
 
         assert_eq!(
-            is_numbered(&Name::new(String::from("351235th av"), 0, &context)),
+            is_numbered(&Name::new(String::from("351235th av"), 0, None, &context)),
             Some(String::from("351235th"))
         );
     }
@@ -1237,37 +1237,37 @@ mod tests {
         let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
 
         assert_eq!(
-            is_routish(&Name::new(String::from("main st"), 0, &context)),
+            is_routish(&Name::new(String::from("main st"), 0, None, &context)),
             None
         );
 
         assert_eq!(
-            is_routish(&Name::new(String::from("1st st"), 0, &context)),
+            is_routish(&Name::new(String::from("1st st"), 0, None, &context)),
             None
         );
 
         assert_eq!(
-            is_routish(&Name::new(String::from("351235th av"), 0, &context)),
+            is_routish(&Name::new(String::from("351235th av"), 0, None, &context)),
             None
         );
 
         assert_eq!(
-            is_routish(&Name::new(String::from("NC 124"), 0, &context)),
+            is_routish(&Name::new(String::from("NC 124"), 0, None, &context)),
             Some(String::from("124"))
         );
 
         assert_eq!(
-            is_routish(&Name::new(String::from("US Route 50 East"), 0, &context)),
+            is_routish(&Name::new(String::from("US Route 50 East"), 0, None, &context)),
             Some(String::from("50"))
         );
 
         assert_eq!(
-            is_routish(&Name::new(String::from("321"), 0, &context)),
+            is_routish(&Name::new(String::from("321"), 0, None, &context)),
             Some(String::from("321"))
         );
 
         assert_eq!(
-            is_routish(&Name::new(String::from("124 NC"), 0, &context)),
+            is_routish(&Name::new(String::from("124 NC"), 0, None, &context)),
             Some(String::from("124"))
         );
     }

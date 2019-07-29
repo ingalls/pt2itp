@@ -1,5 +1,5 @@
 use postgis::ewkb::EwkbWrite;
-use crate::{Context, text, Names};
+use crate::{Context, text, Names, Source};
 
 #[derive(Debug)]
 ///
@@ -71,7 +71,7 @@ impl Network {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
 
-        names.set_source(String::from("network"));
+        names.set_source(Some(Source::Network));
 
         let mut net = Network {
             id: match feat.id {
@@ -173,6 +173,6 @@ mod tests {
 
         let net = Network::new(feat, &context).unwrap();
 
-        assert_eq!(net.to_tsv(), "[{\"display\":\"Poremba Court Southwest\",\"priority\":0,\"source\":\"network\",\"tokenized\":[{\"token\":\"poremba\",\"token_type\":null},{\"token\":\"court\",\"token_type\":null},{\"token\":\"southwest\",\"token_type\":null}],\"freq\":1}]\t\t{\"id\":6052094,\"street\":[{\"display\":\"Poremba Court Southwest\",\"priority\":0}]}\t0105000020E610000001000000010200000003000000FCA5457D924053C09128B4ACFB6D4340F52F49658A4053C0CBA145B6F36D434009826CFE844053C0F7D676C9EE6D4340\n");
+        assert_eq!(net.to_tsv(), "[{\"display\":\"Poremba Court Southwest\",\"priority\":0,\"source\":\"Network\",\"tokenized\":[{\"token\":\"poremba\",\"token_type\":null},{\"token\":\"court\",\"token_type\":null},{\"token\":\"southwest\",\"token_type\":null}],\"freq\":1}]\t\t{\"id\":6052094,\"street\":[{\"display\":\"Poremba Court Southwest\",\"priority\":0}]}\t0105000020E610000001000000010200000003000000FCA5457D924053C09128B4ACFB6D4340F52F49658A4053C0CBA145B6F36D434009826CFE844053C0F7D676C9EE6D4340\n");
     }
 }

@@ -212,50 +212,50 @@ mod tests {
         // The following tests should match one of the given potential matches
 
         {
-            let a_name = Names::new(vec![Name::new("S STREET NW", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("S STREET NW", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("n capitol st", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("t st ne", 0, &context)], &context);
-            let b_name3 = Names::new(vec![Name::new("todd pl ne", 0, &context)], &context);
-            let b_name4 = Names::new(vec![Name::new("u st ne", 0, &context)], &context);
-            let b_name5 = Names::new(vec![Name::new("v st ne", 0, &context)], &context);
-            let b_name6 = Names::new(vec![Name::new("u st nw", 0, &context)], &context);
-            let b_name7 = Names::new(vec![Name::new("t st nw", 0, &context)], &context);
-            let b_name8 = Names::new(vec![Name::new("rhode is av ne", 0, &context)], &context);
-            let b_name9 = Names::new(vec![Name::new("n capitol st ne", 0, &context)], &context);
-            let b_name10 = Names::new(vec![Name::new("n capitol st nw", 0, &context)], &context);
-            let b_name11 = Names::new(vec![Name::new("elm st nw", 0, &context)], &context);
-            let b_name12 = Names::new(vec![Name::new("bates st nw", 0, &context)], &context);
-            let b_name13 = Names::new(vec![Name::new("s st nw", 0, &context)], &context);
-            let b_name14 = Names::new(vec![Name::new("rhode is av nw", 0, &context)], &context);
-            let b_name15 = Names::new(vec![Name::new("r st nw", 0, &context)], &context);
-            let b_name16 = Names::new(vec![Name::new("randolph pl ne", 0, &context)], &context);
-            let b_name17 = Names::new(vec![Name::new("rt 1", 0, &context)], &context);
-            let b_name18 = Names::new(vec![Name::new("lincoln rd ne", 0, &context)], &context);
-            let b_name19 = Names::new(vec![Name::new("quincy pl ne", 0, &context)], &context);
-            let b_name20 = Names::new(vec![Name::new("1st st nw", 0, &context)], &context);
-            let b_name21 = Names::new(vec![Name::new("porter st ne", 0, &context)], &context);
-            let b_name22 = Names::new(vec![Name::new("quincy pl nw", 0, &context)], &context);
-            let b_name23 = Names::new(vec![Name::new("florida av ne", 0, &context)], &context);
-            let b_name24 = Names::new(vec![Name::new("richardson pl nw", 0, &context)], &context);
-            let b_name25 = Names::new(vec![Name::new("1st st ne", 0, &context)], &context);
-            let b_name26 = Names::new(vec![Name::new("q st ne", 0, &context)], &context);
-            let b_name27 = Names::new(vec![Name::new("florida av nw", 0, &context)], &context);
-            let b_name28 = Names::new(vec![Name::new("p st ne", 0, &context)], &context);
-            let b_name29 = Names::new(vec![Name::new("s st ne", 0, &context)], &context);
-            let b_name30 = Names::new(vec![Name::new("r st ne", 0, &context)], &context);
-            let b_name31 = Names::new(vec![Name::new("seaton pl ne", 0, &context)], &context);
-            let b_name32 = Names::new(vec![Name::new("randolph pl nw", 0, &context)], &context);
-            let b_name33 = Names::new(vec![Name::new("anna j cooper cir nw", 0, &context)], &context);
-            let b_name34 = Names::new(vec![Name::new("p st nw", 0, &context)], &context);
-            let b_name35 = Names::new(vec![Name::new("q st nw", 0, &context)], &context);
-            let b_name36 = Names::new(vec![Name::new("4th st nw", 0, &context)], &context);
-            let b_name37 = Names::new(vec![Name::new("v st nw", 0, &context)], &context);
-            let b_name38 = Names::new(vec![Name::new("3rd st nw", 0, &context)], &context);
-            let b_name39 = Names::new(vec![Name::new("seaton pl nw", 0, &context)], &context);
-            let b_name40 = Names::new(vec![Name::new("flagler pl nw", 0, &context)], &context);
-            let b_name41 = Names::new(vec![Name::new("2nd st nw", 0, &context)], &context);
-            let b_name42 = Names::new(vec![Name::new("thomas st nw", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("n capitol st", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("t st ne", 0, None, &context)], &context);
+            let b_name3 = Names::new(vec![Name::new("todd pl ne", 0, None, &context)], &context);
+            let b_name4 = Names::new(vec![Name::new("u st ne", 0, None, &context)], &context);
+            let b_name5 = Names::new(vec![Name::new("v st ne", 0, None, &context)], &context);
+            let b_name6 = Names::new(vec![Name::new("u st nw", 0, None, &context)], &context);
+            let b_name7 = Names::new(vec![Name::new("t st nw", 0, None, &context)], &context);
+            let b_name8 = Names::new(vec![Name::new("rhode is av ne", 0, None, &context)], &context);
+            let b_name9 = Names::new(vec![Name::new("n capitol st ne", 0, None, &context)], &context);
+            let b_name10 = Names::new(vec![Name::new("n capitol st nw", 0, None, &context)], &context);
+            let b_name11 = Names::new(vec![Name::new("elm st nw", 0, None, &context)], &context);
+            let b_name12 = Names::new(vec![Name::new("bates st nw", 0, None, &context)], &context);
+            let b_name13 = Names::new(vec![Name::new("s st nw", 0, None, &context)], &context);
+            let b_name14 = Names::new(vec![Name::new("rhode is av nw", 0, None, &context)], &context);
+            let b_name15 = Names::new(vec![Name::new("r st nw", 0, None, &context)], &context);
+            let b_name16 = Names::new(vec![Name::new("randolph pl ne", 0, None, &context)], &context);
+            let b_name17 = Names::new(vec![Name::new("rt 1", 0, None, &context)], &context);
+            let b_name18 = Names::new(vec![Name::new("lincoln rd ne", 0, None, &context)], &context);
+            let b_name19 = Names::new(vec![Name::new("quincy pl ne", 0, None, &context)], &context);
+            let b_name20 = Names::new(vec![Name::new("1st st nw", 0, None, &context)], &context);
+            let b_name21 = Names::new(vec![Name::new("porter st ne", 0, None, &context)], &context);
+            let b_name22 = Names::new(vec![Name::new("quincy pl nw", 0, None, &context)], &context);
+            let b_name23 = Names::new(vec![Name::new("florida av ne", 0, None, &context)], &context);
+            let b_name24 = Names::new(vec![Name::new("richardson pl nw", 0, None, &context)], &context);
+            let b_name25 = Names::new(vec![Name::new("1st st ne", 0, None, &context)], &context);
+            let b_name26 = Names::new(vec![Name::new("q st ne", 0, None, &context)], &context);
+            let b_name27 = Names::new(vec![Name::new("florida av nw", 0, None, &context)], &context);
+            let b_name28 = Names::new(vec![Name::new("p st ne", 0, None, &context)], &context);
+            let b_name29 = Names::new(vec![Name::new("s st ne", 0, None, &context)], &context);
+            let b_name30 = Names::new(vec![Name::new("r st ne", 0, None, &context)], &context);
+            let b_name31 = Names::new(vec![Name::new("seaton pl ne", 0, None, &context)], &context);
+            let b_name32 = Names::new(vec![Name::new("randolph pl nw", 0, None, &context)], &context);
+            let b_name33 = Names::new(vec![Name::new("anna j cooper cir nw", 0, None, &context)], &context);
+            let b_name34 = Names::new(vec![Name::new("p st nw", 0, None, &context)], &context);
+            let b_name35 = Names::new(vec![Name::new("q st nw", 0, None, &context)], &context);
+            let b_name36 = Names::new(vec![Name::new("4th st nw", 0, None, &context)], &context);
+            let b_name37 = Names::new(vec![Name::new("v st nw", 0, None, &context)], &context);
+            let b_name38 = Names::new(vec![Name::new("3rd st nw", 0, None, &context)], &context);
+            let b_name39 = Names::new(vec![Name::new("seaton pl nw", 0, None, &context)], &context);
+            let b_name40 = Names::new(vec![Name::new("flagler pl nw", 0, None, &context)], &context);
+            let b_name41 = Names::new(vec![Name::new("2nd st nw", 0, None, &context)], &context);
+            let b_name42 = Names::new(vec![Name::new("thomas st nw", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -306,62 +306,44 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Maim Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Maim Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 85.71)));
         }
 
         {
-            let a_name = Names::new(vec![Name::new("US Route 50 East", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("US Route 50 West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("US Route 50 East", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("US Route 50 West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 98.08)));
         }
 
         {
-            let a_name = Names::new(vec![Name::new("11th Street West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("11th Avenue West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("11th Street West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("11th Avenue West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 92.11)));
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("Main Avenue", 0, &context)], &context);
-            let b_name3 = Names::new(vec![Name::new("Main Road", 0, &context)], &context);
-            let b_name4 = Names::new(vec![Name::new("Main Drive", 0, &context)], &context);
-
-            let a = Link::new(1, &a_name);
-            let b = vec![
-                Link::new(2, &b_name1),
-                Link::new(3, &b_name2),
-                Link::new(4, &b_name3),
-                Link::new(5, &b_name4)
-            ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
-        }
-
-        {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-
-            let b_name1 = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("Asdg Street", 0, &context)], &context);
-            let b_name3 = Names::new(vec![Name::new("Asdg Street", 0, &context)], &context);
-            let b_name4 = Names::new(vec![Name::new("Maim Drive", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("Main Avenue", 0, None, &context)], &context);
+            let b_name3 = Names::new(vec![Name::new("Main Road", 0, None, &context)], &context);
+            let b_name4 = Names::new(vec![Name::new("Main Drive", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -374,10 +356,28 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Ola Avenue", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("Ola", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("Ola Avg", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("Asdg Street", 0, None, &context)], &context);
+            let b_name3 = Names::new(vec![Name::new("Asdg Street", 0, None, &context)], &context);
+            let b_name4 = Names::new(vec![Name::new("Maim Drive", 0, None, &context)], &context);
+
+            let a = Link::new(1, &a_name);
+            let b = vec![
+                Link::new(2, &b_name1),
+                Link::new(3, &b_name2),
+                Link::new(4, &b_name3),
+                Link::new(5, &b_name4)
+            ];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
+        }
+
+        {
+            let a_name = Names::new(vec![Name::new("Ola Avenue", 0, None, &context)], &context);
+
+            let b_name1 = Names::new(vec![Name::new("Ola", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("Ola Avg", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -388,10 +388,10 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Avenue Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Avenue Street", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("Ave", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("Avenida", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("Ave", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("Avenida", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -402,11 +402,11 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Avenue Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Avenue Street", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("Avenue", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("Avenue", 0, &context)], &context);
-            let b_name3 = Names::new(vec![Name::new("Avenida", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("Avenue", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("Avenue", 0, None, &context)], &context);
+            let b_name3 = Names::new(vec![Name::new("Avenida", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -418,11 +418,11 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street West", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("Main Road", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("Main Avenue", 0, &context)], &context);
-            let b_name3 = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("Main Road", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("Main Avenue", 0, None, &context)], &context);
+            let b_name3 = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -434,8 +434,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Lake Street West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("West Lake Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Lake Street West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("West Lake Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -443,11 +443,11 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("Maim Street", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("Maim Street", 0, &context)], &context);
-            let b_name3 = Names::new(vec![Name::new("Cross Street", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("Maim Street", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("Maim Street", 0, None, &context)], &context);
+            let b_name3 = Names::new(vec![Name::new("Cross Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -459,12 +459,12 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("S Street NW", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("S Street NW", 0, None, &context)], &context);
 
-            let b_name1 = Names::new(vec![Name::new("P Street Northeast", 0, &context)], &context);
-            let b_name2 = Names::new(vec![Name::new("S Street NW", 0, &context)], &context);
-            let b_name3 = Names::new(vec![Name::new("S Street NE", 0, &context)], &context);
-            let b_name4 = Names::new(vec![Name::new("Bates Street NW", 0, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("P Street Northeast", 0, None, &context)], &context);
+            let b_name2 = Names::new(vec![Name::new("S Street NW", 0, None, &context)], &context);
+            let b_name3 = Names::new(vec![Name::new("S Street NE", 0, None, &context)], &context);
+            let b_name4 = Names::new(vec![Name::new("Bates Street NW", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![
@@ -480,56 +480,56 @@ mod tests {
         // The following tests should *NOT* match one of the given potential matches
 
         {
-            let a_name = Names::new(vec![Name::new("1st Street West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("2nd Street West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("1st Street West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("2nd Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("1st Street West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("3rd Street West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("1st Street West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("3rd Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("1st Street West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("4th Street West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("1st Street West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("4th Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("11th Street West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("21st Street West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("11th Street West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("21st Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("US Route 60 East", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("US Route 51 West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("US Route 60 East", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("US Route 51 West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("West Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("West Saint Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("West Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("West Saint Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Anne Boulevard", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Anne Boulevard", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
@@ -539,17 +539,17 @@ mod tests {
         // The following tests should match one of the given potential matches in strict mode
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
-            let b_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -557,8 +557,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main Street West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Street West", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -566,8 +566,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -575,8 +575,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -584,8 +584,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main West", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main West", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -593,8 +593,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Lake Street West", 0, &context)], &context);
-            let b_name1 = Names::new(vec![Name::new("West Lake Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Lake Street West", 0, None, &context)], &context);
+            let b_name1 = Names::new(vec![Name::new("West Lake Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name1)];
@@ -602,8 +602,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("East Main", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("East Main", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -613,33 +613,24 @@ mod tests {
         // === Intentional Strict Non-Matches ===
         // The following tests should *NOT* match one of the given potential matches in strict mode
         {
-            let a_name = Names::new(vec![Name::new("US Route 50 East", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("US Route 50 West", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("US Route 50 East", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("US Route 50 West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, true), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("West Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("West Saint Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("West Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("West Saint Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, true), None);
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main Ave", 0, &context)], &context);
-
-            let a = Link::new(1, &a_name);
-            let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), None);
-        }
-
-        {
-            let a_name = Names::new(vec![Name::new("East Main", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("West Main", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Ave", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -647,8 +638,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("East Main Street", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("West Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("East Main", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("West Main", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -656,8 +647,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Main Street Ave", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main Street", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("East Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("West Main Street", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
@@ -665,8 +656,17 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("East Main", 0, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main North East", 0, &context)], &context);
+            let a_name = Names::new(vec![Name::new("Main Street Ave", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true), None);
+        }
+
+        {
+            let a_name = Names::new(vec![Name::new("East Main", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main North East", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
