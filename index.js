@@ -30,8 +30,6 @@ if (require.main === module) {
         case ('debug'):
             require('./lib/debug')(process.argv, (err) => {
                 if (err) throw err;
-
-                process.exit(0);
             });
             break;
         case ('map'):
