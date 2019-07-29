@@ -10,9 +10,16 @@
 
 ## Version History
 
-### v24.1.0-st.1
-
+### v24.1.2-st
 - :rocket: Add support for ambiguous 'st' token detection
+
+### v24.1.2
+
+- :bug: Standardize all `MLK` variations to `Marin Luther King Jr`
+
+### v24.1.1
+
+- :bug: Add support for pre tokens in `MLK` & `JFK` synonym generation
 
 ### v24.1.0
 
