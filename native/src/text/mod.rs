@@ -17,7 +17,6 @@ pub use self::tokens::Tokenized;
 pub use self::tokens::ParsedToken;
 
 use std::collections::HashMap;
-use std::cmp::min;
 use regex::{Regex, RegexSet};
 use crate::{Name, Source, Context};
 
@@ -37,7 +36,7 @@ pub fn distance<T>(a: &T, b: &T) -> usize
     if v2len == 0 { return v1len; }
 
     fn min3<T: Ord>(v1: T, v2: T, v3: T) -> T{
-        min(v1, min(v2, v3))
+        std::cmp::min(v1, std::cmp::min(v2, v3))
     }
 
     fn delta(x: char, y: char) -> usize {
@@ -296,7 +295,7 @@ pub fn syn_ca_hwy(name: &Name, context: &Context) -> Vec<Name> {
                 syns.push(Name::new(format!("{} {} {}", &region_name, &hwy_type, &num), display_priority, Some(Source::Generated), &context));
 
                 // Ensure non display form synonyms always have a priority of < 0 and < the original name
-                let priority_offset = min(0, name.priority);
+                let priority_offset = std::cmp::min(0, name.priority);
 
                 // Highway 123
                 syns.push(Name::new(format!("Highway {}", &num), priority_offset - 1, Some(Source::Generated), &context));
@@ -393,7 +392,7 @@ pub fn syn_us_cr(name: &Name, context: &Context) -> Vec<Name> {
 
     // CR 123
     // Ensure non display form synonyms always have a priority of < 0 and < the original name
-    syns.push(Name::new(format!("CR {}", &cr), min(0, name.priority) - 1, Some(Source::Generated), &context));
+    syns.push(Name::new(format!("CR {}", &cr), std::cmp::min(0, name.priority) - 1, Some(Source::Generated), &context));
 
     syns
 }
@@ -412,7 +411,7 @@ pub fn syn_us_famous(name: &Name, context: &Context) -> Vec<Name> {
     // > the address and primary network names. Otherwise ensure it's always > the original name
     let display_priority = if name.priority >= 0 { name.priority + 1 } else { -1 };
     // Ensure non display form synonyms always have a priority of < 0 and < the original name
-    let priority_offset = min(0, name.priority);
+    let priority_offset = std::cmp::min(0, name.priority);
 
     if JFK.is_match(name.display.as_str()) {
         let strpost: String = match JFK.captures(name.display.as_str()) {
@@ -487,7 +486,7 @@ pub fn syn_us_hwy(name: &Name, context: &Context) -> Vec<Name> {
     syns.push(Name::new(format!("US Route {}", &highway), display_priority, Some(Source::Generated), &context));
 
     // Ensure non display form synonyms always have a priority of < 0 and < the original name
-    let priority_offset = min(0, name.priority);
+    let priority_offset = std::cmp::min(0, name.priority);
 
     // US 81
     syns.push(Name::new(format!("US {}", &highway), priority_offset - 1, Some(Source::Generated), &context));
@@ -570,7 +569,7 @@ pub fn syn_state_hwy(name: &Name, context: &Context) -> Vec<Name> {
     syns.push(Name::new(format!("{} Highway {}", &region_name, &highway), display_priority, Some(Source::Generated), &context));
 
     // Ensure non display form synonyms always have a priority of < 0 and < the original name
-    let priority_offset = min(0, name.priority);
+    let priority_offset = std::cmp::min(0, name.priority);
 
     // NC 123 Highway
     syns.push(Name::new(format!("{} {} Highway", region.to_uppercase(), &highway), priority_offset - 2, Some(Source::Generated), &context));
