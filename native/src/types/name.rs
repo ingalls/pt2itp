@@ -591,7 +591,7 @@ mod tests {
         ], &context), Names {
             names: vec![
                 Name::new(String::from("Main St"), 0, None, &context),
-                Name::new(String::from("Us Route 1"), -1, None, &context), // @TODO fix, should be 'US'
+                Name::new(String::from("US Route 1"), -1, None, &context),
                 Name::new(String::from("US 1"), -2, Some(Source::Generated), &context),
                 Name::new(String::from("US Highway 1"), -2, Some(Source::Generated), &context),
                 Name::new(String::from("United States Route 1"), -2, Some(Source::Generated), &context),

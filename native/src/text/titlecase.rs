@@ -12,21 +12,24 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     let mut text = text.trim().to_lowercase();
     text = Regex::new(r"\s+").unwrap().replace_all(&text, " ").to_string();
     let mut new = String::new();
-    while text.len() > 0 {
-        match WORD_BOUNDARY.find(&text[..]) {
-            None => {
-                let word = &text[..];
-                new.push_str(&capitalize(word, context));
-                break;
-            },
-            Some(m) => {
-                let word = &text[..m.start()];
-                new.push_str(&capitalize(word, context));
-                new.push_str(&m.as_str());
-                text = String::from(&text[m.end()..]);
-            }
+    let mut word_count = 0;
+    let mut last_match = 0;
+    for mat in WORD_BOUNDARY.find_iter(&text[..]) {
+        let word = &text[last_match..mat.start()];
+        if word.len() > 0 {
+            word_count = word_count + 1;
+            new.push_str(&capitalize(word, word_count, context));
         }
+        new.push_str(&mat.as_str());
+        last_match = mat.end();
     }
+    // any last words?
+    if last_match < text.len() {
+        let word = &text[last_match..];
+        word_count = word_count + 1;
+        new.push_str(&capitalize(word, word_count, context));
+    }
+
     if context.country == String::from("US")
     || context.country == String::from("CA") {
         new = normalize_cardinals(&new)
@@ -35,26 +38,34 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     new
 }
 
-pub fn capitalize(text: &str, context: &Context) -> String {
+pub fn capitalize(text: &str, word_count: usize, context: &Context) -> String {
     const MINOR_EN: [&str; 40] = [
         "a", "an", "and", "as", "at", "but", "by", "en", "for", "from", "how", "if", "in", "neither", "nor",
         "of", "on", "only", "onto", "out", "or", "per", "so", "than", "that", "the", "to", "until", "up",
         "upon", "v", "v.", "versus", "vs", "vs.", "via", "when", "with", "without", "yet"
     ];
 
+    const MAJOR_EN: [&str; 2] = ["us", "dc"];
+
     const MINOR_DE: [&str; 1] = ["du"];
 
-    if (
-        context.country == String::from("US")
-        || context.country == String::from("CA")
-    ) && MINOR_EN.contains(&text) {
-        String::from(text)
-    } else if context.country == String::from("DE")
-        && MINOR_DE.contains(&text) {
-        String::from(text)
-    } else {
-        text[0..1].to_uppercase() + &text[1..]
+    if (context.country == String::from("US")
+        || context.country == String::from("CA"))
+        && MAJOR_EN.contains(&text) {
+        return String::from(text).to_uppercase();
     }
+    // don't apply lower casing to the first word in the string
+    if word_count > 1 {
+        if (context.country == String::from("US")
+            || context.country == String::from("CA"))
+            && MINOR_EN.contains(&text) {
+            return String::from(text);
+        } else if context.country == String::from("DE")
+            && MINOR_DE.contains(&text) {
+            return String::from(text);
+        }
+    }
+    text[0..1].to_uppercase() + &text[1..]
 }
 
 pub fn normalize_cardinals(text: &String) -> String {
@@ -123,8 +134,14 @@ mod tests {
         assert_eq!(titlecase(&String::from("Main S.E. St"), &context), String::from("Main SE St"));
         assert_eq!(titlecase(&String::from("main st ne"), &context), String::from("Main St NE"));
         assert_eq!(titlecase(&String::from("nE. Main St"), &context), String::from("Ne. Main St"));
+        assert_eq!(titlecase(&String::from("us hwy 1"), &context), String::from("US Hwy 1"));
+        assert_eq!(titlecase(&String::from(" -a nice road- "), &context), String::from("-A Nice Road-"));
+        assert_eq!(titlecase(&String::from("-x"), &context), String::from("-X"));
+        assert_eq!(titlecase(&String::from("x-"), &context), String::from("X-"));
+        assert_eq!(titlecase(&String::from(" *$&#()__ "), &context), String::from("*$&#()__"));
 
         let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new()));
-        assert_eq!(titlecase(&String::from("Du hast recht"), &context), String::from("du Hast Recht"));
+        assert_eq!(titlecase(&String::from(" hast Du recht"), &context), String::from("Hast du Recht"));
+        assert_eq!(titlecase(&String::from("a 9, 80939 münchen, germany"), &context), String::from("A 9, 80939 München, Germany"));
     }
 }
