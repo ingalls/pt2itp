@@ -136,12 +136,27 @@ impl Names {
     }
 
     ///
-    /// Dedupe a names object based on the tokenized
-    /// version of each name
+    /// Dedupe a Names struct based on the tokenized version of each name.
+    /// Names with the same priority and tokenized name will preference the dupliacate with the
+    /// longest display name. This tries to prefence non-abbreviated synonyms where they exist,
+    /// e.g. 'East Main Street' rather than 'E Main St'
     ///
     pub fn dedupe(&mut self) {
-        let mut tokenized: HashMap<String, _> = HashMap::new();
+        struct Dedupe {
+            name: Name,
+            first_index: usize
+        }
 
+        impl Dedupe {
+            fn new(name: Name, first_index: usize) -> Self {
+                Dedupe {
+                    name,
+                    first_index
+                }
+            }
+        }
+
+        let mut tokenized: HashMap<String, Dedupe> = HashMap::new();
         let mut old_names = Vec::with_capacity(self.names.len());
 
         loop {
@@ -155,23 +170,33 @@ impl Names {
         old_names.reverse();
 
         for name in old_names {
-            if tokenized.contains_key(&name.tokenized_string()) {
-                continue;
-            } else {
-                tokenized.insert(name.tokenized_string(), true);
-                self.names.push(name);
-            }
+            tokenized.entry(name.tokenized_string())
+                // if the tokenized name already exists
+                .and_modify(|d| {
+                    // overwrite the existing Name if the two are of the same priority and new name
+                    // has a longer, potentially unabbreviated form
+                    if name.priority == d.name.priority && name.display.len() > d.name.display.len() {
+                        d.name = name.clone();
+                        // replace the existing name in the names vector at the position of the
+                        // first instance of the name
+                        self.names[d.first_index] = name.clone();
+                    }
+                })
+                // if it doesn't yet exist
+                .or_insert_with(|| {
+                    self.names.push(name.clone());
+                    // store the index of the new Name in case it's replaced later
+                    Dedupe::new(name.clone(), self.names.len() - 1)
+                });
         }
     }
 
     ///
-    /// Sort names object by priority, frequency, and display length
+    /// Sort Names struct by priority and frequency
     ///
     pub fn sort(&mut self) {
         self.names.sort_by(|a, b| {
-            if a == b {
-                std::cmp::Ordering::Equal
-            } else if a.priority > b.priority {
+            if a.priority > b.priority {
                 std::cmp::Ordering::Less
             } else if a.priority < b.priority {
                 std::cmp::Ordering::Greater
@@ -181,18 +206,7 @@ impl Names {
                 } else if a.freq < b.freq {
                     std::cmp::Ordering::Greater
                 } else {
-                    // only sort on display length if tokenized strings are the same
-                    if a.tokenized_string() == b.tokenized_string() {
-                        if a.display.len() > b.display.len() {
-                            std::cmp::Ordering::Less
-                        } else if a.display.len() < b.display.len() {
-                            std::cmp::Ordering::Greater
-                        } else {
-                            std::cmp::Ordering::Equal
-                        }
-                    } else {
-                        std::cmp::Ordering::Equal
-                    }
+                    std::cmp::Ordering::Equal
                 }
             }
         });
@@ -218,7 +232,7 @@ impl Names {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Name {
     /// Street Name
     pub display: String,
@@ -425,8 +439,8 @@ mod tests {
                 Name::new(String::from("hwy 1"), 1, None, &context),
                 Name::new(String::from("hwy 1"), -1, None, &context).set_freq(3),
                 Name::new(String::from("hwy 2"), -1, None, &context).set_freq(2),
+                Name::new(String::from("hwy 3"), -1, None, &context),
                 Name::new(String::from("highway 3"), -1, None, &context),
-                Name::new(String::from("hwy 3"), -1, None, &context)
             ]
         };
 
@@ -482,10 +496,10 @@ mod tests {
 
         names.dedupe();
 
-        // deduping is arbitrary without first sorting
+        // deduping does not sort by priority and frequency-- must call .sort() first
         let names_deduped = Names {
             names: vec![
-                Name::new(String::from("hwy 3"), -1, None, &context).set_freq(1),
+                Name::new(String::from("highway 3"), -1, None, &context).set_freq(1),
                 Name::new(String::from("hwy 2"), -1, None, &context).set_freq(1),
                 Name::new(String::from("hwy 1"), -1, None, &context)
             ]
@@ -555,22 +569,35 @@ mod tests {
             Names { names: vec![Name::new(String::from("Main Street"), 0, None, &context)]}
         );
 
-        // Dedupe names with the same tokenized name
+        // Dedupe names with the same tokenized name and priority, preference longer display name
         assert_eq!(
             Names::new(
-                vec![Name::new(String::from("Main Street"), 0, None, &context),
-                    Name::new(String::from("Main St"), 0, None, &context),
-                    Name::new(String::from("E Main Street"), 0, None, &context),
-                    Name::new(String::from("East Main St"), 0, None, &context)],
+                vec![Name::new(String::from("Main St"), 0, None, &context),
+                    Name::new(String::from("Main Street"), 0, None, &context),
+                    Name::new(String::from("E Main St"), 0, None, &context),
+                    Name::new(String::from("East Main Street"), 0, None, &context)],
                     &context),
             Names {
                 names: vec![
                     Name::new(String::from("Main Street"), 0, None, &context),
-                    Name::new(String::from("E Main Street"), 0, None, &context)
+                    Name::new(String::from("East Main Street"), 0, None, &context)
                 ]}
         );
 
-
+        // Dedupe names with the same tokenized name but different priorities, preference priority
+        assert_eq!(
+            Names::new(
+                vec![Name::new(String::from("Main St"), 1, None, &context),
+                    Name::new(String::from("Main Street"), 0, None, &context),
+                    Name::new(String::from("E Main St"), 1, None, &context),
+                    Name::new(String::from("East Main Street"), 0, None, &context)],
+                    &context),
+            Names {
+                names: vec![
+                    Name::new(String::from("Main St"), 1, None, &context),
+                    Name::new(String::from("E Main St"), 1, None, &context)
+                ]}
+        );
 
         // Ensure synonyms are being applied correctly
         assert_eq!(Names::new(vec![Name::new(String::from("US Route 1"), 0, None, &context)], &context), Names {
@@ -615,20 +642,20 @@ mod tests {
             Name::new("State Highway 99E", -1, Some(Source::Network), &context).set_freq(1)
         ], &context), Names {
             names: vec![
-                Name::new("NE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
+                Name::new("Northeast Martin Luther King Jr Boulevard", 1, Some(Source::Generated), &context),
                 Name::new("SE Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
                 Name::new("N Martin Luther King Jr Blvd", 1, Some(Source::Generated), &context),
                 Name::new("NE M L King Blvd", 0, Some(Source::Address), &context).set_freq(1480),
                 Name::new("SE M L King Blvd", 0, Some(Source::Address), &context).set_freq(7),
                 Name::new("N M L King Blvd", 0, Some(Source::Address), &context).set_freq(3),
                 Name::new("NE Mlk", -1, Some(Source::Network), &context),
-                Name::new("or 99e", -1, Some(Source::Network), &context),
+                Name::new("Or 99e", -1, Some(Source::Network), &context),
                 Name::new("State Highway 99e", -1, Some(Source::Network), &context),
-                Name::new("NE MLK Blvd", -1, Some(Source::Generated), &context),
-                Name::new("NE M L K Blvd", -1, Some(Source::Generated), &context),
-                Name::new("NE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
-                Name::new("NE MLK Jr Blvd", -1, Some(Source::Generated), &context),
-                Name::new("NE M L K Jr Blvd", -1, Some(Source::Generated), &context),
+                Name::new("Northeast MLK Boulevard", -1, Some(Source::Generated), &context),
+                Name::new("Northeast M L K Boulevard", -1, Some(Source::Generated), &context),
+                Name::new("Northeast Martin Luther King Boulevard", -1, Some(Source::Generated), &context),
+                Name::new("Northeast MLK Jr Boulevard", -1, Some(Source::Generated), &context),
+                Name::new("Northeast M L K Jr Boulevard", -1, Some(Source::Generated), &context),
                 Name::new("SE MLK Blvd", -1, Some(Source::Generated), &context),
                 Name::new("SE M L K Blvd", -1, Some(Source::Generated), &context),
                 Name::new("SE Martin Luther King Blvd", -1, Some(Source::Generated), &context),
