@@ -12,9 +12,7 @@ mod titlecase;
 
 pub use self::diacritics::diacritics;
 pub use self::titlecase::titlecase;
-pub use self::tokens::Tokens;
-pub use self::tokens::Tokenized;
-pub use self::tokens::ParsedToken;
+pub use self::tokens::{Tokens, Tokenized, ParsedToken};
 
 use std::collections::HashMap;
 use regex::{Regex, RegexSet};
@@ -524,9 +522,9 @@ pub fn syn_state_hwy(name: &Name, context: &Context) -> Vec<Name> {
     lazy_static! {
         static ref PRE_HWY: Regex = Regex::new(r"(?ix)^
             (?P<prefix>
-              # State 123
+              # St Rte 123
               # State Highway 123
-              (State\s(highway|hwy|route|rte)\s)
+              ((St|State)\s(highway|hwy|route|rte)\s)
 
               # North Carolina 123
               # North Carolina Highway 123
@@ -668,14 +666,14 @@ mod tests {
     fn test_is_undesireable() {
         let tokens = Tokens::generate(vec![String::from("en")]);
 
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE"))), false);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Ext 25"))), true);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Connector 25"))), true);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Branch 25"))), true);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Unit 25"))), true);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Apartment 25"))), true);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Suite 25"))), true);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Lot 25"))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE"), &String::from(""))), false);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Ext 25"), &String::from(""))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Connector 25"), &String::from(""))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Branch 25"), &String::from(""))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Unit 25"), &String::from(""))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Apartment 25"), &String::from(""))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Suite 25"), &String::from(""))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Lot 25"), &String::from(""))), true);
     }
 
     #[test]
@@ -1041,6 +1039,7 @@ mod tests {
         ];
 
         assert_eq!(syn_us_hwy(&Name::new(String::from("US Route 81"), 1, None, &context), &context), results);
+
     }
 
     #[test]
@@ -1059,6 +1058,9 @@ mod tests {
             Name::new(String::from("State Highway 123"), -1, Some(Source::Generated), &context),
             Name::new(String::from("State Route 123"), -1, Some(Source::Generated), &context)
         ];
+
+        assert_eq!(syn_state_hwy(&Name::new(String::from("St Hwy 123"), 0, None, &context), &context), results);
+        assert_eq!(syn_state_hwy(&Name::new(String::from("St Rte 123"), 0, None, &context), &context), results);
         assert_eq!(syn_state_hwy(&Name::new(String::from("State Highway 123"), 0, None, &context), &context), results);
         assert_eq!(syn_state_hwy(&Name::new(String::from("Highway 123"), 0, None, &context),&context), results);
         assert_eq!(syn_state_hwy(&Name::new(String::from("Hwy 123"), 0, None, &context), &context), results);
@@ -1070,18 +1072,6 @@ mod tests {
 
         // original name priority < 0
         let results = vec![
-            Name::new(String::from("Pennsylvania Highway 123"), 2, Some(Source::Generated), &context),
-            Name::new(String::from("PA 123 Highway"), -2, Some(Source::Generated), &context),
-            Name::new(String::from("PA 123"), -1, Some(Source::Generated), &context),
-            Name::new(String::from("Highway 123"), -2, Some(Source::Generated), &context),
-            Name::new(String::from("SR 123"), -1, Some(Source::Generated), &context),
-            Name::new(String::from("State Highway 123"), -1, Some(Source::Generated), &context),
-            Name::new(String::from("State Route 123"), -1, Some(Source::Generated), &context)
-        ];
-        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), 1, None, &context), &context ), results);
-
-        // original name priority > 0
-        let results = vec![
             Name::new(String::from("Pennsylvania Highway 123"), -1, Some(Source::Generated), &context),
             Name::new(String::from("PA 123 Highway"), -3, Some(Source::Generated), &context),
             Name::new(String::from("PA 123"), -2, Some(Source::Generated), &context),
@@ -1091,6 +1081,18 @@ mod tests {
             Name::new(String::from("State Route 123"), -2, Some(Source::Generated), &context)
         ];
         assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), -1, None, &context), &context), results);
+
+        // original name priority > 0
+        let results = vec![
+            Name::new(String::from("Pennsylvania Highway 123"), 2, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123 Highway"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("PA 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("Highway 123"), -2, Some(Source::Generated), &context),
+            Name::new(String::from("SR 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("State Highway 123"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("State Route 123"), -1, Some(Source::Generated), &context)
+        ];
+        assert_eq!(syn_state_hwy(&Name::new(String::from("Pennsylvania Highway 123"), 1, None, &context), &context ), results);
     }
 
     #[test]

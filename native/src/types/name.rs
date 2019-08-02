@@ -273,7 +273,7 @@ impl Name {
             display = titlecase(&display, &context);
         }
 
-        let tokenized = context.tokens.process(&display);
+        let tokenized = context.tokens.process(&display, &context.country);
 
         if context.country == String::from("US") || context.country == String::from("CA") {
             display = text::str_remove_octo(&display);
@@ -368,7 +368,7 @@ mod tests {
             source: None,
             tokenized: vec![
                 Tokenized::new(String::from("main"), None),
-                Tokenized::new(String::from("st"), None),
+                Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("nw"), None)],
             freq: 1
         });
