@@ -94,8 +94,8 @@ impl Names {
                         Err(err) => { return Err(format!("Invalid Street Property: {}", err)); }
                     };
 
-                    let names: Vec<Name> = names.iter().map(|name| {
-                        Name::new(name.display.clone(), name.priority, None, &context)
+                    let names: Vec<Name> = names.into_iter().map(|name| {
+                        Name::new(name.display, name.priority, None, &context)
                     }).collect();
 
                     names
