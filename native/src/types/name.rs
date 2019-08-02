@@ -158,11 +158,7 @@ impl Names {
 
         let mut tokenized: HashMap<String, Dedupe> = HashMap::new();
 
-        let mut old_names: Vec<Name> = std::mem::replace(&mut self.names, Vec::new()).into_iter().map(|name| {
-            name
-        }).collect();
-
-        old_names.reverse();
+        let old_names: Vec<Name> = std::mem::replace(&mut self.names, Vec::new());
 
         for name in old_names {
             tokenized.entry(name.tokenized_string())
