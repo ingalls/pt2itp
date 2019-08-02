@@ -146,7 +146,6 @@ impl Names {
             name: Name,
             first_index: usize
         }
-
         impl Dedupe {
             fn new(name: Name, first_index: usize) -> Self {
                 Dedupe {
@@ -157,28 +156,28 @@ impl Names {
         }
 
         let mut tokenized: HashMap<String, Dedupe> = HashMap::new();
-
         let old_names: Vec<Name> = std::mem::replace(&mut self.names, Vec::new());
 
-        for name in old_names {
-            tokenized.entry(name.tokenized_string())
+        for (i, name) in old_names.into_iter().enumerate() {
+            match tokenized.get_mut(&name.tokenized_string()) {
                 // if the tokenized name already exists
-                .and_modify(|d| {
+                Some(d) => {
                     // overwrite the existing Name if the two are of the same priority and new name
                     // has a longer, potentially unabbreviated form
                     if name.priority == d.name.priority && name.display.len() > d.name.display.len() {
-                        d.name = name.clone();
-                        // replace the existing name in the names vector at the position of the
-                        // first instance of the name
-                        self.names[d.first_index] = name.clone();
+                        d.name = name;
                     }
-                })
-                // if it doesn't yet exist
-                .or_insert_with(|| {
-                    self.names.push(name.clone());
-                    // store the index of the new Name in case it's replaced later
-                    Dedupe::new(name.clone(), self.names.len() - 1)
-                });
+                },
+                // if it doesn't yet exist, add it
+                None => {
+                    tokenized.insert(name.tokenized_string(), Dedupe::new(name, i));
+                }
+            }
+        }
+        let mut names: Vec<Dedupe> = tokenized.into_iter().map(|(_,x)| x).collect();
+        names.sort_by(|a, b| a.first_index.partial_cmp(&b.first_index).unwrap());
+        for x in names {
+            self.names.push(x.name);
         }
     }
 
