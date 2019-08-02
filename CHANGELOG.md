@@ -10,7 +10,11 @@
 
 ## Version History
 
-### v24.1.2-st
+### v24.1.4
+
+- :arrow_up: Update doc & lodash to latest versions
+
+### v24.1.3
 
 - :rocket: Add support for ambiguous 'st' token detection
 
