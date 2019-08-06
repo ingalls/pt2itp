@@ -9,6 +9,7 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     lazy_static! {
         static ref WORD_BOUNDARY: Regex = Regex::new(r#"[\s\u2000-\u206F\u2E00-\u2E7F\\!#$%&()"*+,\-./:;<=>?@\[\]\^_{\|}~]+"#).unwrap();
     }
+
     let mut text = text.trim().to_lowercase();
     text = Regex::new(r"\s+").unwrap().replace_all(&text, " ").to_string();
     let mut new = String::new();
@@ -68,38 +69,23 @@ pub fn capitalize(text: &str, word_count: usize, context: &Context) -> String {
     text[0..1].to_uppercase() + &text[1..]
 }
 
-pub fn normalize_cardinals(text: &String) -> String {
+pub fn normalize_cardinals(text: &str) -> String {
     lazy_static! {
-        static ref CARDINAL: Regex = Regex::new(r"(?i)(?P<pre>.*\s)?(?P<cardinal>(n\.w\.|nw|n\.e\.|ne|s\.w\.|sw|s\.e\.|se))(?P<post>\s.*)?$").unwrap();
+        static ref CARDINAL: Regex = Regex::new(r"(?i)(^|\s)(?P<cardinal>(n\.w\.|nw|n\.e\.|ne|s\.w\.|sw|s\.e\.|se))(\s|$)").unwrap();
     }
-    if CARDINAL.is_match(text) {
-        let strpre: String = match CARDINAL.captures(text) {
-            Some(capture) => match capture.name("pre") {
-                Some(name) => name.as_str().to_string(),
-                None => String::from("")
-            },
-            None => String::from("")
-        };
-
-        let cardinal: String = match CARDINAL.captures(text) {
-            Some(capture) => match capture.name("cardinal") {
-                Some(name) => name.as_str().to_uppercase().replace(".", ""),
-                None => String::from("")
-            },
-            None => String::from("")
-        };
-
-        let strpost: String = match CARDINAL.captures(text) {
-            Some(capture) => match capture.name("post") {
-                Some(name) => name.as_str().to_string(),
-                None => String::from("")
-            },
-            None => String::from("")
-        };
-        strpre + &cardinal + &strpost
-    } else {
-        text.to_owned()
-    }
+    let output = match CARDINAL.captures(text) {
+        Some(capture) => {
+            match capture.name("cardinal") {
+                Some(mat) => {
+                    let cardinal = mat.as_str().to_uppercase().replace(".", "");
+                    text[..mat.start()].to_string() + &cardinal + &text[mat.end()..]
+                },
+                None => text.to_string()
+            }
+        },
+        None => text.to_string()
+    };
+    output
 }
 
 
@@ -139,6 +125,7 @@ mod tests {
         assert_eq!(titlecase(&String::from("-x"), &context), String::from("-X"));
         assert_eq!(titlecase(&String::from("x-"), &context), String::from("X-"));
         assert_eq!(titlecase(&String::from(" *$&#()__ "), &context), String::from("*$&#()__"));
+        assert_eq!(titlecase(&String::from("BrandywiNE Street Northwest"), &context), String::from("Brandywine Street Northwest"));
 
         let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new()));
         assert_eq!(titlecase(&String::from(" hast Du recht"), &context), String::from("Hast du Recht"));

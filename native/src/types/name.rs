@@ -174,11 +174,9 @@ impl Names {
                 }
             }
         }
-        let mut names: Vec<Dedupe> = tokenized.into_iter().map(|(_,x)| x).collect();
+        let mut names: Vec<Dedupe> = tokenized.into_iter().map(|(_,name)| name).collect();
         names.sort_by(|a, b| a.first_index.partial_cmp(&b.first_index).unwrap());
-        for x in names {
-            self.names.push(x.name);
-        }
+        names.into_iter().for_each(|d| self.names.push(d.name));
     }
 
     ///
