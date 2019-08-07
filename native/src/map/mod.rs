@@ -3,7 +3,7 @@ use postgres::{Connection, TlsMode};
 use std::collections::HashMap;
 
 use crate::Context as CrateContext;
-use crate::Tokens;
+use crate::{Tokens, Name, Names};
 
 use neon::prelude::*;
 
@@ -207,4 +207,41 @@ pub fn intersections(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     intersections.index(&conn);
 
     Ok(cx.boolean(true))
+}
+
+///
+/// Dedupes names after address clusters and network clusters have been created and matched
+/// before final geojson is output. Names have already been titlecased and synonyms generated.
+///
+pub fn dedupe_syn(mut cx: FunctionContext) -> JsResult<JsArray> {
+    let names: Vec<Name> = match cx.argument_opt(0) {
+        None => Vec::new(),
+        Some(arg) => {
+            if arg.is_a::<JsUndefined>() || arg.is_a::<JsNull>() {
+                Vec::new()
+            } else {
+                let arg_val = cx.argument::<JsValue>(0)?;
+                neon_serde::from_value(&mut cx, arg_val)?
+            }
+        }
+    };
+
+    // don't use Names::new() so we're not generating synonyms again
+    let mut names = Names {
+        names: names
+    };
+
+    names.sort();
+    names.dedupe();
+
+    let display_names: Vec<String> = names.names.into_iter().map(|name| name.display).collect();
+
+    let out = JsArray::new(&mut cx, display_names.len() as u32);
+
+    for (i, name) in display_names.iter().enumerate() {
+            let js_string = cx.string(name);
+            out.set(&mut cx, i as u32, js_string).unwrap();
+    }
+
+    Ok(out)
 }
