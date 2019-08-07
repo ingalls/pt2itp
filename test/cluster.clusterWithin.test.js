@@ -22,8 +22,8 @@ test('Points are clustered on netid', (t) => {
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO address (id, netid, names, number, geom) VALUES (1, 1, '[{ "tokenized": "main st", "tokenless": "main", "display": "Main Street" }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.505233764648438,47.13018433161339 ] }'), 4326));
-            INSERT INTO address (id, netid, names, number, geom) VALUES (2, 1, '[{ "tokenized": "main st", "tokenless": "main", "display": "Main Street" }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.523429870605469,47.130797460977575 ] }'), 4326));
+            INSERT INTO address (id, netid, names, number, geom) VALUES (1, 1, '[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way" }], "display": "Main Street", "priority": 0, "freq": 1 }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.505233764648438,47.13018433161339 ] }'), 4326));
+            INSERT INTO address (id, netid, names, number, geom) VALUES (2, 1, '[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way" }], "display": "Main Street", "priority": 0, "freq": 1 }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point","coordinates": [9.523429870605469,47.130797460977575 ] }'), 4326));
             COMMIT;
         `, (err) => {
             t.error(err);
@@ -52,7 +52,7 @@ test('Points are clustered on netid', (t) => {
         `, (err, res) => {
             t.error(err);
             t.deepEquals(res.rows[0].geom, { type: 'MultiPoint', coordinates: [[9.50523376464844,47.1301843316134,1],[9.52342987060547,47.1307974609776,2]] });
-            t.deepEquals(res.rows[0].names, [{ freq: 2, display: 'Main Street', tokenized: 'main st', tokenless: 'main' }]);
+            t.deepEquals(res.rows[0].names, [{ freq: 2, display: 'Main Street', priority: 0, tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }] }]);
 
             pool.end(() => {
                 t.end();
