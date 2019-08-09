@@ -12,6 +12,9 @@ db.init(test);
  * Helper function to sort segs for input into cluster#break
  *
  * Since misc.hasDupAddressWithin expects an ordered set, this is required
+ *
+ * @param {Object} seg
+ * @return {Object}
  */
 function sort(seg) {
     seg.number = [];
