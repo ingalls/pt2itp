@@ -6,11 +6,17 @@ const { dedupe_syn } = require('../native/index.node');
 tape('dedupe feature names', (t) => {
 
     t.deepEqual(
+        dedupe_syn([]),
+        []
+    );
+
+    t.deepEqual(
         dedupe_syn([
             { freq: 1, source: 'Address', display: 'Brandywine St NW', priority: 0, tokenized: [{ token: 'brandywine', 'token_type': null }, { token: 'st', 'token_type': 'Way' }, { token: 'nw', 'token_type': 'Cardinal' }] }
         ]),
         ['Brandywine St NW']
     );
+
     t.deepEqual(
         dedupe_syn([
             { freq: 1, source: 'Address', display: 'Main St', priority: 0, tokenized: [{ token: 'main', 'token_type': null }, { token: 'st', 'token_type': 'Way' }] },

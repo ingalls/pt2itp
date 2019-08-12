@@ -226,6 +226,8 @@ pub fn dedupe_syn(mut cx: FunctionContext) -> JsResult<JsArray> {
         }
     };
 
+    if names.len() == 0 { return Ok(cx.empty_array()); }
+
     // don't use Names::new() so we're not generating synonyms again
     let mut names = Names {
         names: names
