@@ -10,6 +10,13 @@
 
 ## Version History
 
+### v25.0.0
+
+- :bug: Fix bug where we output synonyms with the same tokenized name
+- :bug: Fix bug where we overwrote `priority` values on `Name`s that were less than 0
+- :rocket: Port titlecasing and deduping functionality to Rust
+- :rocket: Remove support for custom titlecasing library with the `--label` option
+
 ### v24.1.6
 
 - :bug: Fix race time condition in `map` mode causing address clusters to be generated twice
