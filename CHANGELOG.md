@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v24.1.6
+
+- :bug: Fix race time condition in `map` mode causing address clusters to be generated twice
+
 ### v24.1.5
 
 - :arrow_up: Update doc & lodash to latest versions
