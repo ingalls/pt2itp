@@ -21,7 +21,7 @@ impl From<InputContext> for Context {
         let region = input.region;
         let tokens = match input.languages {
             None => Tokens::new(HashMap::new()),
-            Some(languages) =>  Tokens::generate(languages)
+            Some(languages) => Tokens::generate(languages)
         };
 
         Context::new(country, region, tokens)

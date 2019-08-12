@@ -280,11 +280,6 @@
   resolved "https://registry.yarnpkg.com/@mapbox/tiletype/-/tiletype-0.3.1.tgz#1a1498f6a1b777630e0b4d3a2fed9d94959560cc"
   integrity sha1-GhSY9qG3d2MOC006L+2dlJWVYMw=
 
-"@mapbox/title-case@^1.3.0":
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/@mapbox/title-case/-/title-case-1.3.1.tgz#44336e30cb8fbd266e6ac067ff3f358224364118"
-  integrity sha1-RDNuMMuPvSZuasBn/z81giQ2QRg=
-
 "@octokit/rest@^15.9.5":
   version "15.18.1"
   resolved "https://registry.yarnpkg.com/@octokit/rest/-/rest-15.18.1.tgz#ec7fb0f8775ef64dc095fae6635411d3fbff9b62"

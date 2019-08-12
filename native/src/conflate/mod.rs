@@ -9,6 +9,7 @@ use neon::prelude::*;
 
 use crate::{
     Names,
+    Source,
     Address,
     hecate,
     util::linker,
@@ -154,7 +155,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 if link.names.has_diff(&addr.names) {
                     let mut new_names: Vec<InputName> = Vec::with_capacity(addr.names.names.len());
                     for name in addr.names.names {
-                        if name.source != String::from("generated") {
+                        if name.source != Some(Source::Generated) {
                             new_names.push(InputName::from(name));
                         }
                     }
@@ -217,6 +218,9 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 let names_new = Names::from_input(names_new, &context);
 
                 names_base.concat(names_new);
+                names_base.empty();
+                names_base.sort();
+                names_base.dedupe();
             }
 
             props_base_obj.insert(String::from("street"), serde_json::to_value(names_base.names).unwrap());

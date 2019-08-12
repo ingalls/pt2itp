@@ -147,17 +147,17 @@ mod tests {
 
     #[test]
     fn test_replace() {
-        assert_eq!(Regex::new("(?:floor|fl) #?\\d{1,3}").unwrap().replace_all("123 main st", "").unwrap(), "123 main st");
-        assert_eq!(Regex::new("(?:apartment|apt|bldg|building|rm|room|unit) #?(?:[A-Z]|\\d+|[A-Z]\\d+|\\d+[A-Z]|\\d+-\\d+[A-Z]?)").unwrap().replace_all("123 main st apt #5 washington dc", "").unwrap(), "123 main st  washington dc");
-        assert_eq!(Regex::new("(?:floor|fl) #?\\d{1,3}").unwrap().replace_all("123 main st floor 5", "").unwrap(), "123 main st ");
-        assert_eq!(Regex::new("\\d{1,3}(?:st|nd|rd|th) (?:floor|fl)").unwrap().replace_all("5th floor", "").unwrap(), "");
-        assert_eq!(Regex::new("[１1]丁目").unwrap().replace_all("1丁目 意思", "一丁目").unwrap(), "一丁目 意思");
+        assert_eq!(Regex::new(r"(?:floor|fl) #?\d{1,3}").unwrap().replace_all("123 main st", "").unwrap(), "123 main st");
+        assert_eq!(Regex::new(r"(?:apartment|apt|bldg|building|rm|room|unit) #?(?:[A-Z]|\d+|[A-Z]\d+|\d+[A-Z]|\d+-\d+[A-Z]?)").unwrap().replace_all("123 main st apt #5 washington dc", "").unwrap(), "123 main st  washington dc");
+        assert_eq!(Regex::new(r"(?:floor|fl) #?\d{1,3}").unwrap().replace_all("123 main st floor 5", "").unwrap(), "123 main st ");
+        assert_eq!(Regex::new(r"\d{1,3}(?:st|nd|rd|th) (?:floor|fl)").unwrap().replace_all("5th floor", "").unwrap(), "");
+        assert_eq!(Regex::new(r"[１1]丁目").unwrap().replace_all("1丁目 意思", "一丁目").unwrap(), "一丁目 意思");
 
-        assert_eq!(Regex::new("([a-z]+)vagen").unwrap().replace_all("123 main st", "$1v").unwrap(), "123 main st");
-        assert_eq!(Regex::new("([a-z]+)vagen").unwrap().replace_all("amanuensvagen 5 stockholm sweden", "$1v").unwrap(), "amanuensv 5 stockholm sweden");
-        assert_eq!(Regex::new("([a-z]+)vagen").unwrap().replace_all("amanuensvagen 5 stockholm sweden gutenvagen", "$1v").unwrap(), "amanuensv 5 stockholm sweden gutenv");
-        assert_eq!(Regex::new("([^ ]+)(strasse|straße|str)").unwrap().replace_all("wilhelmstraße 3", "$1 str").unwrap(), "wilhelm str 3");
-        assert_eq!(Regex::new("(foo) (bar)").unwrap().replace_all("foo bar", "$2 $1").unwrap(), "bar foo");
+        assert_eq!(Regex::new(r"([a-z]+)vagen").unwrap().replace_all("123 main st", "$1v").unwrap(), "123 main st");
+        assert_eq!(Regex::new(r"([a-z]+)vagen").unwrap().replace_all("amanuensvagen 5 stockholm sweden", "$1v").unwrap(), "amanuensv 5 stockholm sweden");
+        assert_eq!(Regex::new(r"([a-z]+)vagen").unwrap().replace_all("amanuensvagen 5 stockholm sweden gutenvagen", "$1v").unwrap(), "amanuensv 5 stockholm sweden gutenv");
+        assert_eq!(Regex::new(r"([^ ]+)(strasse|straße|str)").unwrap().replace_all("wilhelmstraße 3", "$1 str").unwrap(), "wilhelm str 3");
+        assert_eq!(Regex::new(r"(foo) (bar)").unwrap().replace_all("foo bar", "$2 $1").unwrap(), "bar foo");
     }
 
     /// Tests from the core Rust regex crate

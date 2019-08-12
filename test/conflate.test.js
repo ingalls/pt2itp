@@ -42,7 +42,7 @@ test('Compare - CREATE', (t) => {
         properties: {
             number: '112',
             street: [{
-                display: '4th ST NE',
+                display: '4th St NE',
                 priority: 0
             }]
         },
@@ -94,7 +94,7 @@ test('Compare - MODIFY', (t) => {
         properties: {
             number: 108,
             street: [{
-                display: '4th ST NE',
+                display: '4th St NE',
                 priority: 0
             },{
                 display: 'DC Route 101',

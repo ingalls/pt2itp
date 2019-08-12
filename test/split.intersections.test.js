@@ -7,6 +7,8 @@ test('Split: Simple Intersection', (t) => {
     const feat = new SplitFeat(
         1,
         [{
+            freq: 1,
+            priority: 0,
             display: 'Riverton Road South',
             tokenized: [{ token: 'riverton', token_type: null }, { token: 'rd', token_type: 'Way' }, { token: 's', token_type: 'Cardinal' }]
         }],
@@ -22,10 +24,14 @@ test('Split: Simple Intersection', (t) => {
             a_id: 1,
             b_id: 2,
             a_street: [{
+                freq: 1,
+                priority: 0,
                 display: 'Riverton Road South',
                 tokenized: [{ token: 'riverton', token_type: null }, { token: 'rd', token_type: 'Way' }, { token: 's', token_type: 'Cardinal' }]
             }],
             b_street: [{
+                freq: 1,
+                priority: 0,
                 display: 'Germany Valley Road',
                 tokenized: [{ token: 'germany', token_type: null }, { token: 'vly', token_type: 'Way' }, { token: 'rd', token_type: 'Cardinal' }]
             }],
@@ -35,13 +41,19 @@ test('Split: Simple Intersection', (t) => {
             a_id: 3,
             b_id: 1,
             a_street: [{
+                freq: 1,
+                priority: 0,
                 display: 'WV Route 33',
                 tokenized: [{ token: 'wv', token_type: null }, { token: 'rte', token_type: 'Way' }, { token: '33', token_type: 'Cardinal' }]
             },{
+                freq: 1,
+                priority: 0,
                 display: 'Mountaineer Drive',
                 tokenized: [{ token: 'mountaineer', token_type: null }, { token: 'dr', token_type: 'Way' }]
             }],
             b_street: [{
+                freq: 1,
+                priority: 0,
                 display: 'Riverton Road South',
                 tokenized: [{ token: 'riverton', token_type: null }, { token: 'rd', token_type: 'Way' }, { token: 's', token_type: 'Cardinal' }]
             }],
@@ -66,8 +78,8 @@ test('Split: Simple Intersection', (t) => {
         t.deepEquals(res.properties, {
             'carmen:intersections': [null, null, [
                 'Germany Valley Road',
-                'Mountaineer Drive',
-                'Wv Route 33'
+                'WV Route 33',
+                'Mountaineer Drive'
             ]],
             'carmen:addressnumber': [null, ['2', '10', '20'], null],
             'carmen:rangetype': 'tiger',
