@@ -5,7 +5,7 @@ const pg_init = require('../../native/index.node').pg_init;
 
 /**
  * Wipe/Reset test database
- * @param test {Object} Tape test object
+ * @param {Object} test Tape object
  */
 function init(test) {
     test('Database Reset', (t) => {

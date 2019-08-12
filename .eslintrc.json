@@ -1,0 +1,11 @@
+{
+    "rules" :{
+        "valid-jsdoc": ["warn", {
+            "requireParamDescription": false,
+            "requireReturnDescription": false,
+            "requireReturnType": false,
+            "requireReturn": false
+        }]
+    },
+    "extends": ["@mapbox/eslint-config-geocoding"]
+}
