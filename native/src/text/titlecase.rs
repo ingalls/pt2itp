@@ -1,4 +1,5 @@
 use regex::Regex;
+use unicode_segmentation::UnicodeSegmentation;
 use crate::Context;
 
 ///
@@ -39,7 +40,7 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     new
 }
 
-pub fn capitalize(text: &str, word_count: usize, context: &Context) -> String {
+pub fn capitalize(word: &str, word_count: usize, context: &Context) -> String {
     const MINOR_EN: [&str; 40] = [
         "a", "an", "and", "as", "at", "but", "by", "en", "for", "from", "how", "if", "in", "neither", "nor",
         "of", "on", "only", "onto", "out", "or", "per", "so", "than", "that", "the", "to", "until", "up",
@@ -52,21 +53,27 @@ pub fn capitalize(text: &str, word_count: usize, context: &Context) -> String {
 
     if (context.country == String::from("US")
         || context.country == String::from("CA"))
-        && MAJOR_EN.contains(&text) {
-        return String::from(text).to_uppercase();
+        && MAJOR_EN.contains(&word) {
+        return String::from(word).to_uppercase();
     }
     // don't apply lower casing to the first word in the string
     if word_count > 1 {
         if (context.country == String::from("US")
             || context.country == String::from("CA"))
-            && MINOR_EN.contains(&text) {
-            return String::from(text);
+            && MINOR_EN.contains(&word) {
+            return String::from(word);
         } else if context.country == String::from("DE")
-            && MINOR_DE.contains(&text) {
-            return String::from(text);
+            && MINOR_DE.contains(&word) {
+            return String::from(word);
         }
     }
-    text[0..1].to_uppercase() + &text[1..]
+
+    let mut graphemes = UnicodeSegmentation::graphemes(word, true);
+    let first_grapheme = match graphemes.next() {
+        Some(g) => g,
+        None => return String::from(word)
+    };
+    first_grapheme.to_uppercase() + graphemes.as_str()
 }
 
 pub fn normalize_cardinals(text: &str) -> String {
@@ -88,7 +95,6 @@ pub fn normalize_cardinals(text: &str) -> String {
     output
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -106,6 +112,12 @@ mod tests {
         assert_eq!(titlecase(&String::from("väike  sõjamäe"), &context), String::from("Väike Sõjamäe"));
         assert_eq!(titlecase(&String::from("Väike Sõjamäe"), &context), String::from("Väike Sõjamäe"));
         assert_eq!(titlecase(&String::from("VäikeSõjamäe"), &context), String::from("Väikesõjamäe"));
+        assert_eq!(titlecase(&String::from("ámbar"), &context), String::from("Ámbar"));
+        assert_eq!(titlecase(&String::from("y̆ámbary̆"), &context), String::from("Y̆ámbary̆"));
+        assert_eq!(titlecase(&String::from("y\u{306}ámbary\u{306}"), &context), String::from("Y\u{306}ámbary\u{306}"));
+        assert_eq!(titlecase(&String::from("ç"), &context), String::from("Ç"));
+        assert_eq!(titlecase(&String::from("Здравствуйте"), &context), String::from("Здравствуйте"));
+        assert_eq!(titlecase(&String::from("नमस्त"), &context), String::from("नमस्त"));
         assert_eq!(titlecase(&String::from("abra CAda -bra"), &context), String::from("Abra Cada -Bra"));
         assert_eq!(titlecase(&String::from("abra-CAda-bra"), &context), String::from("Abra-Cada-Bra"));
         assert_eq!(titlecase(&String::from("our lady of whatever"), &context), String::from("Our Lady of Whatever"));
