@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v25.0.1
+- :bug: Fix bug where we tried to index into strings within character boundaries during titlecasing
+
 ### v25.0.0
 
 - :bug: Fix bug where we output synonyms with the same tokenized name
