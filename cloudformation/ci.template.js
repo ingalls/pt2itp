@@ -21,7 +21,13 @@ module.exports = {
                                 {
                                     Effect: 'Allow',
                                     Action: 'secretsmanager:GetSecretValue',
-                                    Resource: cf.join(':', ['arn:aws:secretsmanager', cf.region, cf.accountId, 'secret', `${cf.ref('SecretPrefix')}/*`])
+                                    Resource: cf.join(':', [
+                                        'arn:aws:secretsmanager',
+                                        cf.region,
+                                        cf.accountId,
+                                        'secret',
+                                        cf.join([cf.ref('SecretPrefix'), '/*'])
+                                    ])
                                 }
                             ]
                         }
