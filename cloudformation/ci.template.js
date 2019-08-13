@@ -13,16 +13,20 @@ module.exports = {
         User: {
             Type: 'AWS::IAM::User',
             Properties: {
-                PolicyName: 'github-apps',
-                PolicyDocument: {
-                    Statement: [
-                        {
-                            Effect: 'Allow',
-                            Action: 'secretsmanager:GetSecretValue',
-                            Resource: cf.join(':', ['arn:aws:secretsmanager', cf.region, cf.accountId, 'secret', `${cf.ref('SecretPrefix')}/*`])
+                Policies: [
+                    {
+                        PolicyName: 'github-apps',
+                        PolicyDocument: {
+                            Statement: [
+                                {
+                                    Effect: 'Allow',
+                                    Action: 'secretsmanager:GetSecretValue',
+                                    Resource: cf.join(':', ['arn:aws:secretsmanager', cf.region, cf.accountId, 'secret', `${cf.ref('SecretPrefix')}/*`])
+                                }
+                            ]
                         }
-                    ]
-                }
+                    }
+                ]
             }
         },
         AccessKey: {
