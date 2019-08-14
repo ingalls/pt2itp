@@ -51,6 +51,9 @@ jobs:
                 name: "Yarn PreTest"
                 command: "yarn run pretest"
             - run:
+                name: "Publish release"
+                command: "./scripts/publish.sh"
+            - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
                 no_output_timeout: 12000
