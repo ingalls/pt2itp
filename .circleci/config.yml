@@ -52,7 +52,7 @@ jobs:
                 command: "yarn run pretest"
             - run:
                 name: "Publish release"
-                command: "./scripts/publish.sh"
+                command: "echo $CIRCLE_TAG && ./scripts/publish.sh"
             - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
