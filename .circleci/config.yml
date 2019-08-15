@@ -53,7 +53,7 @@ jobs:
                 name: "Yarn PreTest"
                 command: "yarn run pretest"
             - run:
-                name: "Publish release"
+                name: "Publish Release"
                 command: ./scripts/publish.sh
             - run:
                 name: "Yarn Coverage"
