@@ -24,7 +24,8 @@ jobs:
                 name: "Install Rust"
                 command: |
                   curl https://sh.rustup.rs -sSf > /tmp/rustup.sh \
-                  && sh /tmp/rustup.sh -y
+                  && sh /tmp/rustup.sh -y \
+                  && echo "export PATH=$HOME/.cargo/bin:$PATH" >> $BASH_ENV
 
             - run:
                 name: "Install NodeJS"
@@ -33,6 +34,7 @@ jobs:
                   && cp ./node-v10.15.3-linux-x64/bin/node /usr/bin/ \
                   && ./node-v10.15.3-linux-x64/bin/npm install -g yarn \
                   && ./node-v10.15.3-linux-x64/bin/npm install -g npm \
+                  && echo "export PATH=$(yarn global bin):$PATH" >> $BASH_ENV \
                   yarn install
 
             - run:
@@ -40,10 +42,10 @@ jobs:
                 command: "yarn global add neon-cli"
             - run:
                 name: "Yarn Install"
-                command: PATH="$HOME/.cargo/bin:$(yarn global bin)/:$PATH" yarn build && yarn install
+                command: yarn build && yarn install
             - run:
                 name: "Cargo Test"
-                command: cd native/ && PATH="$HOME/.cargo/bin:$PATH" cargo test --release
+                command: cd native/ && cargo test --release
             - run:
                 name: "Yarn Lint"
                 command: "yarn run lint"
@@ -52,7 +54,7 @@ jobs:
                 command: "yarn run pretest"
             - run:
                 name: "Publish release"
-                command: PATH="$HOME/.cargo/bin:$PATH" ./scripts/publish.sh
+                command: ./scripts/publish.sh
             - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
