@@ -60,3 +60,12 @@ jobs:
             - run:
                 name: "Yarn Coverage-Upload"
                 command: "yarn run coverage-upload"
+
+workflows:
+  version: 2
+  build-workflow:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
