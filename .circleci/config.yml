@@ -52,9 +52,7 @@ jobs:
                 command: "yarn run pretest"
             - run:
                 name: "Publish release"
-                environment:
-                    PATH: $HOME/.cargo/bin:$PATH
-                command: "./scripts/publish.sh"
+                command: PATH="$HOME/.cargo/bin:$PATH" ./scripts/publish.sh
             - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
