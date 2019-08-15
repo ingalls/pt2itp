@@ -2,7 +2,6 @@
 
 set -eo pipefail
 
-echo $CIRCLE_TAG
 if [[ -z ${CIRCLE_TAG} ]]; then
   echo "ok - No tag, skipping release."
   exit
