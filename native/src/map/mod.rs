@@ -233,6 +233,7 @@ pub fn dedupe_syn(mut cx: FunctionContext) -> JsResult<JsArray> {
         names: names
     };
 
+    names.empty();
     names.sort();
     names.dedupe();
 
