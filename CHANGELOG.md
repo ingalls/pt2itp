@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v25.0.3
+
+- :bug: Remove `,` from names as when deserialized to string they will be reserialized as unique name entry
+
 ### v25.0.2
 
 - :bug: Fix bug where > 10 synonyms could be generated due to empty name values
