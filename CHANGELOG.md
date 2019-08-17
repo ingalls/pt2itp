@@ -10,7 +10,12 @@
 
 ## Version History
 
+### v25.0.2
+
+- :bug: Fix bug where > 10 synonyms could be generated due to empty name values
+
 ### v25.0.1
+
 - :bug: Fix bug where we tried to index into strings within character boundaries during titlecasing
 
 ### v25.0.0
