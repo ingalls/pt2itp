@@ -387,6 +387,22 @@ mod tests {
                 Tokenized::new(String::from("1"), None)],
             freq: 1
         });
+
+        assert_eq!(Name::new(String::from("\""), 0, None, &context), Name {
+            display: String::from(""),
+            priority: 0,
+            source: None,
+            tokenized: vec![],
+            freq: 1
+        });
+
+        assert_eq!(Name::new(String::from(","), 0, None, &context), Name {
+            display: String::from(""),
+            priority: 0,
+            source: None,
+            tokenized: vec![],
+            freq: 1
+        });
     }
 
     #[test]
