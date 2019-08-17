@@ -256,7 +256,7 @@ impl Name {
     pub fn new(display: impl ToString, mut priority: i8, source: Option<Source>, context: &Context) -> Self {
         let mut display = display
             .to_string()
-            .replace(r#"""#, "");
+            .replace(r#"""#, "")
             .replace(r#","#, ""); // commas are not allowed as they are used to delimit synonyms on output
 
         // only title case non-generated names
