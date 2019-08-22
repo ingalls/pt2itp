@@ -71,23 +71,7 @@ impl Iterator for NetStream {
 
     fn next(&mut self) -> Option<Self::Item> {
         let mut next: Result<Network, String> = Err(String::from(""));
-   
-        while next.is_err() {
-            next = match self.input.next() {
-                Some(potential) => match Network::new(potential, &self.context) {
-                    Ok(potential) => Ok(potential),
-                    Err(err) => match self.errors {
-                        None => Err(err),
-                        Some(ref mut file) => {
-                            file.write(format!("{}\n", err).as_bytes()).unwrap();
 
-                            Err(err)
-                        }
-                    }
-                },
-                None => { return None; }
-            };
-        }
         while next.is_err() {
             next = match self.input.next() {
                 Some(potential) => match Network::new(potential, &self.context) {
