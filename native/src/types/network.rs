@@ -95,11 +95,10 @@ impl Network {
                 return Err(String::from("Network is drivethrough like"));
             }
         }
-
         self.names.sort();
         if self.names.names.len() > 1 {
             if self.names.names[0].priority == self.names.names[1].priority {
-                return Err(format!("1 Synonym must have greater priority: {:?}", self.names.names));
+                panic!("1 Synonym must have greater priority: {:?}", self.names.names);
             }
         }
 
@@ -159,10 +158,10 @@ mod tests {
             "properties":{
                 "id":6052094,
                 "street":[{"display":"Poremba Court Southwest","priority":0}]},
-                "geometry":{
-                    "type":"LineString",
-                    "coordinates":[[-77.008941,38.859243],[-77.008447,38.859],[-77.0081173,38.8588497]]
-                }
+            "geometry":{
+                "type":"LineString",
+                "coordinates":[[-77.008941,38.859243],[-77.008447,38.859],[-77.0081173,38.8588497]]
+            }
         }"#).parse().unwrap();
 
         let context = Context::new(
@@ -174,5 +173,32 @@ mod tests {
         let net = Network::new(feat, &context).unwrap();
 
         assert_eq!(net.to_tsv(), "[{\"display\":\"Poremba Court Southwest\",\"priority\":0,\"source\":\"Network\",\"tokenized\":[{\"token\":\"poremba\",\"token_type\":null},{\"token\":\"court\",\"token_type\":null},{\"token\":\"southwest\",\"token_type\":null}],\"freq\":1}]\t\t{\"id\":6052094,\"street\":[{\"display\":\"Poremba Court Southwest\",\"priority\":0}]}\t0105000020E610000001000000010200000003000000FCA5457D924053C09128B4ACFB6D4340F52F49658A4053C0CBA145B6F36D434009826CFE844053C0F7D676C9EE6D4340\n");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_network_invalid_priority() {
+        // features should always have at least one name with a higher priority
+        // this feature will generate synonyms with multiple priority -1 names
+        let feat: geojson::GeoJson = String::from(r#"{
+            "type": "Feature",
+            "properties": {
+                "id": 4636927,
+                "street": [{"display": "State Route 70","priority": -1}]
+            },
+            "geometry": {
+                "type": "LineString",
+                "coordinates":[[-77.008941,38.859243],[-77.008447,38.859],[-77.0081173,38.8588497]]
+            }"#).parse().unwrap();
+
+        let context = Context::new(
+            String::from("us"),
+            Some(String::from("oh")),
+            Tokens::generate(vec![String::from("en")])
+        );
+
+        let net = Network::new(feat, &context).unwrap();
+
+        assert_eq!(net.to_tsv(), "[{\"display\":\"SR 70\",\"priority\":-1,\"source\":\"Network\",\"tokenized\":[{\"token\":\"i\",\"token_type\":null},{\"token\":\"70\",\"token_type\":null}],\"freq\":1}]\t\t{\"id\":4636927,\"street\":[{\"display\":\"SR 70\",\"priority\":-1}]}\t0105000020E610000001000000010200000003000000FCA5457D924053C09128B4ACFB6D4340F52F49658A4053C0CBA145B6F36D434009826CFE844053C0F7D676C9EE6D4340\n");
     }
 }
