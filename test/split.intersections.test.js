@@ -88,7 +88,7 @@ test('Split: Simple Intersection', (t) => {
             'carmen:ltohn': [[10, 30], null, null],
             'carmen:parityr': [[null, null], null, null],
             'carmen:rfromhn': [[null, null], null, null],
-            'carmen:rtohn': [[0, 10], null, null],
+            'carmen:rtohn': [[null, null], null, null],
             'carmen:text': 'Riverton Road South',
             'carmen:geocoder_stack': 'us',
             'carmen:center': [-79.43694591522217, 38.74308011985037]
