@@ -277,7 +277,7 @@ impl Name {
             display = text::str_remove_octo(&display);
             // penalize less desireable street names
             if text::is_undesireable(&tokenized) {
-                priority = -1;
+                priority = priority - 1;
             }
         }
 
@@ -382,9 +382,9 @@ mod tests {
             freq: 1
         });
 
-        assert_eq!(Name::new(String::from("\thighway #12 west ext 1\n"), 0, None, &context), Name {
+        assert_eq!(Name::new(String::from("\thighway #12 west ext 1\n"), -1, None, &context), Name {
             display: String::from("Highway 12 West Ext 1"),
-            priority: -1,
+            priority: -2,
             source: None,
             tokenized: vec![
                 Tokenized::new(String::from("highway"), None),
