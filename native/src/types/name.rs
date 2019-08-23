@@ -94,6 +94,13 @@ impl Names {
                         Err(err) => { return Err(format!("Invalid Street Property: {}", err)); }
                     };
 
+                    // network features must have a name with a higher priority than alternative names
+                    if names.len() > 1 {
+                        if names[0].priority == names[1].priority {
+                            panic!("1 Synonym must have greater priority: {:?}", names);
+                        }
+                    }
+
                     let names: Vec<Name> = names.into_iter().map(|name| {
                         Name::new(name.display, name.priority, None, &context)
                     }).collect();
