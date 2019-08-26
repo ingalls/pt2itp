@@ -65,7 +65,7 @@ impl Network {
             None => None
         };
 
-        let mut names = Names::from_value(street, &context)?;
+        let mut names = Names::from_value(street, Source::Network, &context)?;
 
         if names.names.len() == 0 {
             return Err(String::from("Feature has no valid non-whitespace name"));
@@ -170,9 +170,10 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "1 Synonym must have greater priority: [InputName { display: \"Main St\", priority: -1 }, InputName { display: \"E Main St\", priority: -1 }]")]
+    #[should_panic(expected = "1 network synonym must have greater priority: [InputName { display: \"Main St\", priority: -1 }, InputName { display: \"E Main St\", priority: -1 }]")]
     fn test_network_invalid_priority() {
-        // features should always have at least one name with a higher priority
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
         let feat: geojson::GeoJson = String::from(r#"{
             "type": "Feature",
             "properties": {
@@ -184,13 +185,6 @@ mod tests {
                 "coordinates":[[-77.008941,38.859243],[-77.008447,38.859],[-77.0081173,38.8588497]]
             }
         }"#).parse().unwrap();
-
-        let context = Context::new(
-            String::from("us"),
-            Some(String::from("oh")),
-            Tokens::generate(vec![String::from("en")])
-        );
-
         let _net = Network::new(feat, &context).unwrap();
     }
 }

@@ -83,7 +83,7 @@ impl Names {
     /// Parse a Names object from a serde_json value, returning
     /// an empty names vec if unparseable
     ///
-    pub fn from_value(value: Option<serde_json::Value>, context: &Context) -> Result<Self, String> {
+    pub fn from_value(value: Option<serde_json::Value>, source: Source, context: &Context) -> Result<Self, String> {
         let names: Vec<Name> = match value {
             Some(street) => {
                 if street.is_string() {
@@ -95,9 +95,9 @@ impl Names {
                     };
 
                     // network features must have a name with a higher priority than alternative names
-                    if names.len() > 1 {
+                    if source == Source::Network && names.len() > 1 {
                         if names[0].priority == names[1].priority {
-                            panic!("1 Synonym must have greater priority: {:?}", names);
+                            panic!("1 network synonym must have greater priority: {:?}", names);
                         }
                     }
 
@@ -528,13 +528,37 @@ mod tests {
 
         let expected = Names::new(vec![Name::new(String::from("Main St NE"), 0, None, &context)], &context);
 
-        assert_eq!(Names::from_value(Some(json!("Main St NE")), &context).unwrap(), expected);
+        assert_eq!(Names::from_value(Some(json!("Main St NE")), Source::Address, &context).unwrap(), expected);
 
         assert_eq!(Names::from_value(Some(json!([{
             "display": "Main St NE",
             "priority": 0
-        }])), &context).unwrap(), expected);
+        }])), Source::Address, &context).unwrap(), expected);
+
+        // Address features can have multiple names with the same priority
+        assert_eq!(Names::from_value(Some(json!([{
+            "display": "Main St NE",
+            "priority": 0
+        }, {
+            "display": "Main St NE",
+            "priority": 0
+        }])), Source::Address, &context).unwrap(), expected);
     }
+
+    #[test]
+    #[should_panic(expected = "1 network synonym must have greater priority: [InputName { display: \"Main St\", priority: -1 }, InputName { display: \"E Main St\", priority: -1 }]")]
+    fn test_names_from_value_invalid_priority() {
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+
+        let _names = Names::from_value(Some(json!([{
+            "display": "Main St",
+            "priority": -1
+        }, {
+            "display": "E Main St",
+            "priority": -1
+        }])), Source::Network, &context);
+    }
+
 
     #[test]
     fn test_names_has_diff() {
