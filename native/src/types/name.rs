@@ -664,6 +664,23 @@ mod tests {
             ]
         });
 
+        // We preference generated highway synonyms over local names if there are address
+        // that match the lower priority network name in the cluster
+        assert_eq!(Names::new(vec![
+            Name::new(String::from("Main St"), 0, Some(Source::Address), &context),
+            Name::new(String::from("US Route 1"), 0, Some(Source::Address), &context),
+            Name::new(String::from("US Route 1"), -1, Some(Source::Network), &context)
+        ], &context), Names {
+            names: vec![
+                Name::new(String::from("US Route 1"), 1, Some(Source::Generated), &context),
+                Name::new(String::from("Main St"), 0, Some(Source::Address), &context),
+                Name::new(String::from("US 1"), -1, Some(Source::Generated), &context),
+                Name::new(String::from("US Highway 1"), -1, Some(Source::Generated), &context),
+                Name::new(String::from("United States Route 1"), -1, Some(Source::Generated), &context),
+                Name::new(String::from("United States Highway 1"), -1, Some(Source::Generated), &context)
+            ]
+        });
+
         // @TODO remove, real world test case
         context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
 
