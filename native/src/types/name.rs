@@ -277,7 +277,7 @@ impl Name {
             display = text::str_remove_octo(&display);
             // penalize less desireable street names
             if text::is_undesireable(&tokenized) {
-                priority = priority - 1;
+                priority -= 1;
             }
         }
 
