@@ -86,13 +86,11 @@ impl Address {
             None => None
         };
 
-        let mut names = Names::from_value(street, Source::Address, &context)?;
+        let names = Names::from_value(street, Some(Source::Address), &context)?;
 
         if names.names.len() == 0 {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
-
-        names.set_source(Some(Source::Address));
 
         let mut addr = Address {
             id: match feat.id {

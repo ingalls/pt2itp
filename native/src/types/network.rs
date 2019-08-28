@@ -65,13 +65,11 @@ impl Network {
             None => None
         };
 
-        let mut names = Names::from_value(street, Source::Network, &context)?;
+        let names = Names::from_value(street, Some(Source::Network), &context)?;
 
         if names.names.len() == 0 {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
-
-        names.set_source(Some(Source::Network));
 
         let mut net = Network {
             id: match feat.id {
