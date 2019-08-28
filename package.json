@@ -1,6 +1,6 @@
 {
   "name": "pt2itp",
-  "version": "24.1.17-binary-test",
+  "version": "24.1.18-binary-test",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
@@ -20,7 +20,7 @@
   "binary": {
     "module_name": "index",
     "host": "https://github.com/ingalls/pt2itp/releases/download/",
-    "remote_path": "{version}",
+    "remote_path": "v{version}",
     "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
     "module_path": "./native/",
     "pkg_path": "."
