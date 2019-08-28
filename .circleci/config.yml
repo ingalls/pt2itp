@@ -1,13 +1,7 @@
-version: 2
+version: 2.1
 
-jobs:
-    build:
-        docker:
-            - image: ubuntu:18.04
-            - image: mdillon/postgis:11
-              environment:
-                - POSTGRES_USER=postgres
-                - POSTGRES_DB=pt_test
+commands:
+    install-dependencies:
         steps:
             - run:
                 name: "Add ubuntu-toolchain"
@@ -42,7 +36,18 @@ jobs:
                 command: "yarn global add neon-cli"
             - run:
                 name: "Yarn Install"
-                command: yarn build && yarn install
+                command: yarn build && yarn install          
+
+jobs:
+    build:
+        docker:
+            - image: ubuntu:18.04
+            - image: mdillon/postgis:11
+              environment:
+                POSTGRES_USER: postgres
+                POSTGRES_DB: pt_test
+        steps:
+            - install-dependencies
             - run:
                 name: "Cargo Test"
                 command: cd native/ && cargo test --release
@@ -53,21 +58,35 @@ jobs:
                 name: "Yarn PreTest"
                 command: "yarn run pretest"
             - run:
-                name: "Publish Release"
-                command: ./scripts/publish.sh
-            - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
-                no_output_timeout: 12000
+                no_output_timeout: "12000s"
             - run:
                 name: "Yarn Coverage-Upload"
                 command: "yarn run coverage-upload"
+    publish:
+        docker:
+            - image: ubuntu:18.04
+            - image: mdillon/postgis:11
+              environment:
+                POSTGRES_USER: postgres
+                POSTGRES_DB: pt_test
+        steps:
+            - install-dependencies
+            - run:
+                name: "Publish Release"
+                command: ./scripts/publish.sh
 
 workflows:
-  version: 2
-  build-workflow:
-    jobs:
-      - build:
-          filters:
-            tags:
-              only: /.*/
+    version: 2
+    build:
+        jobs:
+            - build
+    deploy:
+        jobs:    
+            - deploy:
+                filters:
+                    tags:
+                        only: /.*/
+                    branches:
+                        ignore: /.*/
