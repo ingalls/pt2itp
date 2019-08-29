@@ -5,9 +5,6 @@ jobs:
         docker:
             - image: ubuntu:18.04
             - image: mdillon/postgis:11
-              environment:
-                POSTGRES_USER: postgres
-                POSTGRES_DB: pt_test
         steps:
             - run:
                 name: "Add ubuntu-toolchain"
@@ -55,7 +52,7 @@ jobs:
             - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
-                no_output_timeout: "12000s"
+                no_output_timeout: "2m"
             - run:
                 name: "Yarn Coverage-Upload"
                 command: "yarn run coverage-upload"
