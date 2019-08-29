@@ -14,4 +14,6 @@ All PRs to master _must_ have a corresponding versioned release
   - When in doubt - numbers are cheap
 - `git push`
 - `git push --tags`
-- CI will publish your release on tag push.
+- CI will publish a draft release to GitHub on tag push.
+- push to the npm registry
+  - `yarn publish`
