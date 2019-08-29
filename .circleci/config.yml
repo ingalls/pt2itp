@@ -1,7 +1,13 @@
-version: 2.1
+version: 2  
 
-commands:
-    install-dependencies:
+jobs:
+    build:
+        docker:
+            - image: ubuntu:18.04
+            - image: mdillon/postgis:11
+              environment:
+                POSTGRES_USER: postgres
+                POSTGRES_DB: pt_test
         steps:
             - run:
                 name: "Add ubuntu-toolchain"
@@ -36,18 +42,7 @@ commands:
                 command: "yarn global add neon-cli"
             - run:
                 name: "Yarn Install"
-                command: yarn build && yarn install          
-
-jobs:
-    build:
-        docker:
-            - image: ubuntu:18.04
-            - image: mdillon/postgis:11
-              environment:
-                POSTGRES_USER: postgres
-                POSTGRES_DB: pt_test
-        steps:
-            - install-dependencies
+                command: yarn build && yarn install   
             - run:
                 name: "Cargo Test"
                 command: cd native/ && cargo test --release
@@ -64,15 +59,6 @@ jobs:
             - run:
                 name: "Yarn Coverage-Upload"
                 command: "yarn run coverage-upload"
-    publish:
-        docker:
-            - image: ubuntu:18.04
-            - image: mdillon/postgis:11
-              environment:
-                POSTGRES_USER: postgres
-                POSTGRES_DB: pt_test
-        steps:
-            - install-dependencies
             - run:
                 name: "Publish Release"
                 command: ./scripts/publish.sh
@@ -81,12 +67,7 @@ workflows:
     version: 2
     build:
         jobs:
-            - build
-    publish:
-        jobs:    
-            - publish:
+            - build:
                 filters:
                     tags:
-                        only: /.*/
-                    branches:
-                        ignore: /.*/
+                        only: /.*/             
