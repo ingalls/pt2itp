@@ -19,8 +19,8 @@
   },
   "binary": {
     "module_name": "index",
-    "host": "https://github.com/ingalls/pt2itp/releases/download/",
-    "remote_path": "{version}",
+    "host": "https://github.com/mapbox/pt2itp/releases/download/",
+    "remote_path": "v{version}",
     "package_name": "{node_abi}-{platform}-{arch}.tar.gz",
     "module_path": "./native/",
     "pkg_path": "."
@@ -61,6 +61,8 @@
     "wellknown": "^0.5.0"
   },
   "devDependencies": {
+    "@mapbox/cloudfriend": "^3.1.1",
+    "@octokit/app": "^4.1.0",
     "coveralls": "^3.0.0",
     "eslint": "^6.0.1",
     "nyc": "^14.0.0",
@@ -76,6 +78,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ingalls/pt2itp.git"
+    "url": "git+https://github.com/mapbox/pt2itp.git"
   }
 }
