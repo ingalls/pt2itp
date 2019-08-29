@@ -1,4 +1,4 @@
-version: 2  
+version: 2
 
 jobs:
     build:
@@ -42,7 +42,7 @@ jobs:
                 command: "yarn global add neon-cli"
             - run:
                 name: "Yarn Install"
-                command: yarn build && yarn install   
+                command: yarn build && yarn install
             - run:
                 name: "Cargo Test"
                 command: cd native/ && cargo test --release
