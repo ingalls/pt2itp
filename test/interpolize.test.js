@@ -8,22 +8,36 @@ test('Drop Low', (t) => {
     let d;
 
     d = interpolize.diff(22, 96);
+    t.equals(d, 100);
     t.equals(interpolize.dropLow(22, d), 0);
 
     d = interpolize.diff(22, 10044);
+    t.equals(d, 1000);
     t.equals(interpolize.dropLow(22, d), 0);
 
     d = interpolize.diff(22, 246432642);
+    t.equals(d, 10000000);
     t.equals(interpolize.dropLow(22, d), 0);
 
     d = interpolize.diff(105, 109);
+    t.equals(d, 10);
     t.equals(interpolize.dropLow(105, d), 101);
 
     d = interpolize.diff(1246, 1948);
+    t.equals(d, 1000);
     t.equals(interpolize.dropLow(1246, d), 1000);
 
     d = interpolize.diff(1246, 42354264);
+    t.equals(d, 10000000);
     t.equals(interpolize.dropLow(1246, d), 0);
+
+    d = interpolize.diff(0, 6500);
+    t.equals(d, 1000);
+    t.equals(interpolize.dropLow(1246, d), 1000);
+
+    d = interpolize.diff(2500, 6500);
+    t.equals(d, 1000);
+    t.equals(interpolize.dropLow(2500, d), 2000);
 
     t.end();
 });
@@ -32,22 +46,28 @@ test('Raise High', (t) => {
     let d;
 
     d = interpolize.diff(22, 96);
+    t.equals(d, 100);
     t.equals(interpolize.raiseHigh(96, d), 100);
 
     d = interpolize.diff(22, 10044);
-    t.equals(interpolize.raiseHigh(10044, d), 20000);
+    t.equals(d, 1000);
+    t.equals(interpolize.raiseHigh(10044, d), 11000);
 
     d = interpolize.diff(22, 246432642);
-    t.equals(interpolize.raiseHigh(246432642, d), 300000000);
+    t.equals(d, 10000000);
+    t.equals(interpolize.raiseHigh(246432642, d), 250000000);
 
     d = interpolize.diff(105, 109);
+    t.equals(d, 10);
     t.equals(interpolize.raiseHigh(109, d), 111);
 
     d = interpolize.diff(1246, 1948);
+    t.equals(d, 1000);
     t.equals(interpolize.raiseHigh(1948, d), 2000);
 
     d = interpolize.diff(1246, 42354264);
-    t.equals(interpolize.raiseHigh(42354264, d), 100000000);
+    t.equals(d, 10000000);
+    t.equals(interpolize.raiseHigh(42354264, d), 50000000);
 
     t.end();
 });
