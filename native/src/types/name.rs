@@ -108,7 +108,7 @@ impl Names {
                     // lower the priority of names on address features
                     if source == Some(Source::Address) {
                         for name in names.iter_mut() {
-                            name.priority = -1;
+                            name.priority -= 1;
                         }
                     }
 
