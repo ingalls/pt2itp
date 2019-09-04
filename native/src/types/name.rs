@@ -90,34 +90,33 @@ impl Names {
     pub fn from_value(value: Option<serde_json::Value>, source: Option<Source>, context: &Context) -> Result<Self, String> {
         let names: Vec<Name> = match value {
             Some(street) => {
-                if street.is_string() {
-                    vec![Name::new(street.as_str().unwrap().to_string(), 0, None, &context)]
+                let mut names: Vec<InputName> = if street.is_string() {
+                    vec![InputName { display: street.as_str().unwrap().to_string(), priority: 0 }]
                 } else {
-                    let mut names: Vec<InputName> = match serde_json::from_value(street) {
+                    match serde_json::from_value(street) {
                         Ok(street) => street,
                         Err(err) => { return Err(format!("Invalid Street Property: {}", err)); }
-                    };
-
-                    // network features must have a name with a higher priority than alternative names
-                    if source == Some(Source::Network) && names.len() > 1 {
-                        if names[0].priority == names[1].priority {
-                            panic!("1 network synonym must have greater priority: {:?}", names);
-                        }
                     }
-
-                    // lower the priority of names on address features
-                    if source == Some(Source::Address) {
-                        for name in names.iter_mut() {
-                            name.priority -= 1;
-                        }
+                };
+                // network features must have a name with a higher priority than alternative names
+                if source == Some(Source::Network) && names.len() > 1 {
+                    if names[0].priority == names[1].priority {
+                        panic!("1 network synonym must have greater priority: {:?}", names);
                     }
-
-                    let names: Vec<Name> = names.into_iter().map(|name| {
-                        Name::new(name.display, name.priority, source.clone(), &context)
-                    }).collect();
-
-                    names
                 }
+
+                // lower the priority of names on address features
+                if source == Some(Source::Address) {
+                    for name in names.iter_mut() {
+                        name.priority -= 1;
+                    }
+                }
+
+                let names: Vec<Name> = names.into_iter().map(|name| {
+                    Name::new(name.display, name.priority, source.clone(), &context)
+                }).collect();
+
+                names
             },
             None => Vec::new()
         };
@@ -570,25 +569,28 @@ mod tests {
     fn test_names_from_value() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
-        let expected = Names::new(vec![Name::new(String::from("Main St NE"), 0, None, &context)], &context);
+        let expected = Names::new(vec![Name::new(String::from("Main St NE"), 0, Some(Source::Network), &context)], &context);
 
-        assert_eq!(Names::from_value(Some(json!("Main St NE")), None, &context).unwrap(), expected);
+        assert_eq!(Names::from_value(Some(json!("Main St NE")), Some(Source::Network), &context).unwrap(), expected);
 
         assert_eq!(Names::from_value(Some(json!([{
             "display": "Main St NE",
             "priority": 0
-        }])), None, &context).unwrap(), expected);
+        }])), Some(Source::Network), &context).unwrap(), expected);
 
         // Address features can have multiple names with the same priority
         // Names from address features should have a priority of -1
+        let expected = Names::new(vec![Name::new(String::from("Main St NE"), -1, Some(Source::Address), &context)], &context);
+
+        assert_eq!(Names::from_value(Some(json!("Main St NE")), Some(Source::Address), &context).unwrap(), expected);
+
         assert_eq!(Names::from_value(Some(json!([{
             "display": "Main St NE",
             "priority": 0
         }, {
             "display": "Main St NE",
             "priority": 0
-        }])), Some(Source::Address), &context).unwrap(),
-        Names::new(vec![Name::new(String::from("Main St NE"), -1, Some(Source::Address), &context)], &context));
+        }])), Some(Source::Address), &context).unwrap(), expected);
     }
 
     #[test]
