@@ -677,3 +677,117 @@ test('Interpolize - No address cluster', (t) => {
     t.deepEquals(res, require('./fixtures/left-hook-network.json'));
     t.end();
 });
+
+test('Interpolize - genFeat', (t) => {
+
+    // No points on network
+    let feature = interpolize.genFeat({ network: { geometry: 'dummy' } }, false, {}, []);
+    t.equal(Object.keys(feature.properties).length, 1, 'No properties added');
+    t.equal(feature.properties['carmen:intersections'].length, 0, 'No intersections added');
+    t.equal(feature.geometry.geometries[0], 'dummy', 'Geometry unaltered');
+
+    // No points, but intersections!
+    feature = interpolize.genFeat({ network: { geometry: 'dummy' } }, false, {}, ['Foo Street']);
+    t.equal(Object.keys(feature.properties).length, 1, 'No properties added');
+    t.deepEqual(feature.properties['carmen:intersections'], ['Foo Street'], 'Intersections preserved');
+    t.equal(feature.geometry.geometries[0], 'dummy', 'Geometry unaltered');
+
+    // Numbers w/ output: true
+    feature = interpolize.genFeat({
+        network: {
+            geometry: {
+                coordinates: [[0,1], [0,9]]
+            }
+        },
+        address: {
+            geometry: {
+                coordinates: [[0,1], [0,2], [0,3], [0,4], [0,5], [0,6], [0,7], [0,8], [0,9]]
+            }
+        },
+        number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: true };})
+    }, {
+        lparity: 'E',
+        lstart: { number: 2 },
+        lend: { number: 10 },
+        rparity: 'O',
+        rstart: { number: 1 },
+        rend: { number: 11 }
+    }, {}, []);
+    t.equal(Object.keys(feature.properties).length, 10, 'Has properties added');
+    t.equal(feature.properties['carmen:intersections'].length, 0);
+    t.equal(feature.properties['carmen:rangetype'], 'tiger');
+    t.deepEqual(feature.properties['carmen:parityl'], ['E', null]);
+    t.deepEqual(feature.properties['carmen:lfromhn'], [2, null]);
+    t.deepEqual(feature.properties['carmen:ltohn'], [10, null]);
+    t.deepEqual(feature.properties['carmen:parityr'], ['O', null]);
+    t.deepEqual(feature.properties['carmen:rfromhn'], [1, null]);
+    t.deepEqual(feature.properties['carmen:rtohn'], [11, null]);
+    t.equal(feature.properties['carmen:addressnumber'][1].length, 9, 'Has address numbers');
+    t.equal(feature.properties.address_props.length, 9, 'Has address props');
+
+    // Numbers w/ output: false
+    feature = interpolize.genFeat({
+        network: {
+            geometry: {
+                coordinates: [[0,1], [0,9]]
+            }
+        },
+        address: {
+            geometry: {
+                coordinates: [[0,1], [0,2], [0,3], [0,4], [0,5], [0,6], [0,7], [0,8], [0,9]]
+            }
+        },
+        number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: false };})
+    }, {
+        lparity: 'E',
+        lstart: { number: 2 },
+        lend: { number: 10 },
+        rparity: 'O',
+        rstart: { number: 1 },
+        rend: { number: 11 }
+    }, {}, []);
+    t.equal(Object.keys(feature.properties).length, 8, 'Has some properties added');
+    t.equal(feature.properties['carmen:intersections'].length, 0);
+    t.equal(feature.properties['carmen:rangetype'], 'tiger');
+    t.deepEqual(feature.properties['carmen:parityl'], ['E']);
+    t.deepEqual(feature.properties['carmen:lfromhn'], [2]);
+    t.deepEqual(feature.properties['carmen:ltohn'], [10]);
+    t.deepEqual(feature.properties['carmen:parityr'], ['O']);
+    t.deepEqual(feature.properties['carmen:rfromhn'], [1]);
+    t.deepEqual(feature.properties['carmen:rtohn'], [11]);
+
+    // Numbers w/ mixed output
+    feature = interpolize.genFeat({
+        network: {
+            geometry: {
+                coordinates: [[0,1], [0,9]]
+            }
+        },
+        address: {
+            geometry: {
+                coordinates: [[0,1], [0,2], [0,3], [0,4], [0,5], [0,6], [0,7], [0,8], [0,9]]
+            }
+        },
+        number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: (v % 3 === 0) };})
+    }, {
+        lparity: 'E',
+        lstart: { number: 2 },
+        lend: { number: 10 },
+        rparity: 'O',
+        rstart: { number: 1 },
+        rend: { number: 11 }
+    }, {}, []);
+    t.equal(Object.keys(feature.properties).length, 10, 'Has properties added');
+    t.equal(feature.properties['carmen:intersections'].length, 0);
+    t.equal(feature.properties['carmen:rangetype'], 'tiger');
+    t.deepEqual(feature.properties['carmen:parityl'], ['E', null]);
+    t.deepEqual(feature.properties['carmen:lfromhn'], [2, null]);
+    t.deepEqual(feature.properties['carmen:ltohn'], [10, null]);
+    t.deepEqual(feature.properties['carmen:parityr'], ['O', null]);
+    t.deepEqual(feature.properties['carmen:rfromhn'], [1, null]);
+    t.deepEqual(feature.properties['carmen:rtohn'], [11, null]);
+    t.equal(feature.properties['carmen:addressnumber'][1].length, 3, 'Has address numbers');
+    t.equal(feature.properties.address_props.length, 3, 'Has address props');
+
+    t.end();
+});
