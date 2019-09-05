@@ -35,6 +35,7 @@
     "@mapbox/tile-cover": "^3.0.2",
     "@mapbox/tilebelt": "^1.0.1",
     "@turf/turf": "^5.1.0",
+    "cheap-ruler": "^2.5.1",
     "csv-stringify": "^5.0.0",
     "d3-queue": "^3.0.7",
     "diacritics": "^1.3.0",
