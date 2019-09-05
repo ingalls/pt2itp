@@ -150,9 +150,9 @@ pub fn is_undesireable(tokenized: &Vec<Tokenized>) -> bool {
     let subs = vec![
             String::from("ext"),
             String::from("connector"),
-            String::from("br"),
             String::from("unit"),
             String::from("apt"),
+            String::from("apts"),
             String::from("suite"),
             String::from("lot")
         ];
@@ -669,9 +669,9 @@ mod tests {
         assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE"), &String::from(""))), false);
         assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Ext 25"), &String::from(""))), true);
         assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Connector 25"), &String::from(""))), true);
-        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Branch 25"), &String::from(""))), true);
         assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Unit 25"), &String::from(""))), true);
         assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Apartment 25"), &String::from(""))), true);
+        assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Shelby Apts"), &String::from(""))), true);
         assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Suite 25"), &String::from(""))), true);
         assert_eq!(is_undesireable(&tokens.process(&String::from("Main St NE Lot 25"), &String::from(""))), true);
     }

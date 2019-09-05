@@ -21,7 +21,7 @@ function get() {
 
     for (const file of files) {
         try {
-            fs.accessSync('/tmp/counties');
+            fs.accessSync(`/tmp/${file}`);
         } catch (err) {
             q.defer((file, done) => {
                 const output = fs.createWriteStream(`/tmp/${file}`).on('close', done);
