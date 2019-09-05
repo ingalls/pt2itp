@@ -10,6 +10,14 @@
 
 ## Version History
 
+### v26.0.0
+
+- :rocket: Panic if the input network doesn't provide a single primary name per feature
+- :rocket: Make the primary name from the input network the name of the output address cluster
+    - :bug: Fix bug where addresses that matched alternative names on network clusters could overwrite the network primary name
+    - Set all imported address primary names to priority -= 1
+    - Allow names with the same tokenized form to overwrite names with a higher priority if the new name has longer, less abbreviated display text
+
 ### v25.0.3
 
 - :bug: Remove `,` from names as when deserialized to string they will be reserialized as unique name entry
