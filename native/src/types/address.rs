@@ -408,7 +408,7 @@ fn get_interpolate(map: &mut serde_json::Map<String, serde_json::Value>) -> Resu
 
 mod tests {
     use super::*;
-    use crate::{Tokens, Context};
+    use crate::Tokens;
 
     #[test]
     fn test_address_simple_geom() {
