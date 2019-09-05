@@ -43,7 +43,7 @@ test('Compare - CREATE', (t) => {
             number: '112',
             street: [{
                 display: '4th St NE',
-                priority: 0
+                priority: -1
             }]
         },
         geometry: {
@@ -95,10 +95,10 @@ test('Compare - MODIFY', (t) => {
             number: 108,
             street: [{
                 display: '4th St NE',
-                priority: 0
+                priority: -1
             },{
                 display: 'DC Route 101',
-                priority: -1
+                priority: -2
             }]
         },
         geometry: {

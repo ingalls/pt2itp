@@ -86,13 +86,11 @@ impl Address {
             None => None
         };
 
-        let mut names = Names::from_value(street, Source::Address, &context)?;
+        let names = Names::from_value(street, Some(Source::Address), &context)?;
 
         if names.names.len() == 0 {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
-
-        names.set_source(Some(Source::Address));
 
         let mut addr = Address {
             id: match feat.id {
@@ -405,5 +403,43 @@ fn get_interpolate(map: &mut serde_json::Map<String, serde_json::Value>) -> Resu
             Some(itp) => Ok(itp)
         },
         None => Ok(true)
+    }
+}
+
+mod tests {
+    use super::*;
+    use crate::Tokens;
+
+    #[test]
+    fn test_address_simple_geom() {
+        // street value is object
+        {
+            let feat: geojson::GeoJson = String::from(r#"{"id":80614173,"key":null,"type":"Feature","version":3,"geometry":{"type":"Point","coordinates":[-84.7395102,39.1618162]},"properties":{"type":"residential","number":"726","source":"hamilton","street":[{"display":"Rosewynne Ct","priority":0}],"accuracy":"rooftop","override:postcode":"45002"}}"#).parse().unwrap();
+
+            let context = Context::new(
+                String::from("us"),
+                Some(String::from("mn")),
+                Tokens::generate(vec![String::from("en")])
+            );
+
+            let addr = Address::new(feat, &context).unwrap();
+
+            assert_eq!(addr.to_tsv(), "80614173\t3\t[{\"display\":\"Rosewynne Ct\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"rosewynne\",\"token_type\":null},{\"token\":\"ct\",\"token_type\":\"Way\"}],\"freq\":1}]\t726\thamilton\ttrue\t{\"accuracy\":\"rooftop\",\"number\":\"726\",\"override:postcode\":\"45002\",\"source\":\"hamilton\",\"street\":[{\"display\":\"Rosewynne Ct\",\"priority\":0}],\"type\":\"residential\"}\t0101000020E6100000BD039722542F55C0437BAB64B6944340\n");
+        }
+
+        // street value is string
+        {
+            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":1272,"source":"TIGER-2016","output":false},"geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
+
+            let context = Context::new(
+                String::from("us"),
+                Some(String::from("mn")),
+                Tokens::generate(vec![String::from("en")])
+            );
+
+            let addr = Address::new(feat, &context).unwrap();
+
+            assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\t{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
+        }
     }
 }

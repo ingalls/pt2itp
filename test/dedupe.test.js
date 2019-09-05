@@ -58,7 +58,7 @@ test('dedupe (dataset)', (t) => {
             number: '123',
             source: 'openaddresses',
             random: 'property',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
@@ -72,7 +72,7 @@ test('dedupe (dataset)', (t) => {
         properties: {
             number: '123',
             source: 'random',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
@@ -86,7 +86,7 @@ test('dedupe (dataset)', (t) => {
         properties: {
             number: '123',
             source: 'random',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
@@ -100,7 +100,7 @@ test('dedupe (dataset)', (t) => {
         properties: {
             number: '123',
             source: 'openaddresses',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
@@ -114,7 +114,7 @@ test('dedupe (dataset)', (t) => {
         properties: {
             number: '123a',
             source: 'rando',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
@@ -177,7 +177,7 @@ test('dedupe (hecate)', (t) => {
         properties: {
             number: '123',
             source: 'random',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
@@ -194,7 +194,7 @@ test('dedupe (hecate)', (t) => {
             number: '123',
             source: 'openaddresses',
             random: 'property',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
@@ -211,7 +211,7 @@ test('dedupe (hecate)', (t) => {
             number: '123',
             source: 'openaddresses',
             random: 'property',
-            street: [{ display: 'Main St', priority: 0 }]
+            street: [{ display: 'Main St', priority: -1 }]
         },
         geometry: {
             type: 'Point',
