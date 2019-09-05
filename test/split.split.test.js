@@ -233,7 +233,7 @@ test('Split: Ensure cluster#break roads are split (Washington St)', (t) => {
     });
 });
 
-test('todo', (t) => {
+test('Split - Generate sorted ranges', (t) => {
     const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/itp-sort.json'), 'utf8'));
     const feat = new SplitFeat(
         fixture.id,
