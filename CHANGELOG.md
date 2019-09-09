@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v26.0.1
+
+- :bug: Fix bug that prevented outputting sorted interpolation ranges.
+- :bug: Fix bug where addresses were assumed to exist on both sides of the street.
+
 ### v26.0.0
 
 - :rocket: Panic if the input network doesn't provide a single primary name per feature
