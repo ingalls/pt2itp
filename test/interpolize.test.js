@@ -715,10 +715,10 @@ test('Interpolize - genFeat', (t) => {
         },
         number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: true };})
     }, {
-        lparity: 'E',
+        parityl: 'E',
         lstart: { number: 2 },
         lend: { number: 10 },
-        rparity: 'O',
+        parityr: 'O',
         rstart: { number: 1 },
         rend: { number: 11 }
     }, {}, []);
@@ -748,10 +748,10 @@ test('Interpolize - genFeat', (t) => {
         },
         number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: false };})
     }, {
-        lparity: 'E',
+        parityl: 'E',
         lstart: { number: 2 },
         lend: { number: 10 },
-        rparity: 'O',
+        parityr: 'O',
         rstart: { number: 1 },
         rend: { number: 11 }
     }, {}, []);
@@ -779,10 +779,10 @@ test('Interpolize - genFeat', (t) => {
         },
         number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: (v % 3 === 0) };})
     }, {
-        lparity: 'E',
+        parityl: 'E',
         lstart: { number: 2 },
         lend: { number: 10 },
-        rparity: 'O',
+        parityr: 'O',
         rstart: { number: 1 },
         rend: { number: 11 }
     }, {}, []);
