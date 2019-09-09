@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const test = require('tape');
 const { Split, SplitFeat } = require('../lib/map/split');
 const turf = require('@turf/turf');
@@ -36,14 +38,13 @@ test('Split: Dulaney Valley Rd, MD', (t) => {
 
         t.equals(res.properties['carmen:text'], 'Dulaney Valley Road', 'Text should be Dulaney Valley Road');
         t.deepEquals(res.properties['carmen:addressnumber'], [null, ['714', '716', '718', '720', '722', '730', '732', '740', '744', '806', '810', '812', '813', '814', '820', '822', '824', '825', '826', '828', '830', '834', '838', '901', '903', '949', '956', '1002', '1004', '1006', '1008', '1010', '1012', '1014', '1016', '1018', '1021', '1024', '1200', '1202', '1204', '1206', '1208', '1210', '1212', '1213', '1214', '1215', '1216', '1217', '1219', '1221', '1223', '1225', '1227', '1229', '1231', '1233', '1300', '1301', '1306', '1307', '1309', '1310', '1311', '1314', '1316', '1317', '1318', '1320', '1322', '1400', '1411', '1500', '1502', '1504', '1506', '1508', '1510', '1710', '1718', '1720', '1798', '1800', '1802', '1806', '1808', '1810', '1902', '1908', '2001', '2002', '2004', '2006', '2008', '2010', '2012', '2100', '2101', '2106', '2108', '2110', '2118', '2120', '2122', '2124', '2126', '2200', '2202', '2203', '2204', '2205', '2292', '2296', '2300', '2310', '12101', '12301', '12450', '12460', '12559', '12563', '12567', '12605', '12615', '12620', '12720', '12721', '12804', '12805', '12806', '12807', '12808', '12809', '12810', '12811', '12813', '12814', '12815', '12900', '12901', '12905', '12906', '12907', '12908', '12909', '12911', '12915', '12916', '12919', '13000', '13001', '13004', '13005', '13006', '13007', '13008', '13015', '13019', '13020', '13100', '13101', '13103', '13114', '13115', '13132', '13140', '13142', '13144', '13146', '13200', '13201', '13204', '13207', '13208', '13209', '13211', '13212', '13214', '13216', '13218', '13224']], 'carmen:addressnumber should be stable');
-        t.deepEquals(res.properties['carmen:parityl'], [[null, null, null, 'O', 'O', 'O', null, null, 'E', null, 'O', 'O', 'O', 'O', null, null, null, 'E', null, 'E', null, 'E', 'E', null, 'E', 'E', 'E', null, null, null, null, null], null], 'carmen:parityl should be stable');
-        t.deepEquals(res.properties['carmen:parityr'], [['E', 'O', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', null, 'O', 'O', 'E', null, 'O', 'O', 'O', 'O', null, 'O', 'O', 'O', 'O', null, null, null, null, null], null], 'carmen:parityr should be stable');
+        t.deepEquals(res.properties['carmen:parityl'], [[null, null, null, null, 'O', null, 'O', 'O', 'O', null, 'E', null, 'O', 'O', null, 'O', null, null, null, 'E', null, 'E', 'E', 'E', 'E', 'E', 'E', null, null, null, null, null], null], 'carmen:parityl should be stable');
+        t.deepEquals(res.properties['carmen:parityr'], [['O', 'E', 'O', 'O', null, 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'O', 'O', null, 'O', 'O', 'O', 'O', 'O', 'O', null, null, null, null, null, null], null], 'carmen:parityr should be stable');
 
-        t.deepEquals(res.properties['carmen:lfromhn'], [[null, null, null, 2101, 2101, 2205, null, null, 2002, null, 1411, 1317, 1233, 1021, null, null, null, 13218, null, 13132, null, 13008, 12450, null, 12620, 12720, 12906, null, null, null, null, null], null], 'carmen:lfromhn should be stable');
-        t.deepEquals(res.properties['carmen:ltohn'], [[0, null, null, 2101, 2101, 2203, null, null, 1806, null, 1411, 1301, 1213, 1021, null, null, null, 13224, null, 13212, null, 13114, 12450, null, 12720, 12900, 20000, null, null, null, null, null], null], 'carmen:ltohn should be stable');
-
-        t.deepEquals(res.properties['carmen:rfromhn'], [[838, 1021, 2300, 2300, 2300, 2204, 2118, 2012, 2100, 1802, 1508, 1320, 1300, null, 825, 903, 1024, null, 12101, 13201, 12301, 13015, null, 12559, 12605, 12721, 12901, null, null, null, null, null], null], 'carmen:rfromhn should be stable');
-        t.deepEquals(res.properties['carmen:rtohn'], [[0, 1021, 2300, 2310, 2296, 2118, 2106, 2002, 1806, 1510, 1400, 1300, 1200, null, 903, 1021, 956, null, 12101, 13211, 12301, 13115, null, 12605, 12615, 12901, 20001, null, null, null, null, null], null], 'carmen:rtohn should be stable');
+        t.deepEquals(res.properties['carmen:lfromhn'], [[null, null, null, null, 1021, null, 1233, 1317, 1411, null, 2002, null, 2101, 2101, null, 2205, null, null, null, 12450, null, 12620, 12720, 12906, 13008, 13132, 13218, null, null, null, null, null], null], 'carmen:lfromhn should be stable');
+        t.deepEquals(res.properties['carmen:ltohn'], [[null, null, null, null, 1, null, 1213, 1301, 1411, null, 1806, null, 2101, 2101, null, 2203, null, null, null, 12450, null, 12720, 12900, 13006, 13114, 13212, 20000, null, null, null, null, null], null], 'carmen:ltohn should be stable');
+        t.deepEquals(res.properties['carmen:rfromhn'], [[1, 838, 903, 1021, null, 1024, 1300, 1320, 1508, 1802, 2100, 2012, 2300, 2300, 2118, 2204, 2300, 12101, 12301, null, 12559, 12605, 12721, 12901, 13015, 13201, null, null, null, null, null, null],null], 'carmen:rfromhn should be stable');
+        t.deepEquals(res.properties['carmen:rtohn'], [[903, 714, 1021, 1021, null, 956, 1200, 1300, 1400, 1510, 1806, 2002, 2296, 2310, 2106, 2118, 2300, 12101, 12301, null, 12605, 12615, 12901, 13007, 13115, 20001, null, null, null, null, null, null], null], 'carmen:rtohn should be stable');
 
         t.end();
     });
@@ -228,6 +229,83 @@ test('Split: Ensure cluster#break roads are split (Washington St)', (t) => {
         t.deepEquals(res[5].properties['carmen:addressnumber'][1].indexOf('160'), -1, 'hsa no 160 address');
         t.deepEquals(res[6].properties['carmen:addressnumber'][1].indexOf('160'), 86, 'has 170 address at pos 86');
 
+        t.end();
+    });
+});
+
+test('Split - Generate sorted ranges', (t) => {
+    const fixture = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/itp-sort.json'), 'utf8'));
+    const feat = new SplitFeat(
+        fixture.id,
+        fixture.name,
+        fixture.props,
+        fixture.network,
+        fixture.address,
+        fixture.intersections
+    );
+
+    const split = new Split({
+        stdout: false,
+        debug: true,
+        country: 'us'
+    });
+
+    split.split(feat, (err, res) => {
+        t.error(err);
+        const lranges = [];
+        for (let i = 0; i < res[0].properties['carmen:lfromhn'][0].length; i++) {
+            lranges.push(`${res[0].properties['carmen:lfromhn'][0][i]}-${res[0].properties['carmen:ltohn'][0][i]}`);
+        }
+        t.deepEqual([
+            '1-25',
+            '53-73',
+            '105-117',
+            '133-137',
+            '205-231',
+            'null-null',
+            '301-313',
+            '355-355',
+            'null-null',
+            '443-469',
+            '481-489',
+            '501-511',
+            '531-547',
+            '600-592',
+            '626-610',
+            '654-634',
+            '660-660',
+            '690-690',
+            '710-704',
+            '746-740',
+            '760-1000'
+        ], lranges, 'generated expected lranges');
+        const rranges = [];
+        for (let i = 0; i < res[0].properties['carmen:rfromhn'][0].length; i++) {
+            rranges.push(`${res[0].properties['carmen:rfromhn'][0][i]}-${res[0].properties['carmen:rtohn'][0][i]}`);
+        }
+        t.deepEqual([
+            '0-26',
+            '48-70',
+            '104-126',
+            '150-150',
+            '212-212',
+            '230-230',
+            '302-314',
+            'null-null',
+            '400-412',
+            '442-470',
+            '480-480',
+            '500-526',
+            '530-548',
+            'null-null',
+            '635-611',
+            '653-637',
+            '669-661',
+            '695-685',
+            '711-701',
+            '749-731',
+            '1001-765'
+        ], rranges, 'generated expected rranges');
         t.end();
     });
 });

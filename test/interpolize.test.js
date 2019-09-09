@@ -4,9 +4,6 @@ const interpolize = require('../lib/map/interpolize');
 const test = require('tape');
 const fs = require('fs');
 
-const db = require('./lib/db');
-db.init(test);
-
 test('Drop Low', (t) => {
     let d;
 
@@ -58,40 +55,32 @@ test('Raise High', (t) => {
 test('ITP Sort', (t) => {
     t.test('ITP Sort: Basic', (q) => {
         const feats = [
-            { id: 2, properties: { 'carmen:lfromhn': 22 } },
-            { id: 4, properties: { 'carmen:lfromhn': 1423 } },
-            { id: 1, properties: { 'carmen:lfromhn': 3 } },
-            { id: 5, properties: { 'carmen:lfromhn': 4362 } },
-            { id: 3, properties: { 'carmen:lfromhn': 43 } }
+            { id: 2, properties: { 'carmen:lfromhn': [22, null] } },
+            { id: 4, properties: { 'carmen:lfromhn': [1423, null] } },
+            { id: 1, properties: { 'carmen:lfromhn': [3, null] } },
+            { id: 5, properties: { 'carmen:lfromhn': [4362, null] } },
+            { id: 3, properties: { 'carmen:lfromhn': [43, null] } }
         ];
 
         feats.sort(interpolize.itpSort);
 
-        q.equals(feats[0].id, 1);
-        q.equals(feats[1].id, 2);
-        q.equals(feats[2].id, 3);
-        q.equals(feats[3].id, 4);
-        q.equals(feats[4].id, 5);
+        q.equals(feats.map((v) => v.id).join(' '), '1 2 3 4 5');
 
         q.end();
     });
 
     t.test('ITP Sort: Nulls Last', (q) => {
         const feats = [
-            { id: 1, properties: { 'carmen:lfromhn': 22 } },
-            { id: 2, properties: { 'carmen:lfromhn': 1423 } },
+            { id: 1, properties: { 'carmen:lfromhn': [22, null] } },
+            { id: 2, properties: { 'carmen:lfromhn': [1423, null] } },
             { id: 5, properties: { } },
-            { id: 3, properties: { 'carmen:lfromhn': 4362 } },
+            { id: 3, properties: { 'carmen:lfromhn': [4362, null] } },
             { id: 4, properties: { } }
         ];
 
         feats.sort(interpolize.itpSort);
 
-        q.equals(feats[0].id, 1);
-        q.equals(feats[1].id, 2);
-        q.equals(feats[2].id, 3);
-        q.equals(feats[3].id, 4);
-        q.equals(feats[4].id, 5);
+        q.equals(feats.map((v) => v.id).join(' '), '1 2 3 4 5');
 
         q.end();
     });
