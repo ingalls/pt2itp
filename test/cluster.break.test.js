@@ -5,9 +5,6 @@ const test = require('tape');
 const fs = require('fs');
 const _ = require('lodash');
 
-// const db = require('./lib/db');
-// db.init(test);
-
 /**
  * Helper function to sort segs for input into cluster#break
  *
