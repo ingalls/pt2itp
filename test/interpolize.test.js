@@ -178,7 +178,7 @@ test('Interpolize', (t) => {
         ]
     }];
 
-    const res = interpolize(segs);
+    const res = interpolize({segs});
 
     delete res.id;
 
@@ -267,7 +267,7 @@ test('Interpolize - Continious network - unique address duplicate num', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -330,7 +330,7 @@ test('Interpolize - Continious network - unique address duplicate num - differen
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -384,7 +384,7 @@ test('Interpolize - Ignore addresses above (average * 5) away from line', (t) =>
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -434,7 +434,7 @@ test('Interpolize - Addr past line end', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -484,7 +484,7 @@ test('Interpolize - Addr past line end - opposite', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -531,7 +531,7 @@ test('Interpolize - Addr past line end - bend', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -578,7 +578,7 @@ test('Interpolize - Addr past line end - bend - reverse', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -646,7 +646,7 @@ test('Interpolize - Hooked Road', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -675,7 +675,7 @@ test('Interpolize - No address cluster', (t) => {
         }
     }];
 
-    const res = interpolize(segs);
+    const res = interpolize({ segs });
     delete res.id;
 
     if (process.env.UPDATE) {
