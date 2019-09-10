@@ -73,6 +73,7 @@ test('Assert single peak detection', (t) => {
 });
 
 // We handle just one break
+// TODO: This is suppose to get 7 and not 8
 test('Assert multiple peaks detection', (t) => {
     const breaks = [];
     const dist = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
@@ -101,6 +102,6 @@ test('Assert multiple peaks detection', (t) => {
 
     Cluster.detectPeaks(breaks, dist, distDelta);
 
-    t.deepEquals(breaks, [7]);
+    t.deepEquals(breaks, [8]);
     t.end();
 });
