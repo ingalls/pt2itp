@@ -687,6 +687,114 @@ test('Interpolize - No address cluster', (t) => {
     t.end();
 });
 
+test('Interpolize - Do not raise high', (t) => {
+    const segs = [{
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-72.52744674682617, 45.900282732840324], [-72.65018463134764, 45.79816953017265]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-72.65104293823242, 45.80846108136044],
+                    [-72.64297485351562, 45.80810210576385],
+                    [-72.6416015625, 45.81372579098662],
+                    [-72.63490676879883, 45.81587939239973],
+
+                    [-72.55027770996094, 45.886423557648435],
+                    [-72.54547119140625, 45.8909640131969],
+                    [-72.53094434738159, 45.8986550563925],
+                    [-72.52995729446411, 45.89973022416613],
+                    [-72.52869129180908, 45.90050672127712]
+                ]
+            }
+        },
+        number:  [
+            { number: '3', output: true, props: {} },
+            { number: '4', output: true, props: {} },
+            { number: '5', output: true, props: {} },
+            { number: '6', output: true, props: {} },
+            { number: '7', output: true, props: {} },
+            { number: '9', output: true, props: {} },
+            { number: '11', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '12', output: true, props: {} }
+        ]
+    }];
+
+    const res = interpolize({ segs, nextDelta: 0 }, { debug: true });
+
+    delete res.id;
+
+    if (process.env.UPDATE) {
+        fs.writeFileSync(__dirname + '/fixtures/itp-no-raise.json', JSON.stringify(res, null, 4));
+        t.fail('had to update fixture');
+    }
+    t.deepEquals(res, require('./fixtures/itp-no-raise.json'));
+    t.end();
+});
+
+test.only('Interpolize - Do not drop low', (t) => {
+    const segs = [{
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-72.52744674682617, 45.900282732840324], [-72.65018463134764, 45.79816953017265]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-72.65104293823242, 45.80846108136044],
+                    [-72.64297485351562, 45.80810210576385],
+                    [-72.6416015625, 45.81372579098662],
+                    [-72.63490676879883, 45.81587939239973],
+
+                    [-72.55027770996094, 45.886423557648435],
+                    [-72.54547119140625, 45.8909640131969],
+                    [-72.53094434738159, 45.8986550563925],
+                    [-72.52995729446411, 45.89973022416613],
+                    [-72.52869129180908, 45.90050672127712]
+                ]
+            }
+        },
+        number:  [
+            { number: '3', output: true, props: {} },
+            { number: '4', output: true, props: {} },
+            { number: '5', output: true, props: {} },
+            { number: '6', output: true, props: {} },
+            { number: '7', output: true, props: {} },
+            { number: '9', output: true, props: {} },
+            { number: '11', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '12', output: true, props: {} }
+        ]
+    }];
+
+    const res = interpolize({ segs, prevDelta: 0 }, { debug: true });
+
+    delete res.id;
+
+    if (process.env.UPDATE) {
+        fs.writeFileSync(__dirname + '/fixtures/itp-no-drop.json', JSON.stringify(res, null, 4));
+        t.fail('had to update fixture');
+    }
+    t.deepEquals(res, require('./fixtures/itp-no-drop.json'));
+    t.end();
+});
+
 test('Interpolize - genFeat', (t) => {
 
     // No points on network
