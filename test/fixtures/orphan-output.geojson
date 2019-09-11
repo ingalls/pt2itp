@@ -1,2 +1,3 @@
 {"type":"Feature","properties":{"carmen:text":"Fake Avenue","carmen:addressnumber":[["5"]],"carmen:center":[-85.25390625,52.9089020477703],"accuracy":"building"},"geometry":{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[[-85.25390625,52.9089020477703]]}]},"id":2014655181952036}
 {"type":"Feature","properties":{"carmen:text":"Main Street","carmen:addressnumber":[["3","4"]],"carmen:center":[-105.46875,56.3652501368561],"accuracy":"parcel"},"geometry":{"type":"GeometryCollection","geometries":[{"type":"MultiPoint","coordinates":[[-105.46875,56.3652501368561],[-105.46875,56.3652501368561]]}]},"id":328505265614972}
+
