@@ -178,7 +178,7 @@ test('Interpolize', (t) => {
         ]
     }];
 
-    const res = interpolize({segs});
+    const res = interpolize({ segs });
 
     delete res.id;
 
