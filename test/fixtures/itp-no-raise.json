@@ -1,0 +1,164 @@
+{
+    "type": "Feature",
+    "properties": {
+        "address_props": [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {}
+        ],
+        "carmen:intersections": [],
+        "carmen:addressnumber": [
+            null,
+            [
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "10",
+                "12"
+            ]
+        ],
+        "carmen:rangetype": "tiger",
+        "carmen:parityl": [
+            [
+                null
+            ],
+            null
+        ],
+        "carmen:lfromhn": [
+            [
+                null
+            ],
+            null
+        ],
+        "carmen:ltohn": [
+            [
+                null
+            ],
+            null
+        ],
+        "carmen:parityr": [
+            [
+                "E"
+            ],
+            null
+        ],
+        "carmen:rfromhn": [
+            [
+                12
+            ],
+            null
+        ],
+        "carmen:rtohn": [
+            [
+                0
+            ],
+            null
+        ]
+    },
+    "geometry": {
+        "type": "GeometryCollection",
+        "geometries": [
+            {
+                "type": "MultiLineString",
+                "coordinates": [
+                    [
+                        [
+                            -72.52744674682617,
+                            45.900282732840324
+                        ],
+                        [
+                            -72.65018463134764,
+                            45.79816953017265
+                        ]
+                    ]
+                ]
+            },
+            {
+                "type": "MultiPoint",
+                "coordinates": [
+                    [
+                        -72.65104293823242,
+                        45.80846108136044
+                    ],
+                    [
+                        -72.64297485351562,
+                        45.80810210576385
+                    ],
+                    [
+                        -72.6416015625,
+                        45.81372579098662
+                    ],
+                    [
+                        -72.63490676879883,
+                        45.81587939239973
+                    ],
+                    [
+                        -72.55027770996094,
+                        45.886423557648435
+                    ],
+                    [
+                        -72.54547119140625,
+                        45.8909640131969
+                    ],
+                    [
+                        -72.53094434738159,
+                        45.8986550563925
+                    ],
+                    [
+                        -72.52995729446411,
+                        45.89973022416613
+                    ],
+                    [
+                        -72.52869129180908,
+                        45.90050672127712
+                    ]
+                ]
+            }
+        ]
+    },
+    "debug": [
+        {
+            "type": "featurecollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "start": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -72.52869129180908,
+                            45.90050672127712
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "end": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -72.65104293823242,
+                            45.80846108136044
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

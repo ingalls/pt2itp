@@ -98,7 +98,9 @@
                 }
             ]
         },
-        "intersections": []
+        "intersections": [],
+        "prevDelta": 1,
+        "nextDelta": 0
     },
     {
         "address": [
@@ -203,6 +205,7 @@
                 }
             ]
         },
-        "intersections": []
+        "intersections": [],
+        "prevDelta": 1
     }
 ]

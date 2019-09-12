@@ -8,22 +8,36 @@ test('Drop Low', (t) => {
     let d;
 
     d = interpolize.diff(22, 96);
+    t.equals(d, 100);
     t.equals(interpolize.dropLow(22, d), 0);
 
     d = interpolize.diff(22, 10044);
+    t.equals(d, 1000);
     t.equals(interpolize.dropLow(22, d), 0);
 
     d = interpolize.diff(22, 246432642);
+    t.equals(d, 10000000);
     t.equals(interpolize.dropLow(22, d), 0);
 
     d = interpolize.diff(105, 109);
+    t.equals(d, 10);
     t.equals(interpolize.dropLow(105, d), 101);
 
     d = interpolize.diff(1246, 1948);
+    t.equals(d, 1000);
     t.equals(interpolize.dropLow(1246, d), 1000);
 
     d = interpolize.diff(1246, 42354264);
+    t.equals(d, 10000000);
     t.equals(interpolize.dropLow(1246, d), 0);
+
+    d = interpolize.diff(0, 6500);
+    t.equals(d, 1000);
+    t.equals(interpolize.dropLow(1246, d), 1000);
+
+    d = interpolize.diff(2500, 6500);
+    t.equals(d, 1000);
+    t.equals(interpolize.dropLow(2500, d), 2000);
 
     t.end();
 });
@@ -32,22 +46,28 @@ test('Raise High', (t) => {
     let d;
 
     d = interpolize.diff(22, 96);
+    t.equals(d, 100);
     t.equals(interpolize.raiseHigh(96, d), 100);
 
     d = interpolize.diff(22, 10044);
-    t.equals(interpolize.raiseHigh(10044, d), 20000);
+    t.equals(d, 1000);
+    t.equals(interpolize.raiseHigh(10044, d), 11000);
 
     d = interpolize.diff(22, 246432642);
-    t.equals(interpolize.raiseHigh(246432642, d), 300000000);
+    t.equals(d, 10000000);
+    t.equals(interpolize.raiseHigh(246432642, d), 250000000);
 
     d = interpolize.diff(105, 109);
+    t.equals(d, 10);
     t.equals(interpolize.raiseHigh(109, d), 111);
 
     d = interpolize.diff(1246, 1948);
+    t.equals(d, 1000);
     t.equals(interpolize.raiseHigh(1948, d), 2000);
 
     d = interpolize.diff(1246, 42354264);
-    t.equals(interpolize.raiseHigh(42354264, d), 100000000);
+    t.equals(d, 10000000);
+    t.equals(interpolize.raiseHigh(42354264, d), 50000000);
 
     t.end();
 });
@@ -158,7 +178,7 @@ test('Interpolize', (t) => {
         ]
     }];
 
-    const res = interpolize(segs);
+    const res = interpolize({ segs });
 
     delete res.id;
 
@@ -247,7 +267,7 @@ test('Interpolize - Continious network - unique address duplicate num', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -310,7 +330,7 @@ test('Interpolize - Continious network - unique address duplicate num - differen
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -364,7 +384,7 @@ test('Interpolize - Ignore addresses above (average * 5) away from line', (t) =>
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -414,7 +434,7 @@ test('Interpolize - Addr past line end', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -464,7 +484,7 @@ test('Interpolize - Addr past line end - opposite', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -511,7 +531,7 @@ test('Interpolize - Addr past line end - bend', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -558,7 +578,7 @@ test('Interpolize - Addr past line end - bend - reverse', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -626,7 +646,7 @@ test('Interpolize - Hooked Road', (t) => {
         ]
     }];
 
-    const res = interpolize(segs, { debug: true });
+    const res = interpolize({ segs }, { debug: true });
 
     delete res.id;
 
@@ -655,7 +675,7 @@ test('Interpolize - No address cluster', (t) => {
         }
     }];
 
-    const res = interpolize(segs);
+    const res = interpolize({ segs });
     delete res.id;
 
     if (process.env.UPDATE) {
@@ -664,6 +684,114 @@ test('Interpolize - No address cluster', (t) => {
     }
 
     t.deepEquals(res, require('./fixtures/left-hook-network.json'));
+    t.end();
+});
+
+test('Interpolize - Do not raise high', (t) => {
+    const segs = [{
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-72.52744674682617, 45.900282732840324], [-72.65018463134764, 45.79816953017265]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-72.65104293823242, 45.80846108136044],
+                    [-72.64297485351562, 45.80810210576385],
+                    [-72.6416015625, 45.81372579098662],
+                    [-72.63490676879883, 45.81587939239973],
+
+                    [-72.55027770996094, 45.886423557648435],
+                    [-72.54547119140625, 45.8909640131969],
+                    [-72.53094434738159, 45.8986550563925],
+                    [-72.52995729446411, 45.89973022416613],
+                    [-72.52869129180908, 45.90050672127712]
+                ]
+            }
+        },
+        number:  [
+            { number: '3', output: true, props: {} },
+            { number: '4', output: true, props: {} },
+            { number: '5', output: true, props: {} },
+            { number: '6', output: true, props: {} },
+            { number: '7', output: true, props: {} },
+            { number: '9', output: true, props: {} },
+            { number: '11', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '12', output: true, props: {} }
+        ]
+    }];
+
+    const res = interpolize({ segs, nextDelta: 0 }, { debug: true });
+
+    delete res.id;
+
+    if (process.env.UPDATE) {
+        fs.writeFileSync(__dirname + '/fixtures/itp-no-raise.json', JSON.stringify(res, null, 4));
+        t.fail('had to update fixture');
+    }
+    t.deepEquals(res, require('./fixtures/itp-no-raise.json'));
+    t.end();
+});
+
+test.only('Interpolize - Do not drop low', (t) => {
+    const segs = [{
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-72.52744674682617, 45.900282732840324], [-72.65018463134764, 45.79816953017265]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-72.65104293823242, 45.80846108136044],
+                    [-72.64297485351562, 45.80810210576385],
+                    [-72.6416015625, 45.81372579098662],
+                    [-72.63490676879883, 45.81587939239973],
+
+                    [-72.55027770996094, 45.886423557648435],
+                    [-72.54547119140625, 45.8909640131969],
+                    [-72.53094434738159, 45.8986550563925],
+                    [-72.52995729446411, 45.89973022416613],
+                    [-72.52869129180908, 45.90050672127712]
+                ]
+            }
+        },
+        number:  [
+            { number: '3', output: true, props: {} },
+            { number: '4', output: true, props: {} },
+            { number: '5', output: true, props: {} },
+            { number: '6', output: true, props: {} },
+            { number: '7', output: true, props: {} },
+            { number: '9', output: true, props: {} },
+            { number: '11', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '12', output: true, props: {} }
+        ]
+    }];
+
+    const res = interpolize({ segs, prevDelta: 0 }, { debug: true });
+
+    delete res.id;
+
+    if (process.env.UPDATE) {
+        fs.writeFileSync(__dirname + '/fixtures/itp-no-drop.json', JSON.stringify(res, null, 4));
+        t.fail('had to update fixture');
+    }
+    t.deepEquals(res, require('./fixtures/itp-no-drop.json'));
     t.end();
 });
 
@@ -695,10 +823,10 @@ test('Interpolize - genFeat', (t) => {
         },
         number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: true };})
     }, {
-        lparity: 'E',
+        parityl: 'E',
         lstart: { number: 2 },
         lend: { number: 10 },
-        rparity: 'O',
+        parityr: 'O',
         rstart: { number: 1 },
         rend: { number: 11 }
     }, {}, []);
@@ -728,10 +856,10 @@ test('Interpolize - genFeat', (t) => {
         },
         number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: false };})
     }, {
-        lparity: 'E',
+        parityl: 'E',
         lstart: { number: 2 },
         lend: { number: 10 },
-        rparity: 'O',
+        parityr: 'O',
         rstart: { number: 1 },
         rend: { number: 11 }
     }, {}, []);
@@ -759,10 +887,10 @@ test('Interpolize - genFeat', (t) => {
         },
         number: [1,2,3,4,5,6,7,8,9].map((v) => { return { number: v, output: (v % 3 === 0) };})
     }, {
-        lparity: 'E',
+        parityl: 'E',
         lstart: { number: 2 },
         lend: { number: 10 },
-        rparity: 'O',
+        parityr: 'O',
         rstart: { number: 1 },
         rend: { number: 11 }
     }, {}, []);
