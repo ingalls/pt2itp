@@ -105,3 +105,68 @@ test('Assert multiple peaks detection', (t) => {
     t.deepEquals(breaks, [8]);
     t.end();
 });
+
+test.only('Moving Average Filter', (t) => {
+    let vals = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5].map((v, i) => [i, v]);
+    let avg = Cluster.movingAverageFilter(vals, 5);
+    t.deepEqual([
+        5,
+        10,
+        7.5,
+        6.666666666666667,
+        6.25,
+        5,
+        4.166666666666667,
+        3.5714285714285716,
+        3.125,
+        2.7777777777777777
+    ], avg);
+    
+
+    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v, i) => [i, v]);
+    avg = Cluster.movingAverageFilter(vals, 5);
+    t.deepEqual([
+        1,
+        3,
+        3,
+        3.3333333333333335,
+        3.75,
+        4,
+        4.166666666666667,
+        4.285714285714286,
+        4.375,
+        4.444444444444445
+    ], avg);
+
+    vals = [1, 2, 3, 4, 1, 6, 7, 8, 900, 10].map((v, i) => [i, v]);
+    avg = Cluster.movingAverageFilter(vals, 5);
+    t.deepEqual([
+        1,
+        3,
+        3,
+        3.3333333333333335,
+        2.75,
+        3.2,
+        3.5,
+        3.7142857142857144,
+        115.25,
+        103.44444444444444
+    ], avg);
+
+    t.end();
+});
+
+test('Moving Average Filter - performance', (t) => {
+    let vals = new Array(1000);
+    vals = vals.fill([1,100]);
+
+    // timer statt
+    const start = process.hrtime.bigint();
+    for (let i = 0; i < 100; i++) {
+        Cluster.movingAverageFilter(vals, 100);
+    }
+    const end = process.hrtime.bigint();
+    console.log(`${Number(end - start) / 1e6} ms`);
+    // timer end
+    t.end();
+});
