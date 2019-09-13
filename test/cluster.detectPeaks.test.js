@@ -152,6 +152,18 @@ test('Moving Average', (t) => {
         186.2
     ]);
 
+    vals = [1].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 1);
+    t.deepEqual(avg, [1], 'Single value input');
+
+    vals = [1].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 10);
+    t.deepEqual(avg, [1], 'Overly large window');
+
+    vals = [].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 1);
+    t.deepEqual(avg, [], 'Empty input, empty output.');
+
     vals = [1, 1, 1, -1, -1, 1, 1, 1, 1, 1].map((v, i) => [i, v]);
     avg = Cluster.movingAverage(vals, 1);
     t.deepEqual(avg, [1, 1, 1, -1, -1, 1, 1, 1, 1, 1]);
