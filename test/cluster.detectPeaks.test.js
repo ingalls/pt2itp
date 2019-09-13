@@ -106,7 +106,7 @@ test('Assert multiple peaks detection', (t) => {
     t.end();
 });
 
-test.only('Moving Average Filter', (t) => {
+test('Moving Average Filter', (t) => {
     let vals = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5].map((v, i) => [i, v]);
     let avg = Cluster.movingAverageFilter(vals, 5);
     t.deepEqual([
@@ -160,13 +160,13 @@ test('Moving Average Filter - performance', (t) => {
     let vals = new Array(1000);
     vals = vals.fill([1,100]);
 
-    // timer statt
     const start = process.hrtime.bigint();
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 10000; i++) {
         Cluster.movingAverageFilter(vals, 100);
     }
     const end = process.hrtime.bigint();
-    console.log(`${Number(end - start) / 1e6} ms`);
-    // timer end
+    const time = Number(end - start) / 1e6;
+    //console.log(`${time} ms`);
+    t.ok(time < 200, 'Moving average took less than 100 ms')
     t.end();
 });
