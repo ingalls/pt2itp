@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v26.0.2
+
+- :bug: Smoothing interpolation ranges to avoid range overlapping within a network segment.
+- :bug: Raise/drop the address number on the edge ranges only when the address numbers don't continue in the adjacent network segment.
+
 ### v26.0.1
 
 - :bug: Fix bug that prevented outputting sorted interpolation ranges.
