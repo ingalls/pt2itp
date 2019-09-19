@@ -697,13 +697,13 @@ test('Interpolize - sequence', (t) => {
         [1000, 3770, 3964, 4152, 4410, 4700, null, 4814, 5216, 5700, 6000, 6414, 7128, 7218, null, 7910, 8442, 8836, 9124, 9608, 10110, 10530, 10968, 11102, 11800, 12200, 12704, 13122, 13530, 14028, 14530, 15114], null
     ], 'lfromhn is as expected');
     t.deepEquals(res.properties['carmen:ltohn'], [
-        [11736, 3960, 4122, 4360, 4610, 4730, null, 5118, 5620, 5940, 6318, 6624, 7128, 7218, null, 8120, 8722, 9118, 9430, 9906, 10526, 10962, 11026, 11248, 12114, 12224, 13118, 13452, 14006, 14526, 14832, 15114], null
+        [11736, 3956, 4122, 4360, 4610, 4730, null, 5118, 5620, 5940, 6318, 6624, 7128, 7218, null, 8120, 8722, 9118, 9430, 9906, 10526, 10958, 11026, 11248, 12114, 12224, 13118, 13452, 14006, 14526, 14832, 15114], null
     ], 'ltohn is as expected');
     t.deepEquals(res.properties['carmen:rfromhn'], [
-        [11001, 3789, 3963, 4153, 4409, null, 4721, 4815, 5207, 5709, 6001, 6415, null, 7211, 7713, 7911, 8403, 8721, 9133, 9513, 10117, 10531, 10975, 11101, 11743, 12315, 12701, 13201, 13603, 14021, 14535, 15019], null
+        [11001, 3809, 3963, 4153, 4409, null, 4721, 4815, 5207, 5709, 6001, 6415, null, 7211, 7713, 7911, 8403, 8721, 9133, 9513, 10117, 10531, 10975, 11101, 11743, 12315, 12701, 13201, 13603, 14021, 14535, 15019], null
     ], 'rfromhn is as expected');
     t.deepEquals(res.properties['carmen:rtohn'], [
-        [11739, 3961, 4123, 4345, 4613, null, 4731, 5171, 5705, 5965, 6319, 6609, null, 7519, 7713, 8311, 8715, 9029, 9511, 9815, 10529, 10965, 11023, 11251, 12125, 12619, 12923, 13441, 14015, 14527, 15015, 15215], null
+        [11739, 3955, 4123, 4345, 4613, null, 4731, 5171, 5705, 5965, 6319, 6609, null, 7519, 7713, 8311, 8715, 9029, 9511, 9815, 10529, 10965, 11023, 11251, 12125, 12619, 12923, 13441, 14015, 14527, 15015, 15215], null
     ], 'rtohn is as expected');
 
     t.end();
@@ -928,5 +928,168 @@ test('Interpolize - genFeat', (t) => {
     t.equal(feature.properties['carmen:addressnumber'][1].length, 3, 'Has address numbers');
     t.equal(feature.properties.address_props.length, 3, 'Has address props');
 
+    t.end();
+});
+
+test('generateInterpolationRange - basic', (t) => {
+    const r = interpolize.generateInterpolationRange({
+        distStart: [
+            { number: 3, side: 1, distOnLine: 0, geometry: { properties: {} } },
+            { number: 4, side: 0, distOnLine: 0, geometry: { properties: {} } }
+        ],
+        distEnd: [
+            { number: 7, side: 1, distOnLine: 1, geometry: { properties: {} } },
+            { number: 6, side: 0, distOnLine: 1, geometry: { properties: {} } }
+        ],
+        parity: { totall: 2, lo: 0, le: 2, totalr: 2, ro: 2, re: 0 },
+        leftside: 1,
+        streetdist: 5,
+        sequence: true
+    });
+
+    t.equal(r.parityl, 'E');
+    t.equal(r.lstart.number, 4);
+    t.equal(r.lend.number, 8);
+    t.equal(r.parityr, 'O');
+    t.equal(r.rstart.number, 3);
+    t.equal(r.rend.number, 7);
+
+    t.end();
+
+});
+
+test.only('generateInterpolationRange - overlap', (t) => {
+
+    let r;
+    r = interpolize.generateInterpolationRange({
+        distStart: [
+            { number: 110, side: 0, distOnLine: 2, geometry: { properties: {} } }
+        ],
+        distEnd: [
+            { number: 11, side: 0, distOnLine: 3, geometry: { properties: {} } },
+            { number: 106, side: 0, distOnLine: 3, geometry: { properties: {} } }
+        ],
+        parity: { totall: 3, lo: 0, le: 3, totalr: 0, ro: 0, re: 0 },
+        leftside: 0,
+        streetdist: 5,
+        sequence: true,
+        overlap: [['lend', 11]]
+    });
+    t.equal(r.lend.number, 106);
+
+    r = interpolize.generateInterpolationRange({
+        distStart: [
+            { number: 1100, side: 0, distOnLine: 1, geometry: { properties: {} } },
+            { number: 111, side: 1, distOnLine: 1.1, geometry: { properties: {} } },
+            { number: 112, side: 0, distOnLine: 1.2, geometry: { properties: {} } }
+        ],
+        distEnd: [
+            { number: 116, side: 0, distOnLine: 3, geometry: { properties: {} } },
+            { number: 101, side: 1, distOnLine: 3, geometry: { properties: {} } },
+            { number: 118, side: 0, distOnLine: 4, geometry: { properties: {} } }
+        ],
+        parity: { totall: 4, lo: 0, le: 4, totalr: 2, ro: 2, re: 0 },
+        leftside: 0,
+        streetdist: 5,
+        sequence: true,
+        overlap: [['lstart', 1100]]
+    });
+    t.equal(r.lstart.number, 112);
+
+    t.end();
+
+});
+
+test('checkInterpolationRanges - simple out of range', (t) => {
+
+    const r = interpolize.checkInterpolationRanges([
+        {
+            properties: {
+                'carmen:lfromhn': [null],
+                'carmen:ltohn': [null],
+                'carmen:parityl': [null],
+                'carmen:rfromhn': [100],
+                'carmen:rtohn': [108],
+                'carmen:parityr': ['E']
+            },
+            rangeOptions: { sequence: true }
+        },
+        {
+            properties: {
+                'carmen:lfromhn': [null],
+                'carmen:ltohn': [null],
+                'carmen:parityl': [null],
+                'carmen:rfromhn': [110],
+                'carmen:rtohn': [11],
+                'carmen:parityr': ['E']
+            },
+            rangeOptions: { sequence: true }
+        },
+        {
+            properties: {
+                'carmen:lfromhn': [null],
+                'carmen:ltohn': [null],
+                'carmen:parityl': [null],
+                'carmen:rfromhn': [120],
+                'carmen:rtohn': [128],
+                'carmen:parityr': ['E']
+            },
+            rangeOptions: { sequence: true }
+        }
+    ]);
+    t.deepEqual(r, [[],[['rend', 11]],[]]);
+    t.end();
+});
+
+test('checkInterpolationRanges - in range', (t) => {
+
+    const r = interpolize.checkInterpolationRanges([
+        {
+            properties: {
+                'carmen:lfromhn': [null],
+                'carmen:ltohn': [null],
+                'carmen:parityl': [null],
+                'carmen:rfromhn': [100],
+                'carmen:rtohn': [108],
+                'carmen:parityr': ['E']
+            },
+            rangeOptions: { sequence: true }
+        },
+        {
+            properties: {
+                'carmen:lfromhn': [null],
+                'carmen:ltohn': [null],
+                'carmen:parityl': [null],
+                'carmen:rfromhn': [110],
+                'carmen:rtohn': [118],
+                'carmen:parityr': ['E']
+            },
+            rangeOptions: { sequence: true }
+        },
+        {
+            properties: {
+                'carmen:lfromhn': [null],
+                'carmen:ltohn': [null],
+                'carmen:parityl': [null],
+                'carmen:rfromhn': [120],
+                'carmen:rtohn': [128],
+                'carmen:parityr': ['E']
+            },
+            rangeOptions: { sequence: true }
+        }
+    ]);
+    t.deepEqual(r, [[],[],[]]);
+    t.end();
+});
+
+test('isInRange', (t) => {
+    t.equal(interpolize.isInRange(1,2,null), true);
+    t.equal(interpolize.isInRange(null,2,3), true);
+    t.equal(interpolize.isInRange(1,2,3), true);
+    t.equal(interpolize.isInRange(1,0,3), false);
+    t.equal(interpolize.isInRange(1,4,3), false);
+    t.equal(interpolize.isInRange(3,2,1), true);
+    t.equal(interpolize.isInRange(3,0,1), false);
+    t.equal(interpolize.isInRange(3,4,1), false);
     t.end();
 });
