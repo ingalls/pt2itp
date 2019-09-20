@@ -958,7 +958,7 @@ test('generateInterpolationRange - basic', (t) => {
 
 });
 
-test.only('generateInterpolationRange - overlap', (t) => {
+test('generateInterpolationRange - overlap', (t) => {
 
     let r;
     r = interpolize.generateInterpolationRange({
