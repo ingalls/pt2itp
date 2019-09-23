@@ -175,17 +175,3 @@ test('Moving Average', (t) => {
     t.end();
 });
 
-test.skip('Moving Average - performance', (t) => {
-    let vals = new Array(1000);
-    vals = vals.fill([1,100]);
-
-    const start = process.hrtime.bigint();
-    for (let i = 0; i < 10000; i++) {
-        Cluster.movingAverage(vals, 100);
-    }
-    const end = process.hrtime.bigint();
-    const time = Number(end - start) / 1e6;
-    console.log(`${time} ms`);
-    t.ok(time < 200, 'Moving average took less than 200 ms');
-    t.end();
-});
