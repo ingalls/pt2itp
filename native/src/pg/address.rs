@@ -8,6 +8,19 @@ impl Address {
     pub fn new() -> Self {
         Address()
     }
+
+    pub fn max(&self, conn: &Connection) -> i64 {
+        match conn.query(r#"
+            SELECT max(*) FROM address
+        "#, &[]) {
+            Ok(res) => {
+                let max: i64 = res.get(0).get(0);
+                max
+            },
+            _ => 0
+        }
+    }
+
 }
 
 impl Table for Address {

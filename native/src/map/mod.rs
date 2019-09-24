@@ -180,6 +180,9 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
 
+    let max = pg::Address::new().max(&conn);
+
+
     Ok(cx.boolean(true))
 }
 
