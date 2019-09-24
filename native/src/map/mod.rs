@@ -172,6 +172,17 @@ pub fn cluster_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     Ok(cx.boolean(true))
 }
 
+pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
+    let db = match cx.argument_opt(0) {
+        Some(arg) => arg.downcast::<JsString>().or_throw(&mut cx)?.value(),
+        None => String::from("pt_test")
+    };
+
+    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
+
+    Ok(cx.boolean(true))
+}
+
 pub fn cluster_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let db = match cx.argument_opt(0) {
         Some(arg) => arg.downcast::<JsString>().or_throw(&mut cx)?.value(),
