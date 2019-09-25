@@ -1,6 +1,7 @@
 use std::convert::From;
 use postgres::{Connection, TlsMode};
 use std::collections::HashMap;
+use std::thread;
 
 use crate::Context as CrateContext;
 use crate::{Tokens, Name, Names};
@@ -180,10 +181,83 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
 
-    let max = pg::Address::new().max(&conn);
+    let count = pg::Address::new().max(&conn);
 
+    let cpus = num_cpus::get() as i64;
+    let mut web = Vec::new();
+
+    let batch_extra = count % cpus;
+    let batch = (count  - batch_extra) / cpus;
+
+    for cpu in 0..cpus {
+        let db_conn = db.clone();
+
+        let strand = match thread::Builder::new().name(format!("Linker #{}", &cpu)).spawn(move || {
+            let mut min_id = batch * cpu;
+            let max_id = batch * cpu + batch + batch_extra;
+
+            if cpu != 0 {
+                min_id = min_id + batch_extra + 1;
+            }
+
+            let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db_conn).as_str(), TlsMode::None) {
+                Ok(conn) => conn,
+                Err(err) => panic!("Connection Error: {}", err.to_string())
+            };
+
+        }) {
+            Ok(strand) => strand,
+            Err(err) => panic!("Thread Creation Error: {}", err.to_string())
+        };
+
+        web.push(strand);
+    }
 
     Ok(cx.boolean(true))
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct DbLink {
+    id: i64,
+    name: Vec<Name>,
+    dist: f64
+}
+
+pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64) {
+    match conn.query(r#"
+        SELECT
+            a.id AS id,
+            a.names::JSON AS name,
+            (Array_Agg(
+                JSON_Build_Object(
+                    'id', nc.id,
+                    'name', nc.names::JSON,
+                    'dist', ST_Distance(nc.geom, a.geom)
+                )
+                ORDER BY ST_Distance(nc.geom, a.geom)
+            ))[:10]::JSON AS nets
+        FROM
+            address a
+            INNER JOIN network_cluster nc
+            ON ST_DWithin(a.geom, nc.geom, 0.02)
+        WHERE a.id >= $1 AND a.id <= $2
+        GROUP BY
+            a.id,
+            a.names,
+            a.geom
+    "#, &[&min, &max]) {
+        Ok(results) => {
+            for result in results.iter() {
+                let id: i64 = result.get(0);
+                let names: serde_json::Value = result.get(1);
+                let names: Vec<Name> = serde_json::from_value(names).unwrap();
+                
+                let potentials: serde_json::Value = result.get(2);
+                let potentials: Vec<DbLink> = serde_json::from_value(potentials).unwrap();
+            }
+        },
+        Err(err) => panic!("{}", err.to_string())
+    };
 }
 
 pub fn cluster_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {

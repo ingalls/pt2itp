@@ -20,7 +20,6 @@ impl Address {
             _ => 0
         }
     }
-
 }
 
 impl Table for Address {
