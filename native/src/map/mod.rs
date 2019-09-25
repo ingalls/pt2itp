@@ -7,6 +7,7 @@ use crate::Context as CrateContext;
 use crate::{Tokens, Name, Names};
 
 use neon::prelude::*;
+use crate::util::linker::Link;
 
 use super::stream::{
     GeoStream,
@@ -205,6 +206,12 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 Err(err) => panic!("Connection Error: {}", err.to_string())
             };
 
+            let mut it = min_id;
+            while it < max_id {
+                link_process(&conn, it, it + 5000);
+                it += 5001;
+            }
+
         }) {
             Ok(strand) => strand,
             Err(err) => panic!("Thread Creation Error: {}", err.to_string())
@@ -217,10 +224,14 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct DbLink {
+pub struct DbSerial {
     id: i64,
-    name: Vec<Name>,
-    dist: f64
+    names: Vec<Name>
+}
+
+pub struct DbType {
+    id: i64,
+    names: Names
 }
 
 pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64) {
@@ -231,8 +242,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
             (Array_Agg(
                 JSON_Build_Object(
                     'id', nc.id,
-                    'name', nc.names::JSON,
-                    'dist', ST_Distance(nc.geom, a.geom)
+                    'names', nc.names::JSON
                 )
                 ORDER BY ST_Distance(nc.geom, a.geom)
             ))[:10]::JSON AS nets
@@ -251,9 +261,29 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                 let id: i64 = result.get(0);
                 let names: serde_json::Value = result.get(1);
                 let names: Vec<Name> = serde_json::from_value(names).unwrap();
-                
-                let potentials: serde_json::Value = result.get(2);
-                let potentials: Vec<DbLink> = serde_json::from_value(potentials).unwrap();
+                let names = Names {
+                    names: names
+                };
+
+                let dbpotentials: serde_json::Value = result.get(2);
+                let dbpotentials: Vec<DbSerial> = serde_json::from_value(dbpotentials).unwrap();
+
+                let mut potentials: Vec<DbType> = Vec::with_capacity(dbpotentials.len());
+                for potential in dbpotentials {
+                    potentials.push(DbType {
+                        id: potential.id,
+                        names: Names {
+                            names: potential.names
+                        }
+                    });
+                }
+
+                let primary = Link::new(id, &names);
+                let potentials: Vec<Link> = potentials.iter().map(|potential| {
+                    Link::new(potential.id, &potential.names)
+                }).collect();
+
+                crate::util::linker::linker(primary, potentials, false);
             }
         },
         Err(err) => panic!("{}", err.to_string())
