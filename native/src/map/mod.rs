@@ -5,9 +5,9 @@ use std::thread;
 
 use crate::Context as CrateContext;
 use crate::{Tokens, Name, Names};
+use crate::util::linker;
 
 use neon::prelude::*;
-use crate::util::linker::Link;
 
 use super::stream::{
     GeoStream,
@@ -257,6 +257,8 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
             a.geom
     "#, &[&min, &max]) {
         Ok(results) => {
+            let mut links = String::new();
+
             for result in results.iter() {
                 let id: i64 = result.get(0);
                 let names: serde_json::Value = result.get(1);
@@ -278,12 +280,20 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     });
                 }
 
-                let primary = Link::new(id, &names);
-                let potentials: Vec<Link> = potentials.iter().map(|potential| {
-                    Link::new(potential.id, &potential.names)
+                let primary = linker::Link::new(id, &names);
+                let potentials: Vec<linker::Link> = potentials.iter().map(|potential| {
+                    linker::Link::new(potential.id, &potential.names)
                 }).collect();
 
-                crate::util::linker::linker(primary, potentials, false);
+                match linker::linker(primary, potentials, false) {
+                    Some(link_match) => {
+                        links = format!(r#"
+                            {links}\n
+                            UPDATE address SET netid = {netid} WHERE id = {id}
+                        "#, links = links, netid = link_match.id, id = id);
+                    },
+                    None => ()
+                };
             }
         },
         Err(err) => panic!("{}", err.to_string())
