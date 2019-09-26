@@ -239,13 +239,13 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
         SELECT
             a.id AS id,
             a.names::JSON AS name,
-            (Array_Agg(
+            Array_To_Json((Array_Agg(
                 JSON_Build_Object(
                     'id', nc.id,
                     'names', nc.names::JSON
                 )
                 ORDER BY ST_Distance(nc.geom, a.geom)
-            ))[:10]::JSON AS nets
+            ))[:10]) AS nets
         FROM
             address a
             INNER JOIN network_cluster nc
@@ -302,7 +302,10 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
 
             trans.commit().unwrap();
         },
-        Err(err) => panic!("{}", err.to_string())
+        Err(err) => {
+            println!("{}", err.to_string());
+            panic!("{}", err.to_string());
+        }
     };
 }
 

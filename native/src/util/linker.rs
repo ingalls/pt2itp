@@ -7,6 +7,7 @@ use crate::text::{
 use crate::types::Names;
 use geocoder_abbreviations::TokenType;
 
+#[derive(Debug)]
 pub struct Link<'a> {
     pub id: i64,
     pub maxscore: f64,

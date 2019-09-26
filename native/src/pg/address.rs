@@ -11,7 +11,7 @@ impl Address {
 
     pub fn max(&self, conn: &Connection) -> i64 {
         match conn.query(r#"
-            SELECT max(*) FROM address
+            SELECT max(id) FROM address
         "#, &[]) {
             Ok(res) => {
                 let max: i64 = res.get(0).get(0);
