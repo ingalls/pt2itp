@@ -295,6 +295,12 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     None => ()
                 };
             }
+
+            let trans = conn.transaction().unwrap();
+
+            trans.execute(&*links, &[]).unwrap();
+
+            trans.commit().unwrap();
         },
         Err(err) => panic!("{}", err.to_string())
     };
