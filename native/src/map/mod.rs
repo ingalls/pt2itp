@@ -24,7 +24,13 @@ pub fn pg_init(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => String::from("pt_test")
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let address = pg::Address::new();
     let network = pg::Network::new();
@@ -56,7 +62,13 @@ pub fn pg_optimize(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => String::from("pt_test")
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let address = pg::Address::new();
     let network = pg::Network::new();
@@ -104,7 +116,13 @@ pub fn import_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         }
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let context = match args.context {
         Some(context) => CrateContext::from(context),
@@ -135,7 +153,13 @@ pub fn import_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         }
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let context = match args.context {
         Some(context) => CrateContext::from(context),
@@ -164,7 +188,13 @@ pub fn cluster_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => false
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let cluster = pg::AddressCluster::new(orphan);
     cluster.create(&conn);
@@ -180,7 +210,13 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => String::from("pt_test")
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let count = pg::Address::new().max(&conn);
 
@@ -211,10 +247,12 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             let mut it = min_id;
             while it < max_id {
+                println!("{}: PRELOOP {}", cpu, it);
                 link_process(&conn, it, it + 5000);
                 it += 5001;
+                println!("{}: LOOP {}", cpu, it);
             }
-
+            println!("{}: Done", cpu);
         }) {
             Ok(strand) => strand,
             Err(err) => {
@@ -224,6 +262,21 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         };
 
         web.push(strand);
+    }
+
+    for strand in web {
+        match strand.join() {
+            Err(err) => {
+                if let Some(string) = err.downcast_ref::<String>() {
+                    println!("Thread Error: {}", string);
+                    panic!("Thread Error: {}", string);
+                } else {
+                    println!("Thread Error: {:?}", err);
+                    panic!("Thread Error: {:?}", err);
+                }
+            },
+            _ => ()
+        };
     }
 
     Ok(cx.boolean(true))
@@ -263,18 +316,37 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
             a.geom
     "#, &[&min, &max]) {
         Ok(results) => {
-            let mut links = String::new();
+            let trans = match conn.transaction() {
+                Err(err) => {
+                    println!("Transaction Create Error: {}", err.to_string());
+                    panic!("Transaction Create Error: {}", err.to_string());
+                },
+                Ok(trans) => trans
+            };
 
             for result in results.iter() {
                 let id: i64 = result.get(0);
                 let names: serde_json::Value = result.get(1);
-                let names: Vec<Name> = serde_json::from_value(names).unwrap();
+                let names: Vec<Name> = match serde_json::from_value(names) {
+                    Err(err) => {
+                        println!("JSON Failure: {}", err.to_string());
+                        panic!("JSON Failure: {}", err.to_string());
+                    },
+                    Ok(names) => names
+                };
+
                 let names = Names {
                     names: names
                 };
 
                 let dbpotentials: serde_json::Value = result.get(2);
-                let dbpotentials: Vec<DbSerial> = serde_json::from_value(dbpotentials).unwrap();
+                let dbpotentials: Vec<DbSerial> = match serde_json::from_value(dbpotentials) {
+                    Err(err) => {
+                        println!("JSON Failure: {}", err.to_string());
+                        panic!("JSON Failure: {}", err.to_string());
+                    },
+                    Ok(names) => names
+                };
 
                 let mut potentials: Vec<DbType> = Vec::with_capacity(dbpotentials.len());
                 for potential in dbpotentials {
@@ -293,20 +365,27 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
 
                 match linker::linker(primary, potentials, false) {
                     Some(link_match) => {
-                        links = format!(r#"
-                            {links}\n
-                            UPDATE address SET netid = {netid} WHERE id = {id}
-                        "#, links = links, netid = link_match.id, id = id);
+                        match trans.execute(&*r#"
+                            UPDATE address SET netid = $1 WHERE id = $2;
+                        "#, &[&link_match.id, &id]) {
+                            Err(err) => {
+                                println!("Transaction Statement Error: {}", err.to_string());
+                                panic!("Transaction Statement Error: {}", err.to_string());
+                            },
+                            Ok(trans) => trans
+                        };
                     },
                     None => ()
                 };
             }
 
-            let trans = conn.transaction().unwrap();
-
-            trans.execute(&*links, &[]).unwrap();
-
-            trans.commit().unwrap();
+            match trans.commit() {
+                Err(err) => {
+                    println!("Transaction Commit Error: {}", err.to_string());
+                    panic!("Transaction Commit Error: {}", err.to_string());
+                },
+                _ => ()
+            };
         },
         Err(err) => {
             println!("{}", err.to_string());
@@ -326,7 +405,13 @@ pub fn cluster_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => false
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let cluster = pg::NetworkCluster::new(orphan);
     cluster.create(&conn);
@@ -342,7 +427,13 @@ pub fn intersections(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => String::from("pt_test")
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None).unwrap();
+    let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db).as_str(), TlsMode::None) {
+        Ok(conn) => conn,
+        Err(err) => {
+            println!("Connection Error: {}", err.to_string());
+            panic!("Connection Error: {}", err.to_string());
+        }
+    };
 
     let intersections = pg::Intersections::new();
     intersections.create(&conn);
