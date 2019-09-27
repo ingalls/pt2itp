@@ -294,7 +294,7 @@ pub struct DbType {
 }
 
 pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64) {
-    match conn.query(r#"
+    match conn.query("
         SELECT
             a.id AS id,
             a.names::JSON AS name,
@@ -314,7 +314,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
             a.id,
             a.names,
             a.geom
-    "#, &[&min, &max]) {
+    ", &[&min, &max]) {
         Ok(results) => {
             let trans = match conn.transaction() {
                 Err(err) => {
@@ -365,9 +365,9 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
 
                 match linker::linker(primary, potentials, false) {
                     Some(link_match) => {
-                        match trans.execute(&*r#"
+                        match trans.execute(&*"
                             UPDATE address SET netid = $1 WHERE id = $2;
-                        "#, &[&link_match.id, &id]) {
+                        ", &[&link_match.id, &id]) {
                             Err(err) => {
                                 println!("Transaction Statement Error: {}", err.to_string());
                                 panic!("Transaction Statement Error: {}", err.to_string());
