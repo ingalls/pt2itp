@@ -203,7 +203,10 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db_conn).as_str(), TlsMode::None) {
                 Ok(conn) => conn,
-                Err(err) => panic!("Connection Error: {}", err.to_string())
+                Err(err) => {
+                    println!("Connection Error: {}", err.to_string());
+                    panic!("Connection Error: {}", err.to_string());
+                }
             };
 
             let mut it = min_id;
@@ -214,7 +217,10 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
         }) {
             Ok(strand) => strand,
-            Err(err) => panic!("Thread Creation Error: {}", err.to_string())
+            Err(err) => {
+                println!("Thread Creation Error: {}", err.to_string());
+                panic!("Thread Creation Error: {}", err.to_string());
+            }
         };
 
         web.push(strand);
@@ -302,7 +308,10 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
 
             trans.commit().unwrap();
         },
-        Err(err) => panic!("{}", err.to_string())
+        Err(err) => {
+            println!("{}", err.to_string());
+            panic!("{}", err.to_string());
+        }
     };
 }
 
