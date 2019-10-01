@@ -29,12 +29,13 @@ test('orphan.address', (t) => {
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO address (names, number, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}, { "token": "se", "token_type": "Cardinal"}], "display": "Main Street SE", "priority": 0, "freq": 1 }]', 1, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-66.97265625,43.96119063892024] }'), 4326), 1, '{ "accuracy": "building" }');
-            INSERT INTO address (names, number, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}, { "token": "se", "token_type": "Cardinal"}], "display": "Main Street SE", "priority": 0, "freq": 1 }]', 2, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-66.97265625,43.96119063892024] }'), 4326), 1, '{ "accuracy": "building" }');
-            INSERT INTO address (names, number, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street", "priority": 0, "freq": 1 }]', 3, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-105.46875,56.36525013685606] }'), 4326), NULL, '{ "accuracy": "parcel" }');
-            INSERT INTO address (names, number, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street", "priority": 0, "freq": 1 }]', 4, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-105.46875,56.36525013685606] }'), 4326), NULL, '{ "accuracy": "parcel" }');
-            INSERT INTO address (names, number, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "fake", "token_type": null }, { "token": "av", "token_type": "Way"}], "display": "Fake Avenue", "priority": 0, "freq": 1 }]', 5, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-85.25390625,52.908902047770255] }'), 4326), NULL, '{ "accuracy": "building" }');
-            INSERT INTO address (names, number, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}, { "token": "se", "token_type": "Cardinal"}], "display": "Main Street SE", "priority": 0, "freq": 1 }]', 6, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-66.97265625,43.96119063892024] }'), 4326), 1, '{ "accuracy": "parcel" }');
+            INSERT INTO address (names, number, output, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}, { "token": "se", "token_type": "Cardinal"}], "display": "Main Street SE", "priority": 0, "freq": 1 }]', 1, true, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-66.97265625,43.96119063892024] }'), 4326), 1, '{ "accuracy": "building" }');
+            INSERT INTO address (names, number, output, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}, { "token": "se", "token_type": "Cardinal"}], "display": "Main Street SE", "priority": 0, "freq": 1 }]', 2, true, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-66.97265625,43.96119063892024] }'), 4326), 1, '{ "accuracy": "building" }');
+            INSERT INTO address (names, number, output, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street", "priority": 0, "freq": 1 }]', 3, true, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-105.46875,56.36525013685606] }'), 4326), NULL, '{ "accuracy": "parcel" }');
+            INSERT INTO address (names, number, output, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street", "priority": 0, "freq": 1 }]', 4, true, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-105.46875,56.36525013685606] }'), 4326), NULL, '{ "accuracy": "parcel" }');
+            INSERT INTO address (names, number, output, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "fake", "token_type": null }, { "token": "av", "token_type": "Way"}], "display": "Fake Avenue", "priority": 0, "freq": 1 }]', 5, true, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-85.25390625,52.908902047770255] }'), 4326), NULL, '{ "accuracy": "building" }');
+            INSERT INTO address (names, number, output, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "fake", "token_type": null }, { "token": "av", "token_type": "Way"}], "display": "Fake Avenue", "priority": 0, "freq": 1 }]', 6, false, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-85.25390625,52.908902047770255] }'), 4326), NULL, '{ "accuracy": "building" }');
+            INSERT INTO address (names, number, output, geom, netid, props) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}, { "token": "se", "token_type": "Cardinal"}], "display": "Main Street SE", "priority": 0, "freq": 1 }]', 6, true, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [-66.97265625,43.96119063892024] }'), 4326), 1, '{ "accuracy": "parcel" }');
             COMMIT;
         `, (err) => {
             t.error(err, 'ok - added addresses to table');
@@ -78,8 +79,6 @@ test('orphan.address', (t) => {
         });
     });
 });
-
-db.init(test);
 
 test('orphan output', (t) => {
     let counter = 0;
