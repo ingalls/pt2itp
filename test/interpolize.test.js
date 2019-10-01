@@ -397,7 +397,7 @@ test('Interpolize - Ignore addresses above far away from line', (t) => {
 });
 
 test('calculateInterpolationParams - Ignore addresses above mediam * 10 away from line', (t) => {
-    let limit = { min: 1000000, max: 0};
+    let limit = { min: 1000000, max: 0 };
     let params = interpolize.calculateInterpolationParams({
         network: {
             type: 'Feature',
@@ -433,7 +433,7 @@ test('calculateInterpolationParams - Ignore addresses above mediam * 10 away fro
     t.equal(params.distEnd.length, 4);
     t.equal(params.distStart.length, 4);
 
-    limit = { min: 1000000, max: 0};
+    limit = { min: 1000000, max: 0 };
     params = interpolize.calculateInterpolationParams({
         network: {
             type: 'Feature',
