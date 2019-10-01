@@ -351,7 +351,7 @@ test('Interpolize - Continious network - unique address duplicate num - differen
  * These errors typically happen due to data errors where an identically named street is missing from the source
  * We retain the address point but don't use it to calculate the ITP
  */
-test('Interpolize - Ignore addresses above (average * 5) away from line', (t) => {
+test('Interpolize - Ignore addresses above far away from line', (t) => {
     const segs = [{
         network: {
             type: 'Feature',
@@ -393,6 +393,81 @@ test('Interpolize - Ignore addresses above (average * 5) away from line', (t) =>
         t.fail('had to update fixture');
     }
     t.deepEquals(res, require('./fixtures/itp-deviant.json'));
+    t.end();
+});
+
+test('calculateInterpolationParams - Ignore addresses above mediam * 10 away from line', (t) => {
+    let limit = { min: 1000000, max: 0};
+    let params = interpolize.calculateInterpolationParams({
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-64.27054524421692, 44.54747368148878], [-64.26584601402283, 44.548261225872096]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-64.27004098892212, 44.54781775558832],
+                    [-64.26878571510315, 44.548093013403566],
+                    [-64.26747679710388, 44.54839885389387],
+                    [-64.26645755767822, 44.548635879168515],
+                    [-64.26933288574217, 44.55552448238052]
+                ]
+            }
+        },
+        number:  [
+            { number: '8', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '12', output: true, props: {} },
+            { number:'14', output: true, props: {} },
+            { number: '16000', output: true, props: {} }
+        ]
+    }, limit);
+    t.equal(limit.max, 14);
+    t.equal(params.distEnd.length, 4);
+    t.equal(params.distStart.length, 4);
+
+    limit = { min: 1000000, max: 0};
+    params = interpolize.calculateInterpolationParams({
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-64.27054524421692, 44.54747368148878], [-64.26584601402283, 44.548261225872096]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-64.27004098892212, 44.54781775558832],
+                    [-64.26878571510315, 44.548093013403566],
+                    [-64.26933288574217, 44.55552448238052],
+                    [-64.26747679710388, 44.54839885389387],
+                    [-64.26645755767822, 44.548635879168515]
+                ]
+            }
+        },
+        number:  [
+            { number: '8', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '1200', output: true, props: {} },
+            { number: '14', output: true, props: {} },
+            { number: '16', output: true, props: {} }
+        ]
+    }, limit);
+    t.equal(limit.max, 16);
+    t.equal(params.distEnd.length, 4);
+    t.equal(params.distStart.length, 4);
     t.end();
 });
 
