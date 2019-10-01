@@ -10,6 +10,10 @@
 
 ## Version History
 
+### Unreleased
+
+- :bug: Respect `output: true` on orphaned addresses.
+
 ### v26.0.2
 
 - :bug: Smoothing interpolation ranges to avoid range overlapping within a network segment.
