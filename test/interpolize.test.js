@@ -396,81 +396,6 @@ test('Interpolize - Ignore addresses above far away from line', (t) => {
     t.end();
 });
 
-test('calculateInterpolationParams - Ignore addresses above mediam * 10 away from line', (t) => {
-    let limit = { min: 1000000, max: 0 };
-    let params = interpolize.calculateInterpolationParams({
-        network: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: [[-64.27054524421692, 44.54747368148878], [-64.26584601402283, 44.548261225872096]]
-            }
-        },
-        address: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'MultiPoint',
-                coordinates: [
-                    [-64.27004098892212, 44.54781775558832],
-                    [-64.26878571510315, 44.548093013403566],
-                    [-64.26747679710388, 44.54839885389387],
-                    [-64.26645755767822, 44.548635879168515],
-                    [-64.26933288574217, 44.55552448238052]
-                ]
-            }
-        },
-        number:  [
-            { number: '8', output: true, props: {} },
-            { number: '10', output: true, props: {} },
-            { number: '12', output: true, props: {} },
-            { number:'14', output: true, props: {} },
-            { number: '16000', output: true, props: {} }
-        ]
-    }, limit);
-    t.equal(limit.max, 14);
-    t.equal(params.distEnd.length, 4);
-    t.equal(params.distStart.length, 4);
-
-    limit = { min: 1000000, max: 0 };
-    params = interpolize.calculateInterpolationParams({
-        network: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: [[-64.27054524421692, 44.54747368148878], [-64.26584601402283, 44.548261225872096]]
-            }
-        },
-        address: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'MultiPoint',
-                coordinates: [
-                    [-64.27004098892212, 44.54781775558832],
-                    [-64.26878571510315, 44.548093013403566],
-                    [-64.26933288574217, 44.55552448238052],
-                    [-64.26747679710388, 44.54839885389387],
-                    [-64.26645755767822, 44.548635879168515]
-                ]
-            }
-        },
-        number:  [
-            { number: '8', output: true, props: {} },
-            { number: '10', output: true, props: {} },
-            { number: '1200', output: true, props: {} },
-            { number: '14', output: true, props: {} },
-            { number: '16', output: true, props: {} }
-        ]
-    }, limit);
-    t.equal(limit.max, 16);
-    t.equal(params.distEnd.length, 4);
-    t.equal(params.distStart.length, 4);
-    t.end();
-});
-
 test('Interpolize - Addr past line end', (t) => {
     const segs = [{
         network: {
@@ -1003,6 +928,149 @@ test('Interpolize - genFeat', (t) => {
     t.equal(feature.properties['carmen:addressnumber'][1].length, 3, 'Has address numbers');
     t.equal(feature.properties.address_props.length, 3, 'Has address props');
 
+    t.end();
+});
+
+test('calculateInterpolationParams - Ignore addresses above mediam * 10 away from line', (t) => {
+    let limit = { min: 1000000, max: 0 };
+    let params = interpolize.calculateInterpolationParams({
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-64.27054524421692, 44.54747368148878], [-64.26584601402283, 44.548261225872096]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-64.27004098892212, 44.54781775558832],
+                    [-64.26878571510315, 44.548093013403566],
+                    [-64.26747679710388, 44.54839885389387],
+                    [-64.26645755767822, 44.548635879168515],
+                    [-64.26933288574217, 44.55552448238052]
+                ]
+            }
+        },
+        number:  [
+            { number: '8', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '12', output: true, props: {} },
+            { number:'14', output: true, props: {} },
+            { number: '16000', output: true, props: {} }
+        ]
+    }, limit);
+    t.equal(limit.max, 14);
+    t.equal(params.distEnd.length, 4);
+    t.equal(params.distStart.length, 4);
+
+    limit = { min: 1000000, max: 0 };
+    params = interpolize.calculateInterpolationParams({
+        network: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'LineString',
+                coordinates: [[-64.27054524421692, 44.54747368148878], [-64.26584601402283, 44.548261225872096]]
+            }
+        },
+        address: {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'MultiPoint',
+                coordinates: [
+                    [-64.27004098892212, 44.54781775558832],
+                    [-64.26878571510315, 44.548093013403566],
+                    [-64.26933288574217, 44.55552448238052],
+                    [-64.26747679710388, 44.54839885389387],
+                    [-64.26645755767822, 44.548635879168515]
+                ]
+            }
+        },
+        number:  [
+            { number: '8', output: true, props: {} },
+            { number: '10', output: true, props: {} },
+            { number: '1200', output: true, props: {} },
+            { number: '14', output: true, props: {} },
+            { number: '16', output: true, props: {} }
+        ]
+    }, limit);
+    t.equal(limit.max, 16);
+    t.equal(params.distEnd.length, 4);
+    t.equal(params.distStart.length, 4);
+    t.end();
+});
+
+test('calculateInterpolationParams - sequence', (t) => {
+    const networkWestward = {
+        'type': 'Feature',
+        'properties': {},
+        'geometry': {
+            'type': 'LineString',
+            'coordinates': [[-75.99213391542435, 37.82787020541603], [-75.99321484565735, 37.82766046758019]]
+        }
+    };
+    const networkEastward = {
+        'type': 'Feature',
+        'properties': {},
+        'geometry': {
+            'type': 'LineString',
+            'coordinates': [[-75.99321484565735, 37.82766046758019], [-75.99213391542435, 37.82787020541603]]
+        }
+    };
+    const address = {
+        'geometry': {
+            'type': 'MultiPoint',
+            'coordinates': [
+                [-75.99238, 37.82787],
+                [-75.99277, 37.82780],
+                [-75.99269, 37.82771],
+                [-75.99305, 37.82774],
+                [-75.99299, 37.82764]
+            ]
+        }
+    };
+    const numberAsc = [
+        { number: 1, output: true, props: null },
+        { number: 3, output: true, props: null },
+        { number: 2, output: true, props: null },
+        { number: 7, output: true, props: null },
+        { number: 8, output: true, props: null }
+    ];
+    const numberDesc = [
+        { number: 7, output: true, props: null },
+        { number: 3, output: true, props: null },
+        { number: 8, output: true, props: null },
+        { number: 1, output: true, props: null },
+        { number: 2, output: true, props: null }
+    ];
+    let res;
+    let limit;
+
+    limit = { max: 0, min: 100000 };
+    res = interpolize.calculateInterpolationParams({ network: networkWestward, address, number: numberAsc }, limit);
+    t.equal(res.sequence, true);
+    t.equal(res.leftside, 1);
+
+    limit = { max: 0, min: 100000 };
+    res = interpolize.calculateInterpolationParams({ network: networkWestward, address, number: numberDesc }, limit);
+    t.equal(res.sequence, false);
+    t.equal(res.leftside, 1);
+
+    limit = { max: 0, min: 100000 };
+    res = interpolize.calculateInterpolationParams({ network: networkEastward, address, number: numberAsc }, limit);
+    t.equal(res.sequence, false);
+    t.equal(res.leftside, 1);
+
+    limit = { max: 0, min: 100000 };
+    res = interpolize.calculateInterpolationParams({ network: networkEastward, address, number: numberDesc }, limit);
+    t.equal(res.sequence, true);
+    t.equal(res.leftside, 1);
     t.end();
 });
 
