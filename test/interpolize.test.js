@@ -688,7 +688,7 @@ test('Interpolize - No address cluster', (t) => {
 });
 
 test('Interpolize - sequence', (t) => {
-    const segs = require('./fixtures/interpolize_sequence.js');
+    const segs = require('./fixtures/interpolize_sequence.json');
     const res = interpolize({ segs: segs[0], nextDelta: 0 });
 
     t.equals(res.type, 'Feature', 'is feature');
@@ -1145,7 +1145,8 @@ test('generateInterpolationRange - overlap', (t) => {
 
 test('checkInterpolationRanges - simple out of range', (t) => {
 
-    const r = interpolize.checkInterpolationRanges([
+    let r;
+    r = interpolize.checkInterpolationRanges([
         {
             properties: {
                 'carmen:lfromhn': [null],
@@ -1181,6 +1182,43 @@ test('checkInterpolationRanges - simple out of range', (t) => {
         }
     ]);
     t.deepEqual(r, [[],[['rend', 11]],[]]);
+
+    //r = interpolize.checkInterpolationRanges([
+    //    {
+    //        properties: {
+    //            'carmen:lfromhn': [null],
+    //            'carmen:ltohn': [null],
+    //            'carmen:parityl': [null],
+    //            'carmen:rfromhn': [100],
+    //            'carmen:rtohn': [108],
+    //            'carmen:parityr': ['E']
+    //        },
+    //        rangeOptions: { sequence: true }
+    //    },
+    //    {
+    //        properties: {
+    //            'carmen:lfromhn': [null],
+    //            'carmen:ltohn': [null],
+    //            'carmen:parityl': [null],
+    //            'carmen:rfromhn': [110],
+    //            'carmen:rtohn': [121],
+    //            'carmen:parityr': ['E']
+    //        },
+    //        rangeOptions: { sequence: true }
+    //    },
+    //    {
+    //        properties: {
+    //            'carmen:lfromhn': [null],
+    //            'carmen:ltohn': [null],
+    //            'carmen:parityl': [null],
+    //            'carmen:rfromhn': [120],
+    //            'carmen:rtohn': [128],
+    //            'carmen:parityr': ['E']
+    //        },
+    //        rangeOptions: { sequence: true }
+    //    }
+    //]);
+    t.deepEqual(r, [[],[['rend', 121]],[]]);
     t.end();
 });
 
