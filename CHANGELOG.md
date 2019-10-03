@@ -10,9 +10,10 @@
 
 ## Version History
 
-### Unreleased
+### v26.0.3
 
 - :bug: Respect `output: true` on orphaned addresses.
+- :bug: Improve handling of overlapping ranges within a network segment.
 
 ### v26.0.2
 
