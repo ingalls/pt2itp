@@ -44,10 +44,9 @@ test('Match', (t) => {
     });
 
     popQ.defer((done) => {
-        link_addr('pt_test', (err) => {
-            t.error(err);
-            return done();
-        });
+        link_addr('pt_test');
+
+        return done();
     });
 
     popQ.defer((done) => {
@@ -58,13 +57,23 @@ test('Match', (t) => {
 
             t.deepEquals(res.rows[0], {
                 id: '1',
-                names: [{ display: 'Main Street', tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }] }],
+                names: [{
+                    priority: 0,
+                    freq: 1,
+                    display: 'Main Street',
+                    tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }]
+                }],
                 netid: '1'
             });
 
             t.deepEquals(res.rows[1], {
                 id: '2',
-                names: [{ display: 'Fake Avenue', tokenized: [{ token: 'fake', token_type: null }, { token: 'av', token_type: 'Way' }] }],
+                names: [{
+                    priority: 0,
+                    freq: 1,
+                    display: 'Fake Avenue',
+                    tokenized: [{ token: 'fake', token_type: null }, { token: 'av', token_type: 'Way' }]
+                }],
                 netid: null
             });
 
