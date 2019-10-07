@@ -247,12 +247,9 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             let mut it = min_id;
             while it < max_id {
-                println!("{}: PRELOOP {}", cpu, it);
                 link_process(&conn, it, it + 5000);
                 it += 5001;
-                println!("{}: LOOP {}", cpu, it);
             }
-            println!("{}: Done", cpu);
         }) {
             Ok(strand) => strand,
             Err(err) => {

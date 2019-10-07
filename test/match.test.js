@@ -1,10 +1,11 @@
 'use strict';
 
-const match = require('../lib/map/match');
-
 const test = require('tape');
 const Queue = require('d3-queue').queue;
-const pg_optimize = require('../native/index.node').pg_optimize;
+const {
+    pg_optimize,
+    link_addr
+} = require('../native/index.node');
 
 const db = require('./lib/db');
 
@@ -18,7 +19,7 @@ test('Match', (t) => {
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO network_cluster (id, names, geom) VALUES (1, '[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street" }]', ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "LineString", "coordinates": [ [ -66.05180561542511, 45.26869136632906, 1 ], [ -66.05007290840149, 45.268982070325656, 1 ] ] }'), 4326)));
+            INSERT INTO network_cluster (id, names, geom) VALUES (1, '[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street", "priority": 0, "freq": 1 }]', ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "LineString", "coordinates": [ [ -66.05180561542511, 45.26869136632906, 1 ], [ -66.05007290840149, 45.268982070325656, 1 ] ] }'), 4326)));
             COMMIT;
         `, (err) => {
             t.error(err);
@@ -30,8 +31,8 @@ test('Match', (t) => {
     popQ.defer((done) => {
         pool.query(`
             BEGIN;
-            INSERT INTO address (names, number, geom) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street" }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249 ] }'), 4326));
-            INSERT INTO address (names, number, geom) VALUES ('[{ "tokenized": [{ "token": "fake", "token_type": null }, { "token": "av", "token_type": "Way"}], "display": "Fake Avenue" }]', 12, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249 ] }'), 4326));
+            INSERT INTO address (names, number, geom) VALUES ('[{ "tokenized": [{ "token": "main", "token_type": null }, { "token": "st", "token_type": "Way"}], "display": "Main Street", "priority": 0, "freq": 1 }]', 10, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249 ] }'), 4326));
+            INSERT INTO address (names, number, geom) VALUES ('[{ "tokenized": [{ "token": "fake", "token_type": null }, { "token": "av", "token_type": "Way"}], "display": "Fake Avenue", "priority": 0, "freq": 1 }]', 12, ST_SetSRID(ST_GeomFromGeoJSON('{ "type": "Point", "coordinates": [ -66.05154812335967, 45.26861208316249 ] }'), 4326));
             COMMIT;
         `, (err) => {
             t.error(err);
@@ -43,19 +44,7 @@ test('Match', (t) => {
     });
 
     popQ.defer((done) => {
-        match.init({
-            pool: {
-                max: 10,
-                user: 'postgres',
-                database: 'pt_test',
-                idleTimeoutMillis: 30000
-            }
-        });
-        return done();
-    });
-
-    popQ.defer((done) => {
-        match.main(1, 2, (err) => {
+        link_addr('pt_test', (err) => {
             t.error(err);
             return done();
         });
@@ -86,10 +75,7 @@ test('Match', (t) => {
     popQ.await((err) => {
         t.error(err);
 
-        pool.end(() => {
-            match.kill();
-            t.end();
-        });
+        pool.end(t.end);
     });
 });
 
