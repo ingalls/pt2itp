@@ -337,6 +337,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                 };
 
                 let dbpotentials: serde_json::Value = result.get(2);
+
                 let dbpotentials: Vec<DbSerial> = match serde_json::from_value(dbpotentials) {
                     Err(err) => {
                         println!("JSON Failure: {}", err.to_string());

@@ -81,7 +81,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
-                if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless[0..1] != tokenless[0..1] {
+                if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
                     continue;
                 }
 
