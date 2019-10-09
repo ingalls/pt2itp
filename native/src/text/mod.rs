@@ -241,12 +241,14 @@ pub fn syn_ca_french(name: &Name, context: &Context) -> Vec<Name> {
 
 ///
 /// In Rockaway NY, signs for streets named 'Beach Nth St' are labeled 'B Nth St'. This abbreviation
-/// is a common way to search for addresses. This function creates less desirable synonyms that use 'B'.
+/// is a common way to search for addresses. This function creates canonical 'Beach Nth St' and alternative
+/// 'B Nth St' synonyms.
 ///
 pub fn syn_ny_beach(name: &Name, context: &Context) -> Vec<Name> {
     let mut syns = Vec::new();
 
     lazy_static! {
+        // We intentionally do not match streets named 'B Nth St' as we can't be certain that 'B' means 'Beach' in these cases
         static ref BEACH: Regex = Regex::new(r"(?i)^b(each|ch)(?P<number>\s\d+(st|nd|rd|th))(?P<post>\s.*)?$").unwrap();
     }
 
