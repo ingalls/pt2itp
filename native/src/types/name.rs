@@ -52,6 +52,10 @@ impl Names {
                     synonyms.append(&mut text::syn_us_hwy(&name, &context));
                     synonyms.append(&mut text::syn_us_cr(&name, &context));
                     synonyms.append(&mut text::syn_us_famous(&name, &context));
+
+                    if context.region.is_some() && context.region.as_ref().unwrap() == "NY" {
+                        synonyms.append(&mut text::syn_ny_beach(&name, &context));
+                    }
                 }
             }
         } else if context.country == String::from("CA") {

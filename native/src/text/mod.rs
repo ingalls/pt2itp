@@ -240,6 +240,50 @@ pub fn syn_ca_french(name: &Name, context: &Context) -> Vec<Name> {
 }
 
 ///
+/// In Rockaway NY, signs for streets named 'Beach Nth St' are labeled 'B Nth St'. This abbreviation
+/// is a common way to search for addresses. This function creates less desirable synonyms that use 'B'.
+///
+pub fn syn_ny_beach(name: &Name, context: &Context) -> Vec<Name> {
+    let mut syns = Vec::new();
+
+    lazy_static! {
+        static ref BEACH: Regex = Regex::new(r"(?i)^b(each|ch)(?P<number>\s\d+(st|nd|rd|th))(?P<post>\s.*)?$").unwrap();
+    }
+
+    // if the original feature has a priority of < 0, ensure the display form synonym priority isn't
+    // > the address and primary network names. Otherwise ensure it's always > the original name
+    let display_priority = if name.priority >= 0 { name.priority + 1 } else { -1 };
+    // Ensure non display form synonyms always have a priority of < 0 and < the original name
+    let priority_offset = std::cmp::min(0, name.priority);
+
+    if BEACH.is_match(name.display.as_str()) {
+        let strnumber: String = match BEACH.captures(name.display.as_str()) {
+            Some(capture) => match capture.name("number") {
+                Some(name) => name.as_str().to_string(),
+                None => String::from("")
+            },
+            None => String::from("")
+        };
+
+        let strpost: String = match BEACH.captures(name.display.as_str()) {
+            Some(capture) => match capture.name("post") {
+                Some(name) => name.as_str().to_string(),
+                None => String::from("")
+            },
+            None => String::from("")
+        };
+
+        // Display Form 'Beach 31st St'
+        syns.push(Name::new(format!("Beach{}{}", &strnumber, &strpost), display_priority, Some(Source::Generated), &context));
+        // Synonym 'B 31st St'
+        syns.push(Name::new(format!("B{}{}", &strnumber, &strpost), priority_offset - 1, Some(Source::Generated), &context));
+
+    }
+
+    syns
+}
+
+///
 /// Adds Synonyms to names like "Highway 123 => NS-123, Nova Scotia Highway 123
 ///
 pub fn syn_ca_hwy(name: &Name, context: &Context) -> Vec<Name> {
@@ -932,6 +976,37 @@ mod tests {
         assert_eq!(syn_ca_french(&Name::new(String::from("ch des hauteurs"), 0, None, &context), &context), vec![ ]);
         assert_eq!(syn_ca_french(&Name::new(String::from("r du blizzard"), 0, None, &context), &context), vec![ ]);
         assert_eq!(syn_ca_french(&Name::new(String::from("bd de lhotel de vl"), 0, None, &context), &context), vec![ ]);
+    }
+
+    #[test]
+    fn test_syn_ny_beach() {
+        let context = Context::new(String::from("us"), Some(String::from("ny")), Tokens::new(HashMap::new()));
+
+        assert_eq!(syn_ny_beach(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
+
+        // original name priority == 0
+        let results = vec![
+            Name::new(String::from("Beach 31st St"), 1, Some(Source::Generated), &context),
+            Name::new(String::from("B 31st St"), -1, Some(Source::Generated), &context)
+        ];
+        assert_eq!(syn_ny_beach(&Name::new(String::from("Beach 31st St"), 0, None, &context), &context), results);
+        assert_eq!(syn_ny_beach(&Name::new(String::from("Bch 31st St"), 0, None, &context), &context), results);
+        assert_eq!(syn_ny_beach(&Name::new(String::from("B 31st St"), 0, None, &context), &context), vec![]);
+        assert_eq!(syn_ny_beach(&Name::new(String::from("9B 31st St"), 0, None, &context), &context), vec![]);
+
+        // original name priority < 0
+        let results = vec![
+            Name::new(String::from("Beach 31st St"), -1, Some(Source::Generated), &context),
+            Name::new(String::from("B 31st St"), -2, Some(Source::Generated), &context)
+        ];
+        assert_eq!(syn_ny_beach(&Name::new(String::from("Beach 31st St"), -1, None, &context), &context), results);
+
+        // original name priority > 0
+        let results = vec![
+            Name::new(String::from("Beach 31st St"), 2, Some(Source::Generated), &context),
+            Name::new(String::from("B 31st St"), -1, Some(Source::Generated), &context)
+        ];
+        assert_eq!(syn_ny_beach(&Name::new(String::from("Beach 31st St"), 1, None, &context), &context), results);
     }
 
     #[test]
