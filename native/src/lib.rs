@@ -50,6 +50,8 @@ register_module!(mut m, {
     m.export_function("import_addr", map::import_addr)?;
     m.export_function("import_net", map::import_net)?;
 
+    m.export_function("link_addr", map::link_addr)?;
+
     m.export_function("cluster_addr", map::cluster_addr)?;
     m.export_function("cluster_net", map::cluster_net)?;
 
