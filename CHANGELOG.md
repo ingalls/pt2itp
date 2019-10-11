@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v26.1.0
+
+- :rocket: Remove JS based linker code and move to unified rust linker
+
 ### v26.0.3
 
 - :bug: Respect `output: true` on orphaned addresses.
