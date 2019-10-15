@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v26.1.1
+
+- :rocket: Add synonym support for `B Nth St` style addresses (where `B` means `Beach`) in New York
+
 ### v26.1.0
 
 - :rocket: Remove JS based linker code and move to unified rust linker
