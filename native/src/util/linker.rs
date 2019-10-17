@@ -44,6 +44,7 @@ impl LinkResult {
 /// Geometric proximity must be determined/filtered by the caller
 ///
 pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<LinkResult> {
+    println!("{:?}", primary);
     for name in &primary.names.names {
         let tokenized = name.tokenized_string();
         let tokenless = name.tokenless_string();
@@ -201,8 +202,10 @@ mod tests {
         tokens.insert(String::from("west"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("east"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("south"), ParsedToken::new(String::from("s"), Some(TokenType::Cardinal)));
+        tokens.insert(String::from("north"), ParsedToken::new(String::from("n"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("northwest"), ParsedToken::new(String::from("nw"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("nw"), ParsedToken::new(String::from("nw"), Some(TokenType::Cardinal)));
+        tokens.insert(String::from("n"), ParsedToken::new(String::from("n"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("s"), ParsedToken::new(String::from("s"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("w"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("e"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
@@ -212,6 +215,7 @@ mod tests {
         // === Intentional Matches ===
         // The following tests should match one of the given potential matches
 
+        /*
         {
             let a_name = Names::new(vec![Name::new("S STREET NW", 0, None, &context)], &context);
 
@@ -305,7 +309,37 @@ mod tests {
             ];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(14, 100.0)));
         }
+        */
 
+        /*
+         * | Umpqua St
+         * |
+         * | . (N Umpqua St)
+         * | . (N Unpqua St)
+         * | S Umpqua St
+         * | . (S Umpqua St)
+         *
+         * Cardinaled addresses should match a proximal non-cardinaled street
+         * before they are matched againts a further away mismatched cardinal street
+         *
+         * In the above example (N Umpsqua St) should always match Umpqua St
+         * and not S Umpqua St (previous behavior)
+         */
+        {
+            let a_name = Names::new(vec![Name::new("N Umpqua St", 0, None, &context)], &context);
+
+            let b_1_name = Names::new(vec![Name::new("Umpqua Street", 0, None, &context)], &context);
+            let b_2_name = Names::new(vec![Name::new("South Umpqua Street", 0, None, &context)], &context);
+
+            let a = Link::new(1, &a_name);
+            let b = vec![
+                Link::new(2, &b_1_name),
+                Link::new(3, &b_2_name)
+            ];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
+        }
+
+        /*
         {
             let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
             let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
@@ -689,6 +723,6 @@ mod tests {
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, true), None);
         }
-
+        */
     }
 }
