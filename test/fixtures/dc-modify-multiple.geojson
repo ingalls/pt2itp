@@ -1,1 +1,2 @@
 { "type": "Feature", "properties": { "number": 108, "street": [ { "display": "4th ST NE", "priority": 0 }, { "display": "DC Route 101", "priority": -1 } ] }, "geometry": { "type": "Point", "coordinates": [ -77.00080543756485, 38.89128752230519 ] } }
+{ "type": "Feature", "properties": { "number": 108, "street": [ { "display": "4th ST NE", "priority": 0 }, { "display": "Main St", "priority": -1 } ] }, "geometry": { "type": "Point", "coordinates": [ -77.00080543756485, 38.89128752230519 ] } }

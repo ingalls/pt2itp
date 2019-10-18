@@ -10,6 +10,13 @@
 
 ## Version History
 
+### v27.0.0
+
+- :rocket: Only modify addresses where `output: true` during `conflate`
+- :rocket: Preference new names over persistent names during `conflate`
+- :bug: Standardize conflate feature output format
+- :white_check_mark: Add tests for `conflate` mode
+
 ### v26.3.0
 
 - :rocket: Add post script to apply an `address_styles` property to each cluster

@@ -1,0 +1,1 @@
+{ "type": "Feature", "properties": { "number": 108, "street": [ { "display": "4th ST NE", "priority": 0 } ] }, "geometry": { "type": "Point", "coordinates": [-77.00055599212646, 38.88425173647755 ] } }
