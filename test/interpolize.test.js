@@ -709,6 +709,28 @@ test('Interpolize - sequence', (t) => {
     t.end();
 });
 
+test.only('Interpolize - sequence', (t) => {
+    const segs = require('./fixtures/interpolize_add_range.json');
+    const res = interpolize({ segs: segs[0] });
+
+    t.equals(res.type, 'Feature', 'is feature');
+
+    t.deepEquals(res.properties['carmen:lfromhn'], [
+        [7000, 7910, 8442, 8836, 9118], null
+    ], 'lfromhn is as expected');
+    t.deepEquals(res.properties['carmen:ltohn'], [
+        [7910, 8120, 8722, 9118, 10000], null
+    ], 'ltohn is as expected');
+    t.deepEquals(res.properties['carmen:rfromhn'], [
+        [7001, 7911, 8403, 8721, 9029], null
+    ], 'rfromhn is as expected');
+    t.deepEquals(res.properties['carmen:rtohn'], [
+        [7911, 8311, 8715, 9029, 10001], null
+    ], 'rtohn is as expected');
+
+    t.end();
+});
+
 test('Interpolize - Do not raise high', (t) => {
     const segs = [{
         network: {
