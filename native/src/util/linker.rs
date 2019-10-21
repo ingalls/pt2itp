@@ -64,7 +64,6 @@ impl LinkResult {
 /// reasons.
 ///
 pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<LinkResult> {
-    println!("{:?}", primary);
     for name in &primary.names.names {
         let tokenized = name.tokenized_string();
         let tokenless = name.tokenless_string();
@@ -76,6 +75,9 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 if name.tokenized == potential_name.tokenized {
                     return Some(LinkResult::new(potential.id, 100.0));
                 }
+
+                // A cardinaled primary can exactly match a non-cardinaled potention
+                // if
 
                 if strict {
                     for tk in &name.tokenized {
