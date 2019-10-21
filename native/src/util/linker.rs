@@ -70,14 +70,26 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
         for potential in potentials.iter_mut() {
             'outer: for potential_name in &potential.names.names {
-
                 // Ensure exact matches are always returned before potential short-circuits
+                //
+                // N Main St == N Main St
                 if name.tokenized == potential_name.tokenized {
                     return Some(LinkResult::new(potential.id, 100.0));
                 }
 
+                let potential_tokenized = potential_name.tokenized_string();
+                let potential_tokenless = potential_name.tokenless_string();
+
                 // A cardinaled primary can exactly match a non-cardinaled potention
-                // if
+                //
+                // N Main St => Main St
+                if
+                    name.has_type(Some(TokenType::Cardinal))
+                    && !potential_name.has_type(Some(TokenType::Cardinal))
+                    && name.remove_type_string(Some(TokenType::Cardinal)) == potential_tokenized
+                {
+                    return Some(LinkResult::new(potential.id, 100.0));
+                }
 
                 if strict {
                     for tk in &name.tokenized {
@@ -97,9 +109,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     }
                 }
 
-
-                let potential_tokenized = potential_name.tokenized_string();
-                let potential_tokenless = potential_name.tokenless_string();
 
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
