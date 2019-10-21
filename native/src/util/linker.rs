@@ -43,6 +43,26 @@ impl LinkResult {
 /// Determines if there is a match between any of two given set of name values
 /// Geometric proximity must be determined/filtered by the caller
 ///
+/// The potentials input array should be ordered from most proximal to least
+///
+/// The linker module has two distinct modes controlled by the strict arg
+///
+/// # Strict Mode (strict: true)
+///
+/// Cardinal & Way Type must match in order for a primary to be able to match
+/// to a given potential
+///
+/// IE:
+///
+/// North Main St cannot match South Main St
+/// Main St cannot match Main Av
+///
+/// # Default Mode (strict: false)
+///
+/// Although exact matches are always prioritized, matches can fallback to
+/// being matched with a slightly less desirable match, usually due to data
+/// reasons.
+///
 pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<LinkResult> {
     println!("{:?}", primary);
     for name in &primary.names.names {
