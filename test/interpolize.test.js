@@ -187,12 +187,12 @@ test('Interpolize', (t) => {
     t.deepEquals(res.properties, {
         address_props: [{}, {}, {}, {}],
         'carmen:rangetype':'tiger',
-        'carmen:parityl':[['O'], null],
-        'carmen:lfromhn':[[1] , null],
-        'carmen:ltohn':  [[21], null],
-        'carmen:parityr':[['E'], null],
-        'carmen:rfromhn':[[0], null],
-        'carmen:rtohn':  [[20] ,null],
+        'carmen:parityl':[['O','O','O'], null],
+        'carmen:lfromhn':[[1, 9, 11] , null],
+        'carmen:ltohn':  [[9, 11, 21], null],
+        'carmen:parityr':[['E', 'E', 'E'], null],
+        'carmen:rfromhn':[[0, 8, 10], null],
+        'carmen:rtohn':  [[8, 10, 20] ,null],
         'carmen:addressnumber':[null,['8','10','9','11']],
         'carmen:intersections': []
     }, 'has expected properties');
@@ -201,7 +201,9 @@ test('Interpolize', (t) => {
         'type':'GeometryCollection',
         'geometries':[{
             'type':'MultiLineString',
-            'coordinates':[[[-77.21062123775481,39.17687343078357],[-77.21064805984497,39.1773849237293]]]
+            'coordinates':[
+                [[-77.21062123775481,39.17687343078357],[-77.21064805984497,39.1773849237293]]
+            ]
         },{
             type: 'MultiPoint',
             coordinates: [
@@ -709,7 +711,7 @@ test('Interpolize - sequence', (t) => {
     t.end();
 });
 
-test.only('Interpolize - sequence', (t) => {
+test('Interpolize - sequence', (t) => {
     const segs = require('./fixtures/interpolize_add_range.json');
     const res = interpolize({ segs: segs[0] });
 
