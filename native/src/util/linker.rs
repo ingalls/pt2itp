@@ -109,7 +109,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     }
                 }
 
-
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
@@ -245,8 +244,6 @@ mod tests {
 
         // === Intentional Matches ===
         // The following tests should match one of the given potential matches
-
-        /*
         {
             let a_name = Names::new(vec![Name::new("S STREET NW", 0, None, &context)], &context);
 
@@ -340,7 +337,6 @@ mod tests {
             ];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(14, 100.0)));
         }
-        */
 
         /*
          * | Umpqua St
@@ -370,7 +366,6 @@ mod tests {
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
         }
 
-        /*
         {
             let a_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
             let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
@@ -504,7 +499,7 @@ mod tests {
                 Link::new(3, &b_name2),
                 Link::new(4, &b_name3)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(4, 93.75)));
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(4, 100.0)));
         }
 
         {
@@ -635,7 +630,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 93.75)));
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -671,7 +666,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 90.0)));
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -690,6 +685,15 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 80.77)));
+        }
+
+        {
+            let a_name = Names::new(vec![Name::new("East Main", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main North East", 0, None, &context)], &context);
+
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 78.57)));
         }
 
         // === Intentional Strict Non-Matches ===
@@ -746,14 +750,5 @@ mod tests {
             assert_eq!(linker(a, b, true), None);
         }
 
-        {
-            let a_name = Names::new(vec![Name::new("East Main", 0, None, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main North East", 0, None, &context)], &context);
-
-            let a = Link::new(1, &a_name);
-            let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), None);
-        }
-        */
     }
 }
