@@ -20,37 +20,49 @@
         "carmen:rangetype": "tiger",
         "carmen:parityl": [
             [
+                null,
+                "O",
                 "O"
             ],
             null
         ],
         "carmen:lfromhn": [
             [
+                null,
+                3,
                 11
             ],
             null
         ],
         "carmen:ltohn": [
             [
-                1
+                null,
+                1,
+                3
             ],
             null
         ],
         "carmen:parityr": [
             [
+                "E",
+                "E",
                 "E"
             ],
             null
         ],
         "carmen:rfromhn": [
             [
+                2,
+                4,
                 10
             ],
             null
         ],
         "carmen:rtohn": [
             [
-                0
+                0,
+                2,
+                4
             ],
             null
         ]
@@ -63,6 +75,20 @@
                 "coordinates": [
                     [
                         [
+                            -77.20985490313502,
+                            39.176943335116704
+                        ],
+                        [
+                            -77.21002042293549,
+                            39.17696283835544
+                        ],
+                        [
+                            -77.21002042293549,
+                            39.17696283835544
+                        ]
+                    ],
+                    [
+                        [
                             -77.20870077610016,
                             39.177050166571725
                         ],
@@ -73,6 +99,16 @@
                         [
                             -77.21002042293549,
                             39.17696283835544
+                        ]
+                    ],
+                    [
+                        [
+                            -77.20870077610016,
+                            39.177050166571725
+                        ],
+                        [
+                            -77.20870077610016,
+                            39.177050166571725
                         ]
                     ]
                 ]
@@ -101,6 +137,128 @@
         ]
     },
     "debug": [
+        {
+            "type": "featurecollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "start": true,
+                        "left": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20825552940369,
+                            39.1777238377372
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "end": true,
+                        "left": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20990777015686,
+                            39.17674659659119
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "start": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20847547054291,
+                            39.177740471511456
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "end": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20983803272247,
+                            39.17702937414912
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "type": "featurecollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "start": true,
+                        "left": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20825552940369,
+                            39.1777238377372
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "end": true,
+                        "left": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20990777015686,
+                            39.17674659659119
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "start": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20847547054291,
+                            39.177740471511456
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "end": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.20983803272247,
+                            39.17702937414912
+                        ]
+                    }
+                }
+            ]
+        },
         {
             "type": "featurecollection",
             "features": [
