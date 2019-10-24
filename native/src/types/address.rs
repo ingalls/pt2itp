@@ -293,6 +293,7 @@ impl Address {
         match action {
             hecate::Action::Create => {
                 members.insert(String::from("action"), serde_json::value::Value::String("create".to_string()));
+                members.remove(&String::from("version"));
             },
             hecate::Action::Modify => {
                 members.insert(String::from("action"), serde_json::value::Value::String("modify".to_string()));
