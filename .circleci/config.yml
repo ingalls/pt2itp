@@ -36,7 +36,7 @@ jobs:
 
             - run:
                 name: "Install Neon"
-                command: "yarn global add neon-cli"
+                command: "yarn global add neon-cli@0.3.1"
             - run:
                 name: "Yarn Install"
                 command: yarn build && yarn install

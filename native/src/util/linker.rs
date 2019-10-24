@@ -43,6 +43,26 @@ impl LinkResult {
 /// Determines if there is a match between any of two given set of name values
 /// Geometric proximity must be determined/filtered by the caller
 ///
+/// The potentials input array should be ordered from most proximal to least
+///
+/// The linker module has two distinct modes controlled by the strict arg
+///
+/// # Strict Mode (strict: true)
+///
+/// Cardinal & Way Type must match in order for a primary to be able to match
+/// to a given potential
+///
+/// IE:
+///
+/// North Main St cannot match South Main St
+/// Main St cannot match Main Av
+///
+/// # Default Mode (strict: false)
+///
+/// Although exact matches are always prioritized, matches can fallback to
+/// being matched with a slightly less desirable match, usually due to data
+/// reasons.
+///
 pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<LinkResult> {
     for name in &primary.names.names {
         let tokenized = name.tokenized_string();
@@ -50,9 +70,24 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
         for potential in potentials.iter_mut() {
             'outer: for potential_name in &potential.names.names {
-
                 // Ensure exact matches are always returned before potential short-circuits
+                //
+                // N Main St == N Main St
                 if name.tokenized == potential_name.tokenized {
+                    return Some(LinkResult::new(potential.id, 100.0));
+                }
+
+                let potential_tokenized = potential_name.tokenized_string();
+                let potential_tokenless = potential_name.tokenless_string();
+
+                // A cardinaled primary can exactly match a non-cardinaled potention
+                //
+                // N Main St => Main St
+                if
+                    name.has_type(Some(TokenType::Cardinal))
+                    && !potential_name.has_type(Some(TokenType::Cardinal))
+                    && name.remove_type_string(Some(TokenType::Cardinal)) == potential_tokenized
+                {
                     return Some(LinkResult::new(potential.id, 100.0));
                 }
 
@@ -73,10 +108,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         }
                     }
                 }
-
-
-                let potential_tokenized = potential_name.tokenized_string();
-                let potential_tokenless = potential_name.tokenless_string();
 
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
@@ -201,8 +232,10 @@ mod tests {
         tokens.insert(String::from("west"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("east"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("south"), ParsedToken::new(String::from("s"), Some(TokenType::Cardinal)));
+        tokens.insert(String::from("north"), ParsedToken::new(String::from("n"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("northwest"), ParsedToken::new(String::from("nw"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("nw"), ParsedToken::new(String::from("nw"), Some(TokenType::Cardinal)));
+        tokens.insert(String::from("n"), ParsedToken::new(String::from("n"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("s"), ParsedToken::new(String::from("s"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("w"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("e"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
@@ -211,7 +244,6 @@ mod tests {
 
         // === Intentional Matches ===
         // The following tests should match one of the given potential matches
-
         {
             let a_name = Names::new(vec![Name::new("S STREET NW", 0, None, &context)], &context);
 
@@ -304,6 +336,34 @@ mod tests {
                 Link::new(43, &b_name42)
             ];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(14, 100.0)));
+        }
+
+        /*
+         * | Umpqua St
+         * |
+         * | . (N Umpqua St)
+         * | . (N Unpqua St)
+         * | S Umpqua St
+         * | . (S Umpqua St)
+         *
+         * Cardinaled addresses should match a proximal non-cardinaled street
+         * before they are matched againts a further away mismatched cardinal street
+         *
+         * In the above example (N Umpsqua St) should always match Umpqua St
+         * and not S Umpqua St (previous behavior)
+         */
+        {
+            let a_name = Names::new(vec![Name::new("N Umpqua St", 0, None, &context)], &context);
+
+            let b_1_name = Names::new(vec![Name::new("Umpqua Street", 0, None, &context)], &context);
+            let b_2_name = Names::new(vec![Name::new("South Umpqua Street", 0, None, &context)], &context);
+
+            let a = Link::new(1, &a_name);
+            let b = vec![
+                Link::new(2, &b_1_name),
+                Link::new(3, &b_2_name)
+            ];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -439,7 +499,7 @@ mod tests {
                 Link::new(3, &b_name2),
                 Link::new(4, &b_name3)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(4, 93.75)));
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(4, 100.0)));
         }
 
         {
@@ -570,7 +630,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 93.75)));
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -606,7 +666,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 90.0)));
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -625,6 +685,15 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 80.77)));
+        }
+
+        {
+            let a_name = Names::new(vec![Name::new("East Main", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Main North East", 0, None, &context)], &context);
+
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 78.57)));
         }
 
         // === Intentional Strict Non-Matches ===
@@ -675,15 +744,6 @@ mod tests {
         {
             let a_name = Names::new(vec![Name::new("Main Street Ave", 0, None, &context)], &context);
             let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
-
-            let a = Link::new(1, &a_name);
-            let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), None);
-        }
-
-        {
-            let a_name = Names::new(vec![Name::new("East Main", 0, None, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Main North East", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];

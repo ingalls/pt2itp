@@ -136,7 +136,7 @@ fn find_cap_ref<T: ?Sized + AsRef<[u8]>>(
 /// Modified to only support numbered capture groups
 fn is_valid_cap(b: &u8) -> bool {
     match *b {
-        b'0' ... b'9' => true,
+        b'0' ..= b'9' => true,
         _ => false,
     }
 }

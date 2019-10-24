@@ -4012,17 +4012,17 @@ neo-async@^2.6.0:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
   integrity sha512-iyam8fBuCUpWeKPGpaNMetEocMt364qkCsfL9JuhjXX6dRnguRVOfk2GZaDpPjcOKiiXCPINZC1GczQ7iTq3Zw==
 
-neon-cli@^0.1.23:
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/neon-cli/-/neon-cli-0.1.23.tgz#2eb517bd665718a983b7ef45b2640662fa631741"
-  integrity sha512-C5Rw82cDsQFuvFBlql3cuMm0UGRFdBOvcjSA6Di59EFnrqEnajeqF2Z1X6/tJK3VdhrNyWieYr8L27Qfxj3Gvg==
+neon-cli@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/neon-cli/-/neon-cli-0.3.1.tgz#be82c0b57a024080f712abb648abcd2f680f9636"
+  integrity sha512-OBrJbDD0BNDPxWwh88kWd2dJkXWEZ/mrCPF/ADrsLgHmF2qDdbXagli48I7yVl1ngMtItrvI7JqBeiNQNtN1ww==
   dependencies:
     chalk "~2.1.0"
     command-line-args "^4.0.2"
     command-line-commands "^2.0.0"
     command-line-usage "^4.0.0"
     git-config "0.0.7"
-    handlebars "^4.0.3"
+    handlebars "^4.1.0"
     inquirer "^3.0.6"
     mkdirp "^0.5.1"
     quickly-copy-file "^1.0.0"
@@ -4034,17 +4034,17 @@ neon-cli@^0.1.23:
     validate-npm-package-license "^3.0.1"
     validate-npm-package-name "^3.0.0"
 
-neon-cli@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/neon-cli/-/neon-cli-0.3.1.tgz#be82c0b57a024080f712abb648abcd2f680f9636"
-  integrity sha512-OBrJbDD0BNDPxWwh88kWd2dJkXWEZ/mrCPF/ADrsLgHmF2qDdbXagli48I7yVl1ngMtItrvI7JqBeiNQNtN1ww==
+neon-cli@^0.1.23:
+  version "0.1.23"
+  resolved "https://registry.yarnpkg.com/neon-cli/-/neon-cli-0.1.23.tgz#2eb517bd665718a983b7ef45b2640662fa631741"
+  integrity sha512-C5Rw82cDsQFuvFBlql3cuMm0UGRFdBOvcjSA6Di59EFnrqEnajeqF2Z1X6/tJK3VdhrNyWieYr8L27Qfxj3Gvg==
   dependencies:
     chalk "~2.1.0"
     command-line-args "^4.0.2"
     command-line-commands "^2.0.0"
     command-line-usage "^4.0.0"
     git-config "0.0.7"
-    handlebars "^4.1.0"
+    handlebars "^4.0.3"
     inquirer "^3.0.6"
     mkdirp "^0.5.1"
     quickly-copy-file "^1.0.0"
