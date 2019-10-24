@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v26.2.0
+
+- :rocket: Add better behavior in linker for matching cardinaled address to non-cardinaled street
+
 ### v26.1.2
 
 - :bug: Remove the `version: 0` key/value from new addresses in conflate output.
