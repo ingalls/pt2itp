@@ -737,6 +737,19 @@ test('Interpolize - add extended ranges', (t) => {
     t.end();
 });
 
+test('Interpolize - extendRange', (t) => {
+    const options = require('./fixtures/interpolize_extend_range.json');
+    const res = interpolize.extendRange(options[0], options[1], 1513, true);
+    t.equals(res.type, 'Feature', 'is feature');
+
+    t.deepEquals(res.properties['carmen:lfromhn'], [1513, null] , 'lfromhn is as expected');
+    t.deepEquals(res.properties['carmen:ltohn'], [1511, null], 'ltohn is as expected');
+    t.deepEquals(res.properties['carmen:rfromhn'], [1516, null], 'rfromhn is as expected');
+    t.deepEquals(res.properties['carmen:rtohn'], [1512, null], 'rtohn is as expected');
+
+    t.end();
+});
+
 test('Interpolize - Do not raise high', (t) => {
     const segs = [{
         network: {
