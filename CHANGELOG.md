@@ -10,6 +10,18 @@
 
 ## Version History
 
+### v26.2.0
+
+- :rocket: Add better behavior in linker for matching cardinaled address to non-cardinaled street
+
+### v26.1.2
+
+- :bug: Remove the `version: 0` key/value from new addresses in conflate output.
+
+### v26.1.1
+
+- :rocket: Add synonym support for `B Nth St` style addresses (where `B` means `Beach`) in New York
+
 ### v26.1.0
 
 - :rocket: Remove JS based linker code and move to unified rust linker

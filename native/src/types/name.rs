@@ -52,6 +52,10 @@ impl Names {
                     synonyms.append(&mut text::syn_us_hwy(&name, &context));
                     synonyms.append(&mut text::syn_us_cr(&name, &context));
                     synonyms.append(&mut text::syn_us_famous(&name, &context));
+
+                    if context.region.is_some() && context.region.as_ref().unwrap() == "NY" {
+                        synonyms.append(&mut text::syn_ny_beach(&name, &context));
+                    }
                 }
             }
         } else if context.country == String::from("CA") {
@@ -270,6 +274,7 @@ pub enum Source {
 }
 
 impl Name {
+
     /// Returns a representation of a street name
     ///
     /// # Arguments
@@ -333,17 +338,27 @@ impl Name {
         self
     }
 
-
+    ///
+    /// Tokenize the name object and return it as a string
+    ///
     pub fn tokenized_string(&self) -> String {
         let tokens: Vec<String> = self.tokenized
             .iter()
             .map(|x| x.token.to_owned())
             .collect();
+
         let tokenized = String::from(tokens.join(" ").trim());
 
         tokenized
     }
 
+    ///
+    /// Return a String representation of a Name
+    /// object with all known tokens removed
+    ///
+    /// IE:
+    /// N Main St => Main
+    ///
     pub fn tokenless_string(&self) -> String {
         let tokens: Vec<String> = self.tokenized
             .iter()
@@ -355,6 +370,24 @@ impl Name {
         tokenless
     }
 
+    ///
+    /// Remove instances of a given type from the Name type and return
+    /// the remaining tokens as a String
+    ///
+    pub fn remove_type_string(&self, token_type: Option<TokenType>) -> String {
+        let tokens: Vec<String> = self.tokenized
+            .iter()
+            .filter(|x| x.token_type != token_type)
+            .map(|x| x.token.to_string())
+            .collect();
+
+        tokens.join(" ").trim().to_string()
+    }
+
+    ///
+    /// Given a token type, return whether or not the Name object
+    /// contains the given token
+    ///
     pub fn has_type(&self, token_type: Option<TokenType>) -> bool {
         let tokens: Vec<&Tokenized> = self.tokenized
             .iter()
@@ -793,6 +826,16 @@ mod tests {
         assert_eq!(Name::new(String::from("East College Road"), 0, None, &context).tokenless_string(),
             String::from("coll")
         );
+    }
+
+    #[test]
+    fn test_remove_type_string() {
+        let context = Context::new(String::from("us"), None, Tokens::generate(vec![String::from("en")]));
+
+        assert_eq!(Name::new(String::from("Main St NW"), 0, None, &context).remove_type_string(Some(TokenType::Way)), String::from("main nw"));
+        assert_eq!(Name::new(String::from("Main St NW"), 0, None, &context).remove_type_string(Some(TokenType::Cardinal)), String::from("main st"));
+        assert_eq!(Name::new(String::from("Main St NW"), 0, None, &context).remove_type_string(None), String::from("st nw"));
+        assert_eq!(Name::new(String::from("Main St NW"), 0, None, &context).remove_type_string(Some(TokenType::PostalBox)), String::from("main st nw"));
     }
 
     #[test]
