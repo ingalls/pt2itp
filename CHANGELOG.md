@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v26.3.0
+
+- :rocket: Add post script to apply an `address_styles` property to each cluster
+
 ### v26.2.0
 
 - :rocket: Add better behavior in linker for matching cardinaled address to non-cardinaled street
