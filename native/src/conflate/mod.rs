@@ -139,7 +139,9 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         match compare(&addr, &mut persistents) {
             Some(link) => {
                 let mut link: Vec<&mut Address> = persistents.iter_mut().filter(|persistent| {
-                    if link == persistent.id.unwrap() {
+                    // only consider modifying persistent addresses that match a new address
+                    // and have output set to true
+                    if link == persistent.id.unwrap() && persistent.output == true {
                         true
                     } else {
                         false
