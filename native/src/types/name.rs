@@ -26,7 +26,7 @@ impl From<Name> for InputName {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Names {
     pub names: Vec<Name>
 }
@@ -660,6 +660,10 @@ mod tests {
         let a_name = Names::new(vec![Name::new("us route 1", 0, None, &context)], &context);
         let b_name = Names::new(vec![Name::new("highway 1", 0, None, &context), Name::new("US Route 1", 0, None, &context)], &context);
         assert_eq!(a_name.has_diff(&b_name), true);
+
+        let a_name = Names::new(vec![Name::new("us route 1", 0, None, &context), Name::new("Main St", 0, None, &context)], &context);
+        let b_name = Names::new(vec![Name::new("us route 1", 0, None, &context)], &context);
+        assert_eq!(a_name.has_diff(&b_name), false);
     }
 
     #[test]

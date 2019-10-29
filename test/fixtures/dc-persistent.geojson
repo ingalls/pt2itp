@@ -1,2 +1,1 @@
 { "id": 1, "version": 2, "type": "Feature", "properties": { "number": 108, "street": [ { "display": "4th ST NE", "priority": 0 } ] }, "geometry": { "type": "Point", "coordinates": [ -77.00080543756485, 38.89128752230519 ] } }
-{ "id": 2, "version": 2, "type": "Feature", "properties": { "number": 110, "street": [ { "display": "4th ST NE", "priority": 0 } ] }, "geometry": { "type": "Point", "coordinates": [ -77.00087249279022, 38.89133136329628 ] } }
