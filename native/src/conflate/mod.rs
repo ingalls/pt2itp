@@ -109,7 +109,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     pgaddress.index(&conn);
 
     for addr in AddrStream::new(GeoStream::new(args.in_address), context.clone(), args.error_address) {
-        // find all persistent addresses with the same address
+        // find all persistent addresses with the same address number
         // within 0.01 decimal degrees (~ 1 km) of the new address
         let rows = conn.query("
             SELECT
@@ -143,8 +143,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             // persistent address matches new address, consider modifying persistent address
             Some(link_id) => {
                 let mut pmatches: Vec<&mut Address> = persistents.iter_mut().filter(|persistent| {
-                    // only consider modifying persistent addresses that match a new address
-                    // and have output set to true
+                    // addresses with output set to false should not be modified
                     if link_id == persistent.id.unwrap() && persistent.output == true {
                         true
                     } else {
@@ -153,7 +152,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 }).collect();
 
                 match pmatches.len() {
-                    // all matches have output set to false, don't modify
+                    // if all matches have output set to false, don't modify
                     0 => continue,
                     1 => {
                         let paddr = pmatches.pop().unwrap();
@@ -204,7 +203,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             id,
             version,
             geom
-    ")).unwrap(); // why do we also group by version and geometry? what if these are different?
+    ")).unwrap();
 
     for mut modified in modifieds {
         let modified_obj = modified.as_object_mut().unwrap();
