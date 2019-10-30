@@ -739,13 +739,13 @@ test('Interpolize - add extended ranges', (t) => {
 
 test('Interpolize - extendRange', (t) => {
     const options = require('./fixtures/interpolize_extend_range.json');
-    const res = interpolize.buildExtRangeGeometry(options[0], options[1], 1513, true);
+    const res = interpolize.buildExtRangeGeometry(options[0], options[1], 7910, true);
     t.equals(res.type, 'Feature', 'is feature');
 
-    t.deepEquals(res.properties['carmen:lfromhn'], [1513, null] , 'lfromhn is as expected');
-    t.deepEquals(res.properties['carmen:ltohn'], [1511, null], 'ltohn is as expected');
-    t.deepEquals(res.properties['carmen:rfromhn'], [1516, null], 'rfromhn is as expected');
-    t.deepEquals(res.properties['carmen:rtohn'], [1512, null], 'rtohn is as expected');
+    t.deepEquals(res.properties['carmen:lfromhn'], [7000, null] , 'lfromhn is as expected');
+    t.deepEquals(res.properties['carmen:ltohn'], [7910, null], 'ltohn is as expected');
+    t.deepEquals(res.properties['carmen:rfromhn'], [7911, null], 'rfromhn is as expected');
+    t.deepEquals(res.properties['carmen:rtohn'], [8311, null], 'rtohn is as expected');
 
     t.end();
 });
