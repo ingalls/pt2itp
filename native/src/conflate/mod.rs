@@ -9,7 +9,6 @@ use neon::prelude::*;
 
 use crate::{
     Names,
-    Source,
     Address,
     hecate,
     util::linker,
@@ -153,32 +152,33 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                     }
                 }).collect();
 
-                if pmatches.len() != 1 {
-                    panic!("Duplicate IDs are not allowed in input data");
-                }
+                match pmatches.len() {
+                    // all matches have output set to false, don't modify
+                    0 => continue,
+                    1 => {
+                        let paddr = pmatches.pop().unwrap();
+                        // if the new address has names the persistent address does not, modify persistent
+                        if paddr.names.has_diff(&addr.names) {
+                            // preference new names over persistent names
+                            let mut combined_names = addr.names;
+                            combined_names.concat(paddr.names.clone());
+                            combined_names.empty();
+                            combined_names.sort();
+                            combined_names.dedupe();
 
-                let paddr = pmatches.pop().unwrap();
+                            let mut new_names: Vec<InputName> = Vec::with_capacity(combined_names.names.len());
+                            for name in combined_names.names {
+                                new_names.push(InputName::from(name));
+                            }
+                            let new_names = serde_json::to_value(new_names).unwrap();
 
-                // if the new address has names the persistent address does not, modify persistent
-                if paddr.names.has_diff(&addr.names) {
-                    // preference new names over persistent names
-                    let mut combined_names = addr.names;
-                    combined_names.concat(paddr.names.clone());
-                    combined_names.empty();
-                    combined_names.sort();
-                    combined_names.dedupe();
-
-                    let mut new_names: Vec<InputName> = Vec::with_capacity(combined_names.names.len());
-                    for name in combined_names.names {
-                        new_names.push(InputName::from(name));
-                    }
-
-                    let new_names = serde_json::to_value(new_names).unwrap();
-
-                    // overwrite the persistent street property with the combined names
-                    // retain all other persistent address properties
-                    paddr.props.insert(String::from("street"), new_names);
-                    paddr.to_db(&conn, "modified").unwrap();
+                            // overwrite the persistent street property with the combined names
+                            // retain all other persistent address properties
+                            paddr.props.insert(String::from("street"), new_names);
+                            paddr.to_db(&conn, "modified").unwrap();
+                        }
+                    },
+                    _ => panic!("Duplicate IDs are not allowed in input data")
                 }
             },
             // no match in persistent addresses, write new address to output

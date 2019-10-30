@@ -438,3 +438,37 @@ test('conflate - MODIFY non-street properties on the new address are not include
     fs.unlinkSync('/tmp/error-persistent');
     t.end();
 });
+
+test('conflate - MODIFY existing addresses with output==false are not modified', (t) => {
+    // Ensure files don't exist before test
+    try {
+        fs.unlinkSync('/tmp/output.geojson');
+        fs.unlinkSync('/tmp/error-persistent');
+    } catch (err) {
+        console.error('ok - cleaned tmp files');
+    }
+
+    worker({
+        'in_persistent': path.resolve(__dirname, './fixtures/dc-persistent-output.geojson'),
+        'in_address': path.resolve(__dirname, './fixtures/dc-modify.geojson'),
+        output: '/tmp/output.geojson',
+        'error_persistent': '/tmp/error-persistent',
+        context: {
+            country: 'us',
+            region: 'dc',
+            languages: ['en']
+        },
+        db: 'pt_test'
+    });
+
+    const rl = new ReadLine('/tmp/output.geojson');
+
+    t.notOk(rl.next(), 'no features output');
+    t.doesNotThrow(() => {
+        fs.accessSync('/tmp/error-persistent');
+    });
+
+    fs.unlinkSync('/tmp/output.geojson');
+    fs.unlinkSync('/tmp/error-persistent');
+    t.end();
+});
