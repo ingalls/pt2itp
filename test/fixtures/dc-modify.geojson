@@ -1,0 +1,1 @@
+{ "type": "Feature", "properties": { "number": 108, "street": [ { "display": "DC Route 101", "priority": -1 }, { "display": "4th Street Northeast", "priority": 0 } ] }, "geometry": { "type": "Point", "coordinates": [ -77.00080543756485, 38.89128752230519 ] } }
