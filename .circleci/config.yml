@@ -5,6 +5,7 @@ jobs:
         docker:
             - image: ubuntu:18.04
             - image: mdillon/postgis:11
+        resource_class: xlarge
         steps:
             - run:
                 name: "Add ubuntu-toolchain"
@@ -52,7 +53,7 @@ jobs:
             - run:
                 name: "Yarn Coverage"
                 command: "yarn run coverage"
-                no_output_timeout: "10m"
+                no_output_timeout: "12m"
             - run:
                 name: "Yarn Coverage-Upload"
                 command: "yarn run coverage-upload"
