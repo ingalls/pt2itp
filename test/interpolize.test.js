@@ -498,7 +498,7 @@ test('Interpolize - Addr past line end - opposite', (t) => {
     t.end();
 });
 
-test('Interpolize - Addr past line end - bend', (t) => {
+test.only('Interpolize - Addr past line end - bend', (t) => {
     const segs = [{
         network: {
             type: 'Feature',
@@ -730,18 +730,24 @@ test('Interpolize - add extended ranges', (t) => {
         [7911, 8311, 8715, 9029, 10001], null
     ], 'rtohn is as expected');
 
+    t.equals(res.geometry.geometries[0].coordinates.length, 5, 'number of segments is as expected');
+
     t.end();
 });
 
 test('Interpolize - extendRange', (t) => {
     const options = require('./fixtures/interpolize_extend_range.json');
     const res = interpolize.buildExtRangeGeometry(options[0], options[1], 7910, true);
-    t.equals(res.type, 'Feature', 'is feature');
+    t.equals(res.type, 'LineString', 'is feature');
 
-    t.deepEquals(res.properties['carmen:lfromhn'], [7000, null] , 'lfromhn is as expected');
-    t.deepEquals(res.properties['carmen:ltohn'], [7910, null], 'ltohn is as expected');
-    t.deepEquals(res.properties['carmen:rfromhn'], [7911, null], 'rfromhn is as expected');
-    t.deepEquals(res.properties['carmen:rtohn'], [8311, null], 'rtohn is as expected');
+    t.deepEquals(res, {
+        "type": "LineString",
+        "coordinates": [
+            [-118.2961922, 33.9672769],
+            [-118.2961407, 33.9668583],
+            [-118.29611089025632, 33.9667697054418]
+        ]
+    }, 'lfromhn is as expected');
 
     t.end();
 });
