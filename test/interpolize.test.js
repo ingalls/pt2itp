@@ -498,7 +498,7 @@ test('Interpolize - Addr past line end - opposite', (t) => {
     t.end();
 });
 
-test.only('Interpolize - Addr past line end - bend', (t) => {
+test('Interpolize - Addr past line end - bend', (t) => {
     const segs = [{
         network: {
             type: 'Feature',
@@ -711,7 +711,7 @@ test('Interpolize - sequence', (t) => {
     t.end();
 });
 
-test('Interpolize - add extended ranges', (t) => {
+test.only('Interpolize - add extended ranges', (t) => {
     const segs = require('./fixtures/interpolize_add_range.json');
     const res = interpolize({ segs: segs[0] });
 
@@ -741,8 +741,8 @@ test('Interpolize - extendRange', (t) => {
     t.equals(res.type, 'LineString', 'is feature');
 
     t.deepEquals(res, {
-        "type": "LineString",
-        "coordinates": [
+        'type': 'LineString',
+        'coordinates': [
             [-118.2961922, 33.9672769],
             [-118.2961407, 33.9668583],
             [-118.29611089025632, 33.9667697054418]
