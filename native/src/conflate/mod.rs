@@ -144,11 +144,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             Some(link_id) => {
                 let mut pmatches: Vec<&mut Address> = persistents.iter_mut().filter(|persistent| {
                     // addresses with output set to false should not be modified
-                    if link_id == persistent.id.unwrap() && persistent.output == true {
-                        true
-                    } else {
-                        false
-                    }
+                    link_id == persistent.id.unwrap() && persistent.output
                 }).collect();
 
                 match pmatches.len() {
@@ -214,7 +210,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             modified_obj.insert(String::from("properties"), props);
         } else {
-            // if the same feature is modified multiple times
+            // if a single persistent address matches multiple new addresses and should be updated
 
             // Future TODO: This currently just grabs the first property
             // and merges names together, it does not attempt to merge
