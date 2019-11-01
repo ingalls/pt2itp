@@ -1,0 +1,1 @@
+{ "id": 1, "version": 2, "type": "Feature", "properties": { "postcode": "00000", "accuracy": "rooftop", "source": "original-source", "number": 108, "street": [ { "display": "4th ST NE", "priority": 0 } ] }, "geometry": { "type": "Point", "coordinates": [ -77.00080543756485, 38.89128752230519 ] } }
