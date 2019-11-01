@@ -187,12 +187,12 @@ test('Interpolize', (t) => {
     t.deepEquals(res.properties, {
         address_props: [{}, {}, {}, {}],
         'carmen:rangetype':'tiger',
-        'carmen:parityl':[['O'], null],
-        'carmen:lfromhn':[[1] , null],
-        'carmen:ltohn':  [[21], null],
-        'carmen:parityr':[['E'], null],
-        'carmen:rfromhn':[[0], null],
-        'carmen:rtohn':  [[20] ,null],
+        'carmen:parityl':[['O', 'O'], null],
+        'carmen:lfromhn':[[1, 9] , null],
+        'carmen:ltohn':  [[9, 11], null],
+        'carmen:parityr':[[null,'E'], null],
+        'carmen:rfromhn':[[null, 8], null],
+        'carmen:rtohn':  [[null, 10] ,null],
         'carmen:addressnumber':[null,['8','10','9','11']],
         'carmen:intersections': []
     }, 'has expected properties');
@@ -201,7 +201,7 @@ test('Interpolize', (t) => {
         'type':'GeometryCollection',
         'geometries':[{
             'type':'MultiLineString',
-            'coordinates':[[[-77.21062123775481, 39.17687343078357],    [-77.21064805984497, 39.1773849237293]]]
+            'coordinates':[[[-77.21062123775481,39.17687343078357],[-77.21062630859578,39.17697013090542]],[[-77.21062123775481,39.17687343078357],[-77.21064805984497,39.1773849237293]]]
         },{
             type: 'MultiPoint',
             coordinates: [
@@ -711,18 +711,24 @@ test('Interpolize - sequence', (t) => {
     t.end();
 });
 
-test.only('Interpolize - add extended ranges', (t) => {
+test('Interpolize - add extended ranges', (t) => {
     const segs = require('./fixtures/interpolize_add_range.json');
     const res = interpolize({ segs: segs[0] });
 
     t.equals(res.type, 'Feature', 'is feature');
 
+    t.deepEquals(res.properties['carmen:parityl'], [
+        ['E', 'E', 'E', 'E', null], null
+    ], 'parityl is as expected');
     t.deepEquals(res.properties['carmen:lfromhn'], [
-        [7000, 7910, 8442, 8836, 9118], null
+        [7000, 7910, 8442, 8836, null], null
     ], 'lfromhn is as expected');
     t.deepEquals(res.properties['carmen:ltohn'], [
-        [7910, 8120, 8722, 9118, 10000], null
+        [7910, 8120, 8722, 9118, null], null
     ], 'ltohn is as expected');
+    t.deepEquals(res.properties['carmen:parityr'], [
+        ['O', 'O', 'O', 'O', 'O'], null
+    ], 'parityr is as expected');
     t.deepEquals(res.properties['carmen:rfromhn'], [
         [7001, 7911, 8403, 8721, 9029], null
     ], 'rfromhn is as expected');
@@ -730,24 +736,21 @@ test.only('Interpolize - add extended ranges', (t) => {
         [7911, 8311, 8715, 9029, 10001], null
     ], 'rtohn is as expected');
 
-    t.equals(res.geometry.geometries[0].coordinates.length, 5, 'number of segments is as expected');
+    t.deepEquals(res.geometry.geometries[0].coordinates.length, 5, 'number of segments is as expected');
+    t.deepEquals(res.geometry.geometries[0].coordinates[0], [
+        [-118.2961922, 33.9672769],
+        [-118.2961407, 33.9668583],
+        [-118.29611089025632, 33.9667697054418]
+    ], 'segment at the start');
 
-    t.end();
-});
-
-test('Interpolize - extendRange', (t) => {
-    const options = require('./fixtures/interpolize_extend_range.json');
-    const res = interpolize.buildExtRangeGeometry(options[0], options[1], 7910, true);
-    t.equals(res.type, 'LineString', 'is feature');
-
-    t.deepEquals(res, {
-        'type': 'LineString',
-        'coordinates': [
-            [-118.2961922, 33.9672769],
-            [-118.2961407, 33.9668583],
-            [-118.29611089025632, 33.9667697054418]
-        ]
-    }, 'lfromhn is as expected');
+    t.deepEquals(res.geometry.geometries[0].coordinates[4], [
+        [-118.29590100402557, 33.95519549951954],
+        [-118.2959031, 33.9550112],
+        [-118.2958894, 33.9545658],
+        [-118.2959106, 33.9541135],
+        [-118.29590619950275, 33.95381755865377],
+        [-118.29590619950275, 33.95381755865377]
+    ], 'segment at the end');
 
     t.end();
 });

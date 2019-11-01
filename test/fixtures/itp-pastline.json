@@ -25,7 +25,6 @@
         "carmen:parityl": [
             [
                 "O",
-                "O",
                 "O"
             ],
             null
@@ -33,40 +32,35 @@
         "carmen:lfromhn": [
             [
                 1,
-                9,
-                13
+                9
             ],
             null
         ],
         "carmen:ltohn": [
             [
                 9,
-                13,
-                21
+                13
             ],
             null
         ],
         "carmen:parityr": [
             [
-                "E",
-                "E",
+                null,
                 "E"
             ],
             null
         ],
         "carmen:rfromhn": [
             [
-                0,
-                8,
-                12
+                null,
+                8
             ],
             null
         ],
         "carmen:rtohn": [
             [
-                8,
-                12,
-                20
+                null,
+                12
             ],
             null
         ]
@@ -83,24 +77,14 @@
                             39.17687343078357
                         ],
                         [
-                            -77.21062630866005,
-                            39.17697013213097
+                            -77.21062630859578,
+                            39.17697013090542
                         ]
                     ],
                     [
                         [
                             -77.21062123775481,
                             39.17687343078357
-                        ],
-                        [
-                            -77.21064805984497,
-                            39.1773849237293
-                        ]
-                    ],
-                    [
-                        [
-                            -77.21064805984497,
-                            39.1773849237293
                         ],
                         [
                             -77.21064805984497,
@@ -141,67 +125,6 @@
         ]
     },
     "debug": [
-        {
-            "type": "featurecollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "start": true,
-                        "left": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -77.2107258439064,
-                            39.176966996844406
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "end": true,
-                        "left": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -77.21077412366867,
-                            39.17755334132392
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "start": true,
-                        "right": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -77.21054881811142,
-                            39.1769482836422
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "end": true,
-                        "right": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -77.21056491136551,
-                            39.17757413359157
-                        ]
-                    }
-                }
-            ]
-        },
         {
             "type": "featurecollection",
             "features": [

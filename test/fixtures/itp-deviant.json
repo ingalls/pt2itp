@@ -23,14 +23,12 @@
         "carmen:parityl": [
             [
                 "E",
-                "E",
                 "E"
             ],
             null
         ],
         "carmen:lfromhn": [
             [
-                0,
                 8,
                 14
             ],
@@ -38,7 +36,6 @@
         ],
         "carmen:ltohn": [
             [
-                8,
                 14,
                 20
             ],
@@ -47,7 +44,6 @@
         "carmen:parityr": [
             [
                 null,
-                null,
                 null
             ],
             null
@@ -55,14 +51,12 @@
         "carmen:rfromhn": [
             [
                 null,
-                null,
                 null
             ],
             null
         ],
         "carmen:rtohn": [
             [
-                null,
                 null,
                 null
             ],
@@ -81,24 +75,14 @@
                             44.54747368148878
                         ],
                         [
-                            -64.26995986543946,
-                            44.547571785167314
-                        ]
-                    ],
-                    [
-                        [
-                            -64.27054524421692,
-                            44.54747368148878
-                        ],
-                        [
                             -64.26584601402283,
                             44.548261225872096
                         ]
                     ],
                     [
                         [
-                            -64.26630839566022,
-                            44.54818373529461
+                            -64.26630844599686,
+                            44.54818372685869
                         ],
                         [
                             -64.26584601402283,
@@ -139,39 +123,6 @@
         ]
     },
     "debug": [
-        {
-            "type": "featurecollection",
-            "features": [
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "start": true,
-                        "left": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -64.27004098892212,
-                            44.54781775558832
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "end": true,
-                        "left": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -64.26645755767822,
-                            44.548635879168515
-                        ]
-                    }
-                }
-            ]
-        },
         {
             "type": "featurecollection",
             "features": [
