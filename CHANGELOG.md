@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v27.1.0
+
+- :rocket: Add an interpolation range for raised/dropped numbers. 
+
 ### v27.0.0
 
 - :rocket: Only modify addresses where `output: true` during `conflate`
