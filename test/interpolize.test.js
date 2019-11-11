@@ -187,12 +187,12 @@ test('Interpolize', (t) => {
     t.deepEquals(res.properties, {
         address_props: [{}, {}, {}, {}],
         'carmen:rangetype':'tiger',
-        'carmen:parityl':[['O'], null],
-        'carmen:lfromhn':[[1] , null],
-        'carmen:ltohn':  [[21], null],
-        'carmen:parityr':[['E'], null],
-        'carmen:rfromhn':[[0], null],
-        'carmen:rtohn':  [[20] ,null],
+        'carmen:parityl':[['O', 'O'], null],
+        'carmen:lfromhn':[[1, 9] , null],
+        'carmen:ltohn':  [[9, 11], null],
+        'carmen:parityr':[[null,'E'], null],
+        'carmen:rfromhn':[[null, 8], null],
+        'carmen:rtohn':  [[null, 10] ,null],
         'carmen:addressnumber':[null,['8','10','9','11']],
         'carmen:intersections': []
     }, 'has expected properties');
@@ -201,7 +201,7 @@ test('Interpolize', (t) => {
         'type':'GeometryCollection',
         'geometries':[{
             'type':'MultiLineString',
-            'coordinates':[[[-77.21062123775481,39.17687343078357],[-77.21064805984497,39.1773849237293]]]
+            'coordinates':[[[-77.21062123775481,39.17687343078357],[-77.21062630859578,39.17697013090542]],[[-77.21062123775481,39.17687343078357],[-77.21064805984497,39.1773849237293]]]
         },{
             type: 'MultiPoint',
             coordinates: [
@@ -289,6 +289,8 @@ test('Interpolize - Continious network - unique address duplicate num', (t) => {
  * two unique clusters
  */
 test('Interpolize - Continious network - unique address duplicate num - different order', (t) => {
+    // TODO: Confirm that repated numbers in the range is not concerning
+    // 'carmen:rfromhn': [ [ 2, 2, 2 ], null ], 'carmen:rtohn': [ [ 0, 2, 10 ], null ]
     const segs = [{
         network: {
             type: 'Feature',
@@ -694,17 +696,61 @@ test('Interpolize - sequence', (t) => {
     t.equals(res.type, 'Feature', 'is feature');
 
     t.deepEquals(res.properties['carmen:lfromhn'], [
-        [1000, 3770, 3964, 4152, 4410, 4700, null, 4814, 5216, 5700, 6000, 6414, 7128, 7218, null, 7910, 8442, 8836, 9124, 9608, 10110, 10530, 10968, 11102, 11800, 12200, 12704, 13122, 13530, 14028, 14530, 15114], null
+        [1000, 1140, 3770, 3964, 4152, 4410, 4700, null, 4814, 5216, 5700, 6000, 6414, 7128, 7218, null, 7910, 8442, 8836, 9124, 9608, 10110, 10530, 10968, 11102, 11800, 12200, 12704, 13122, 13530, 14028, 14530, 15114], null
     ], 'lfromhn is as expected');
     t.deepEquals(res.properties['carmen:ltohn'], [
-        [11736, 3956, 4122, 4360, 4610, 4730, null, 5118, 5620, 5940, 6318, 6624, 7128, 7218, null, 8120, 8722, 9118, 9430, 9906, 10526, 10958, 11026, 11248, 12114, 12224, 13118, 13452, 14006, 14526, 14832, 15114], null
+        [1140, 11736, 3956, 4122, 4360, 4610, 4730, null, 5118, 5620, 5940, 6318, 6624, 7128, 7218, null, 8120, 8722, 9118, 9430, 9906, 10526, 10958, 11026, 11248, 12114, 12224, 13118, 13452, 14006, 14526, 14832, 15114], null
     ], 'ltohn is as expected');
     t.deepEquals(res.properties['carmen:rfromhn'], [
-        [11001, 3809, 3963, 4153, 4409, null, 4721, 4815, 5207, 5709, 6001, 6415, null, 7211, 7713, 7911, 8403, 8721, 9133, 9513, 10117, 10531, 10975, 11101, 11743, 12315, 12701, 13201, 13603, 14021, 14535, 15019], null
+        [11001, 11519, 3809, 3963, 4153, 4409, null, 4721, 4815, 5207, 5709, 6001, 6415, null, 7211, 7713, 7911, 8403, 8721, 9133, 9513, 10117, 10531, 10975, 11101, 11743, 12315, 12701, 13201, 13603, 14021, 14535, 15019], null
     ], 'rfromhn is as expected');
     t.deepEquals(res.properties['carmen:rtohn'], [
-        [11739, 3955, 4123, 4345, 4613, null, 4731, 5171, 5705, 5965, 6319, 6609, null, 7519, 7713, 8311, 8715, 9029, 9511, 9815, 10529, 10965, 11023, 11251, 12125, 12619, 12923, 13441, 14015, 14527, 15015, 15215], null
+        [11519, 11739, 3955, 4123, 4345, 4613, null, 4731, 5171, 5705, 5965, 6319, 6609, null, 7519, 7713, 8311, 8715, 9029, 9511, 9815, 10529, 10965, 11023, 11251, 12125, 12619, 12923, 13441, 14015, 14527, 15015, 15215], null
     ], 'rtohn is as expected');
+
+    t.end();
+});
+
+test('Interpolize - add extended ranges', (t) => {
+    const segs = require('./fixtures/interpolize_add_range.json');
+    const res = interpolize({ segs: segs[0] });
+
+    t.equals(res.type, 'Feature', 'is feature');
+
+    t.deepEquals(res.properties['carmen:parityl'], [
+        ['E', 'E', 'E', 'E', null], null
+    ], 'parityl is as expected');
+    t.deepEquals(res.properties['carmen:lfromhn'], [
+        [7000, 7910, 8442, 8836, null], null
+    ], 'lfromhn is as expected');
+    t.deepEquals(res.properties['carmen:ltohn'], [
+        [7910, 8120, 8722, 9118, null], null
+    ], 'ltohn is as expected');
+    t.deepEquals(res.properties['carmen:parityr'], [
+        ['O', 'O', 'O', 'O', 'O'], null
+    ], 'parityr is as expected');
+    t.deepEquals(res.properties['carmen:rfromhn'], [
+        [7001, 7911, 8403, 8721, 9029], null
+    ], 'rfromhn is as expected');
+    t.deepEquals(res.properties['carmen:rtohn'], [
+        [7911, 8311, 8715, 9029, 10001], null
+    ], 'rtohn is as expected');
+
+    t.deepEquals(res.geometry.geometries[0].coordinates.length, 5, 'number of segments is as expected');
+    t.deepEquals(res.geometry.geometries[0].coordinates[0], [
+        [-118.2961922, 33.9672769],
+        [-118.2961407, 33.9668583],
+        [-118.29611089025632, 33.9667697054418]
+    ], 'segment at the start');
+
+    t.deepEquals(res.geometry.geometries[0].coordinates[4], [
+        [-118.29590100402557, 33.95519549951954],
+        [-118.2959031, 33.9550112],
+        [-118.2958894, 33.9545658],
+        [-118.2959106, 33.9541135],
+        [-118.29590619950275, 33.95381755865377],
+        [-118.29590619950275, 33.95381755865377]
+    ], 'segment at the end');
 
     t.end();
 });

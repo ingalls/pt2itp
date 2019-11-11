@@ -30,37 +30,43 @@
         "carmen:rangetype": "tiger",
         "carmen:parityl": [
             [
+                null,
                 null
             ],
             null
         ],
         "carmen:lfromhn": [
             [
+                null,
                 null
             ],
             null
         ],
         "carmen:ltohn": [
             [
+                null,
                 null
             ],
             null
         ],
         "carmen:parityr": [
             [
+                "E",
                 "E"
             ],
             null
         ],
         "carmen:rfromhn": [
             [
-                10
+                2,
+                2
             ],
             null
         ],
         "carmen:rtohn": [
             [
-                0
+                2,
+                10
             ],
             null
         ]
@@ -79,6 +85,16 @@
                         [
                             -72.65018463134764,
                             45.79816953017265
+                        ]
+                    ],
+                    [
+                        [
+                            -72.52744674682617,
+                            45.900282732840324
+                        ],
+                        [
+                            -72.52811816729813,
+                            45.899724136812736
                         ]
                     ]
                 ]
@@ -127,6 +143,39 @@
         ]
     },
     "debug": [
+        {
+            "type": "featurecollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "start": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -72.52869129180908,
+                            45.90050672127712
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "end": true,
+                        "right": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -72.65104293823242,
+                            45.80846108136044
+                        ]
+                    }
+                }
+            ]
+        },
         {
             "type": "featurecollection",
             "features": [
