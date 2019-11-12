@@ -450,7 +450,7 @@ test('conflate - MODIFY existing addresses with output==false are not modified',
 
     worker({
         'in_persistent': path.resolve(__dirname, './fixtures/dc-persistent-output.geojson'),
-        'in_address': path.resolve(__dirname, './fixtures/dc-modify.geojson'),
+        'in_address': path.resolve(__dirname, './fixtures/dc-modify-output.geojson'),
         output: '/tmp/output.geojson',
         'error_persistent': '/tmp/error-persistent',
         context: {
@@ -462,7 +462,6 @@ test('conflate - MODIFY existing addresses with output==false are not modified',
     });
 
     const rl = new ReadLine('/tmp/output.geojson');
-
     t.notOk(rl.next(), 'no features output');
     t.doesNotThrow(() => {
         fs.accessSync('/tmp/error-persistent');
