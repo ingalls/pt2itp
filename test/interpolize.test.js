@@ -170,7 +170,7 @@ test('Interpolize', (t) => {
         { number:'11', output: true, props: {} }
     ]);
 
-    const res = interpolize.interpolize([ seg ]);
+    const res = interpolize.interpolize([seg]);
 
     delete res.id;
 
