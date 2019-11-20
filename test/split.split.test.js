@@ -150,8 +150,12 @@ test('Split: Ensure cluster#break roads are split', (t) => {
             t.equals(res.geometry.type, 'GeometryCollection', 'Geometry should be GeometryCollection');
             t.equals(res.geometry.geometries.length, 2, 'GeometryCollection should have 2 child geometries');
 
-            for (const ln of res.geometry.geometries[0].coordinates) {
-                t.ok(turf.lineDistance(turf.lineString(ln)) < 0.51, 'does not exceed max seg length');
+            for (const geom of res.geometry.geometries) {
+                if (geom.type === 'MultiLineString') {
+                    for (const coords of geom.coordinates) {
+                        t.ok(turf.lineDistance(turf.lineString(coords)) < 0.51, 'does not exceed max seg length');
+                    }
+                }
             }
         }
 
