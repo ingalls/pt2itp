@@ -255,7 +255,7 @@ test('conflate - MODIFY adds new names to existing address names preferencing ne
     t.end();
 });
 
-test('conflate - MODIFY does not update existing address no new names are added', (t) => {
+test('conflate - MODIFY does not update existing address, no new names are added', (t) => {
     // Ensure files don't exist before test
     try {
         fs.unlinkSync('/tmp/output.geojson');
@@ -347,7 +347,7 @@ test('conflate - MODIFY handles multiple updates to the same feature', (t) => {
     t.end();
 });
 
-test('conflate - MODIFY all properties (including overrides) on the existing address except street names are preserved', (t) => {
+test('conflate - MODIFY all properties on the existing address are preserved, including overrides, excluding street names', (t) => {
     // Ensure files don't exist before test
     try {
         fs.unlinkSync('/tmp/output.geojson');
