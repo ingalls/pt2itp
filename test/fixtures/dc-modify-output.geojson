@@ -1,1 +1,1 @@
-{"geometry":{"coordinates":[-102.555631388687,32.3304483896949],"type":"Point"},"type":"Feature","properties":{"source":"OmniEarth,tx_andrews,2017","street":"NW 4","number":"1207"}}
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-102.555631388687,32.3304483896949]},"properties":{"number":"1207","source":"blacklist","street":[{"display":"NW 4","priority":0}]}}

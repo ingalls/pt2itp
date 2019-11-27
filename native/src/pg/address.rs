@@ -125,3 +125,35 @@ impl InputTable for Address {
         "#, &[]).unwrap();
     }
 }
+
+// Prepare address to be run through conflate by setting output=false and id to its inverse
+// for all past versions of a feature.
+// This ensures that past features are not modified but will match addresses being conflated.
+pub fn pre_conflate(conn: &Connection) {
+    conn.execute(r#"
+        DROP TABLE IF EXISTS address_id_to_version;
+    "#, &[]).unwrap();
+
+    conn.execute(r#"
+    CREATE TABLE IF NOT EXISTS address_id_to_version as
+        SELECT
+            id,
+            MAX(version) AS max_version
+        FROM
+            address
+        GROUP BY
+            id
+    "#, &[]).unwrap();
+
+    conn.execute(r#"
+    UPDATE address
+    SET
+        output = false,
+        id = address.id * -1
+    FROM
+        address_id_to_version
+    WHERE
+        address.id = address_id_to_version.id
+        AND address.version != address_id_to_version.max_version
+    "#, &[]).unwrap();
+}

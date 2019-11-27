@@ -107,6 +107,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     pgaddress.create(&conn);
     pgaddress.input(&conn, AddrStream::new(GeoStream::new(args.in_persistent), context.clone(), args.error_persistent));
     pgaddress.index(&conn);
+    pg::address::pre_conflate(&conn);
 
     for addr in AddrStream::new(GeoStream::new(args.in_address), context.clone(), args.error_address) {
         // find all persistent addresses with the same address number
