@@ -135,25 +135,25 @@ pub fn pre_conflate(conn: &Connection) {
     "#, &[]).unwrap();
 
     conn.execute(r#"
-    CREATE TABLE IF NOT EXISTS address_id_to_version as
-        SELECT
-            id,
-            MAX(version) AS max_version
-        FROM
-            address
-        GROUP BY
-            id
+        CREATE TABLE IF NOT EXISTS address_id_to_version as
+            SELECT
+                id,
+                MAX(version) AS max_version
+            FROM
+                address
+            GROUP BY
+                id
     "#, &[]).unwrap();
 
     conn.execute(r#"
-    UPDATE address
-    SET
-        output = false,
-        id = address.id * -1
-    FROM
-        address_id_to_version
-    WHERE
-        address.id = address_id_to_version.id
-        AND address.version != address_id_to_version.max_version
+        UPDATE address
+        SET
+            output = false,
+            id = address.id * -1
+        FROM
+            address_id_to_version
+        WHERE
+            address.id = address_id_to_version.id
+            AND address.version != address_id_to_version.max_version
     "#, &[]).unwrap();
 }
