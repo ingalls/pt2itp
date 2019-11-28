@@ -10,9 +10,13 @@
 
 ## Version History
 
+### v28.0.0
+
+- :rocket: Prevent past versions of features from being added back or being modified during conflate.
+
 ### v27.1.0
 
-- :rocket: Add an interpolation range for raised/dropped numbers. 
+- :rocket: Add an interpolation range for raised/dropped numbers.
 
 ### v27.0.0
 
