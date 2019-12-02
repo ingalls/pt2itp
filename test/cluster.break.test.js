@@ -1,6 +1,7 @@
 'use strict';
 
 const Cluster = require('../lib/map/cluster');
+const Split = require('../lib/map/split').Split;
 const test = require('tape');
 const fs = require('fs');
 const _ = require('lodash');
@@ -274,6 +275,121 @@ test('cluster#break - address mixed cliffs and peaks', (t) => {
     }
 
     t.deepEquals(newSegs, require('./fixtures/cluster-mixed.json'));
+
+    t.end();
+});
+
+test('split#splitCluster - ', (t) => {
+    const cluster = {
+        network: {
+            type: 'Feature',
+            geometry: {
+                type: 'LineString',
+                coordinates: [
+                    [0, 0],
+                    [0.01, 0]
+                ]
+            }
+        },
+        addressPoints: [
+            { coords: [0, 0], location: 0 },
+            { coords: [0.0009999999999999994, 1.6532731720501135e-18], location: 0.1111950802335329 },
+            { coords: [0.0020000000000000018, 1.4695761542018e-18], location: 0.2223901604670658 },
+            { coords: [0.0030000000000000014, 1.285879135905828e-18], location: 0.3335852407005987 },
+            { coords: [0.004000000000000001, 1.1021821172181545e-18], location: 0.4447803209341316 },
+            { coords: [0.005000000000000002, 9.184850981947377e-19], location: 0.5559754011676645 },
+            { coords: [0.006000000000000001, 7.347880788915339e-19], location: 0.6671704814011974 },
+            { coords: [0.007, 5.510910593645012e-19], location: 0.7783655616347303 },
+            { coords: [0.008, 3.673940396695964e-19], location: 0.8895606418682631 },
+            { coords: [0.009, 1.8369701986277705e-19], location: 1.000755722101796 }
+        ],
+        intersectionPoints: [
+            { coords: [0.0008993203637245394, 1.6717677209649935e-18], location: 0.1 },
+            { coords: [0.005899320363724538, 7.532826279909296e-19], location: 0.6559754011676645 }
+        ]
+    };
+
+    const breaks = [5];
+
+    const res = Split.splitCluster(cluster, breaks);
+
+    t.deepEqual(res, [
+        {
+            network: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                        [0, 0],
+                        [0.005499999999999999, 8.266365885746118e-19]
+                    ]
+                }
+            },
+            addressPoints: [
+                {
+                    coords: [0, 0],
+                    location: 0
+                },
+                {
+                    coords: [0.0009999999999999994, 1.6532731720501135e-18],
+                    location: 0.1111950802335329
+                },
+                {
+                    coords: [0.0020000000000000018, 1.4695761542018e-18],
+                    location: 0.2223901604670658
+                },
+                {
+                    coords: [0.0030000000000000014, 1.285879135905828e-18],
+                    location: 0.3335852407005987
+                },
+                {
+                    coords: [0.004000000000000001, 1.1021821172181545e-18],
+                    location: 0.4447803209341316
+                },
+                {
+                    coords: [0.005000000000000002, 9.184850981947377e-19],
+                    location: 0.5559754011676645
+                }
+            ],
+            intersectionPoints: []
+        },
+        {
+            network: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'LineString',
+                    coordinates: [
+                        [0.005499999999999999, 8.266365885746118e-19],
+                        [0.01, 0]
+                    ]
+                }
+            },
+            addressPoints: [
+                { coords: [0.006000000000000001, 7.347880788915339e-19], location: 0.6671704814011974 },
+                { coords: [0.007, 5.510910593645012e-19], location: 0.7783655616347303 },
+                { coords: [0.008, 3.673940396695964e-19], location: 0.8895606418682631 },
+                { coords: [0.009, 1.8369701986277705e-19], location: 1.000755722101796 }
+            ],
+            intersectionPoints: [
+                { coords: [0.0008993203637245394, 1.6717677209649935e-18], location: 0.1 }
+            ]
+        }
+    ]);
+
+    t.end();
+});
+
+test('split#splitCluster - ', (t) => {
+    const cluster = require('./fixtures/cluster-mult-cliffs-peaks.json')[0];
+
+    const breaks = [187, 208];
+
+    const res = Split.splitCluster(cluster, breaks);
+
+    // TODO: write assertions
+    t.ok(res);
 
     t.end();
 });
