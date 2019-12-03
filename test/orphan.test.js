@@ -80,7 +80,57 @@ test('orphan.address', (t) => {
     });
 });
 
+test('orphan streets', (t) => {
+
+    const {
+        import_net,
+        cluster_net,
+        intersections
+    } = require('../native/index.node');
+
+    import_net({
+        db: 'pt_test',
+        seq: true,
+        input: path.resolve(__dirname, './fixtures/network_orphans.geojson'),
+        context: { db: 'pt_test' }
+    });
+
+    cluster_net('pt_test');
+
+    intersections('pt_test');
+
+    const { Writable } = require('stream');
+
+    let outputBuffer = '';
+
+    const output = new Writable({
+        write(chunk, encoding, callback) {
+            outputBuffer += chunk.toString();
+            callback();
+        }
+    });
+
+    const pool = db.get();
+    const orphan = new Orphan(pool, {}, output);
+
+    orphan.network((err) => {
+        t.error(err);
+        pool.end();
+        const result = outputBuffer.split('\n').filter((v) => v.length > 0).map(JSON.parse);
+        t.equal(result.length, 2);
+
+        t.deepEqual(result[0].properties['carmen:text'], 'Hobart Place Northwest');
+        t.deepEqual(result[0].properties['carmen:intersections'], [null, ['Georgia Avenue Northwest', 'Us 29']]);
+
+        t.deepEqual(result[1].properties['carmen:text'], 'Georgia Avenue Northwest,Us 29');
+        t.deepEqual(result[1].properties['carmen:intersections'], [null, ['Hobart Place Northwest']]);
+
+        t.end();
+    });
+});
+
 test('orphan output', (t) => {
+
     let counter = 0;
     const orphans = {
         'Main Street': [['3','4']],
