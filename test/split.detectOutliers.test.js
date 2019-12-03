@@ -28,25 +28,24 @@ test('dont flag outliers when there are less than five points', (t) => {
     t.end();
 });
 
-//                  *
-//         *    *
+
+//                   *
+//                               *
+//                     *
 //          *
-//     *
-//     *
 // *
 test('dont flag outliers when there arent many evens or odds', (t) => {
     const addressLocations = [
-        { location: 0.042275359694893995, number: '22' },
-        { location: 0.06666356656995437, number: '39' },
-        { location: 0.06382538376151721, number: '43' },
-        { location: 0.07040148840842819, number: '55' },
-        { location: 0.1407105061781741, number: '74' },
-        { location: 0.15353706952434398, number: '77' },
-        { location: 0.17737403527721493, number: '89' }
+        { location: 0.005430443074926123, number: '5544' },
+        { location: 0.010658910558378277, number: '5545' },
+        { location: 0.02457170906514842, number: '5550' },
+        { location: 0.03663884829439811, number: '5555' },
+        { location: 0.057663587015265735, number: '5562' },
+        { location: 0.03260842350710518, number: '5570' }
     ];
 
     const res = Split.detectOutliers(addressLocations);
-    t.deepEqual(ignored(res), []); // no outliers
+    t.deepEqual(ignored(res), []);
     t.end();
 });
 
@@ -86,6 +85,7 @@ test('scattered data, no line of best fit', (t) => {
 //             *
 //    3x*
 // *
+// TODO: add more points, this is being skipped
 test('clustered duplicates should not affect outlier detection', (t) => {
     const addressLocations = [
         { location: 0, number: 100 },
@@ -103,6 +103,7 @@ test('clustered duplicates should not affect outlier detection', (t) => {
 //             *
 //    3x*
 // *
+// TODO: add more points, this is being skipped
 test('clustered points should not affect outlier detection', (t) => {
     const addressLocations = [
         { location: 0, number: 100 },
@@ -135,27 +136,6 @@ test('distant addresses that line up should not be marked as outliers', (t) => {
 
     const res = Split.detectOutliers(addressLocations);
     t.deepEqual(ignored(res), []);
-    t.end();
-});
-
-//                  o
-//
-//                               *
-//                     *
-//          *
-// *
-test('points far from the best fit line should be flagged', (t) => {
-    const addressLocations = [
-        { location: 0.005430443074926123, number: '5544' },
-        { location: 0.010658910558378277, number: '5545' },
-        { location: 0.02457170906514842, number: '5550' },
-        { location: 0.03663884829439811, number: '5555' },
-        { location: 0.057663587015265735, number: '5562' },
-        { location: 0.03260842350710518, number: '5570' } // outlier
-    ];
-
-    const res = Split.detectOutliers(addressLocations);
-    t.deepEqual(ignored(res), [5]);
     t.end();
 });
 
@@ -222,7 +202,29 @@ test('points far from the best fit line should be flagged', (t) => {
     ];
 
     const res = Split.detectOutliers(addressLocations);
-    t.deepEqual(ignored(res), [12, 13]);
+    t.deepEqual(ignored(res), []);
+    t.end();
+});
+
+//                  *
+//       o      *
+//          *
+//     *
+//     *
+// *
+test('outliers should be flagged for data with just enough even/odd points', (t) => {
+    const addressLocations = [
+        { location: 0.042275359694893995, number: '22' },
+        { location: 0.06666356656995437, number: '39' },
+        { location: 0.06382538376151721, number: '43' },
+        { location: 0.07040148840842819, number: '55' },
+        { location: 0.1407105061781741, number: '74' },
+        { location: 0.15353706952434398, number: '77' },
+        { location: 0.17737403527721493, number: '89' }
+    ];
+
+    const res = Split.detectOutliers(addressLocations);
+    t.deepEqual(ignored(res), [3]);
     t.end();
 });
 
@@ -331,14 +333,14 @@ test.skip('points far from the best fit line should be flagged', (t) => {
         { location: 0.1432649429922489, number: '87' },
         { location: 0.09323134261959556, number: '33' },
         { location: 0.13258224625976378, number: '90' },
-        { location: 0.3239674004938539, number: '56' }, // outlier
+        { location: 0.3239674004938539, number: '56' },
         { location: 0.029673294290593576, number: '3' },
         { location: 0.20006222648127825, number: '122' },
-        { location: 0.3239674004938539, number: '58' } // outlier
+        { location: 0.3239674004938539, number: '58' }
     ];
 
     const res = Split.detectOutliers(addressLocations);
-    t.deepEqual(ignored(res), []);
+    t.deepEqual(ignored(res), [0, 1]);
     t.end();
 });
 
@@ -409,7 +411,7 @@ test.skip('handle several copies of the same outlier', (t) => {
 // *  *   *  *
 //               *   *   *
 // TODO: some outliers can throw off best fit line when there aren't many points
-test('bad outlier detection', (t) => {
+test.skip('points far from the best fit line should be flagged', (t) => {
     const addressLocations = [
         { location: 0.19012525592073237, number: '2a' },
         { location: 0.18929580170249033, number: '2' },
@@ -463,12 +465,12 @@ test('bad outlier detection', (t) => {
         { location: 0.10763336844865344, number: '38a' },
         { location: 0.10600507825305122, number: '40' },
         { location: 0.104364353504026, number: '40a' },
-        { location: 0.32372845442149917, number: '909' },
-        { location: 0.3238195985724147, number: '913' }
+        { location: 0.32372845442149917, number: '909' }, // outlier
+        { location: 0.3238195985724147, number: '913' } // outlier
     ];
 
     const res = Split.detectOutliers(addressLocations);
-    t.deepEqual(ignored(res), []); // TODO fill out
+    t.deepEqual(ignored(res), [52, 53]);
     t.end();
 });
 
@@ -480,8 +482,7 @@ test('bad outlier detection', (t) => {
 //          *
 //       *
 //    *
-// TODO: evens add the end of the range are flagged as outliers
-test.skip('handle number variability betweeen evens and odd', (t) => {
+test('handle number variability betweeen evens and odd', (t) => {
     const addressLocations = [
         { location: 0.026619776797833228, number: '3' },
         { location: 0.05645133703021328, number: '5' },
@@ -510,7 +511,7 @@ test.skip('handle number variability betweeen evens and odd', (t) => {
     ];
 
     const res = Split.detectOutliers(addressLocations);
-    t.deepEqual(ignored(res), [11, 13, 15]);
+    t.deepEqual(ignored(res), [11, 13]);
     t.end();
 });
 
@@ -533,7 +534,7 @@ test('dont flag the last even and odd values even though they are far from the f
         { location: 0.07929558080356876, number: '23' },
         { location: 0.08199246203728905, number: '24' },
         { location: 0.10037421590667892, number: '27' },
-        { location: 0.14937412125835903, number: '28' },
+        { location: 0.14937412125835903, number: '28' }, // outlier
         { location: 0.09719958864789276, number: '30' },
         { location: 0.11700084661465661, number: '35' },
         { location: 0.11665992916372941, number: '37' },
@@ -544,11 +545,11 @@ test('dont flag the last even and odd values even though they are far from the f
         { location: 0.13145373546426387, number: '42' },
         { location: 0.14553712286453813, number: '45' },
         { location: 0.17085032503562292, number: '47' },
-        { location: 0.17096684093291328, number: '60' },
+        { location: 0.17096684093291328, number: '60' }
     ];
 
     const res = Split.detectOutliers(addressLocations);
-    t.deepEqual(ignored(res), []); // TODO: fill out
+    t.deepEqual(ignored(res), [11]);
     t.end();
 });
 
