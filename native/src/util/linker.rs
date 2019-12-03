@@ -80,17 +80,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 let potential_tokenized = potential_name.tokenized_string();
                 let potential_tokenless = potential_name.tokenless_string();
 
-                // A cardinaled primary can exactly match a non-cardinaled potention
-                //
-                // N Main St => Main St
-                if
-                    name.has_type(Some(TokenType::Cardinal))
-                    && !potential_name.has_type(Some(TokenType::Cardinal))
-                    && name.remove_type_string(Some(TokenType::Cardinal)) == potential_tokenized
-                {
-                    return Some(LinkResult::new(potential.id, 100.0));
-                }
-
                 if strict {
                     for tk in &name.tokenized {
                         match tk.token_type {
@@ -106,6 +95,18 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                             },
                             _ => ()
                         }
+                    }
+                } else {
+
+                    // A cardinaled primary can exactly match a non-cardinaled potential
+                    //
+                    // N Main St => Main St
+                    if
+                        name.has_type(Some(TokenType::Cardinal))
+                        && !potential_name.has_type(Some(TokenType::Cardinal))
+                        && name.remove_type_string(Some(TokenType::Cardinal)) == potential_tokenized
+                    {
+                        return Some(LinkResult::new(potential.id, 100.0));
                     }
                 }
 
@@ -630,7 +631,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 93.75)));
         }
 
         {
@@ -666,7 +667,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 90.0)));
         }
 
         {
