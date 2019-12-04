@@ -211,10 +211,11 @@ test('Interpolize', (t) => {
 
 const Split = require('../lib/map/split').Split;
 function legacyFormatter(itps, addressPoints) {
+    const asGeoJSON = require('../lib/map/asgeojson');
     if (addressPoints === undefined) {
-        return Split.mergeFeatures(itps, turf.multiPoint([]));
+        return asGeoJSON.mergeFeatures(itps, turf.multiPoint([]));
     } else {
-        return Split.mergeFeatures(itps, Split.genAddressPointsFeature(addressPoints));
+        return asGeoJSON.mergeFeatures(itps, asGeoJSON.addressPointsFeature(addressPoints));
     }
 }
 
