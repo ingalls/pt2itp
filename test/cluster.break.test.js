@@ -457,15 +457,14 @@ test('split#splitCluster - handle several breaks', (t) => {
     t.end();
 });
 
-// TODO - edge case not handled yet
-test.skip('split#splitCluster - handle break over zero length segment', (t) => {
+test('split#splitCluster - handle breaks over zero length segments', (t) => {
     const cluster = {
         network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.00832913680851, 41.33974051878503], [-72.00937271118164, 41.340957019505645], [-72.01070308685303, 41.34301909908479]] } },
         addressPoints: [
             { coords: [-72.0078706741333, 41.3403770478594], location: 0.03877871959783233 },
             { coords: [-72.0104455947876, 41.34092479899412], location: 0.1967143578104889 },
-            { coords: [-72.00894355773924, 41.342116947303296], location: 0.26135634936089525 },// break
-            { coords: [-72.01117515563965, 41.34208472736567], location: 0.3393438074323155 },
+            { coords: [-72.00894355773924, 41.342116947303296], location: 0.26135634936089525 },
+            { coords: [-72.01117515563965, 41.34208472736567], location: 0.3393438074323155 },// break
             { coords: [-72.0177412033081, 41.34743301869497], location: 0.4156731618972499 },
             { coords: [-72.0177412033081, 41.34743301869497], location: 0.4156731618972499 },
             { coords: [-72.01950073242188, 41.34767464799149], location: 0.4156731618972499 }, // break
@@ -488,21 +487,48 @@ test.skip('split#splitCluster - handle break over zero length segment', (t) => {
 
     const res = Split.splitCluster(cluster, breaks);
 
-    t.deepEqual(res.length, 4);
+    console.log(JSON.stringify(res));
+
+    t.deepEqual(res.length, 2);
 
     t.end();
 });
 
-test('split#splitCluster - ', (t) => {
-    // TODO: update fixture
+test('split#splitCluster - handle multiple breaks on a large cluster', (t) => {
     const cluster = require('./fixtures/cluster-mult-cliffs-peaks.json')[0];
 
-    const breaks = [187, 208];
+    const breaks = [57, 89, 158];
+
+    const totalAddresses = cluster.addressPoints.length;
+    const totalIntersections = cluster.intersectionPoints.length;
 
     const res = Split.splitCluster(cluster, breaks);
 
-    // TODO: write assertions
-    t.equal(res.length, 3);
+    const intersectionCount = res.reduce((p, c) => p + c.intersectionPoints.length, 0);
+    const addressCount = res.reduce((p, c) => p + c.addressPoints.length, 0);
+
+    t.equal(res[0].addressPoints.length, 58);
+    t.equal(res[1].addressPoints.length, 32);
+    t.equal(res[2].addressPoints.length, 69);
+    t.equal(res[3].addressPoints.length, 61);
+
+    t.equal(res.length, 4);
+    t.equal(totalAddresses, addressCount);
+    t.equal(totalIntersections, intersectionCount);
+
+    t.end();
+});
+
+
+test('split#splitCluster - return an array of the input cluster for no breaks', (t) => {
+    const cluster = require('./fixtures/cluster-mult-cliffs-peaks.json')[0];
+
+    const breaks = [];
+
+    const res = Split.splitCluster(cluster, breaks);
+
+    t.equal(res.length, 1);
+    t.deepEqual(res[0], cluster);
 
     t.end();
 });
