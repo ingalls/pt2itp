@@ -80,6 +80,33 @@ test('orphan.address', (t) => {
     });
 });
 
+test('orphan output', (t) => {
+
+    let counter = 0;
+    const orphans = {
+        'Main Street': [['3','4']],
+        'Fake Avenue': [['5']]
+    };
+
+    const rl = readline.createInterface({
+        input : fs.createReadStream(path.resolve(__dirname, '../test/fixtures/orphan-output.geojson'))
+    });
+    rl.on('line', (line) => {
+        if (!line) return;
+        counter++;
+        const feat = JSON.parse(line);
+
+        t.deepEquals(feat.properties['carmen:addressnumber'], orphans[feat.properties['carmen:text']], 'ok - orphan has correct addresses');
+
+        t.ok(feat.properties.accuracy);
+    });
+
+    rl.on('close', () => {
+        t.equals(counter, 2, 'ok - output had correct number of orphan clusters');
+        t.end();
+    });
+});
+
 test('orphan streets', (t) => {
 
     const {
@@ -129,31 +156,7 @@ test('orphan streets', (t) => {
     });
 });
 
-test('orphan output', (t) => {
+// TODO test for network with no intersections
 
-    let counter = 0;
-    const orphans = {
-        'Main Street': [['3','4']],
-        'Fake Avenue': [['5']]
-    };
-
-    const rl = readline.createInterface({
-        input : fs.createReadStream(path.resolve(__dirname, '../test/fixtures/orphan-output.geojson'))
-    });
-    rl.on('line', (line) => {
-        if (!line) return;
-        counter++;
-        const feat = JSON.parse(line);
-
-        t.deepEquals(feat.properties['carmen:addressnumber'], orphans[feat.properties['carmen:text']], 'ok - orphan has correct addresses');
-
-        t.ok(feat.properties.accuracy);
-    });
-
-    rl.on('close', () => {
-        t.equals(counter, 2, 'ok - output had correct number of orphan clusters');
-        t.end();
-    });
-});
 
 db.init(test);
