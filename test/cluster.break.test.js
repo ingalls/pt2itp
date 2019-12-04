@@ -352,7 +352,9 @@ test('split#splitCluster - ', (t) => {
                     location: 0.5559754011676645
                 }
             ],
-            intersectionPoints: []
+            intersectionPoints: [
+                { coords: [0.0008993203637245394, 1.6717677209649935e-18], location: 0.1 }
+            ]
         },
         {
             network: {
@@ -373,7 +375,7 @@ test('split#splitCluster - ', (t) => {
                 { coords: [0.009, 1.8369701986277705e-19], location: 1.000755722101796 }
             ],
             intersectionPoints: [
-                { coords: [0.0008993203637245394, 1.6717677209649935e-18], location: 0.1 }
+                { coords: [0.005899320363724538, 7.532826279909296e-19], location: 0.6559754011676645 }
             ]
         }
     ]);
@@ -389,7 +391,7 @@ test('split#splitCluster - ', (t) => {
     const res = Split.splitCluster(cluster, breaks);
 
     // TODO: write assertions
-    t.ok(res);
+    t.equal(res.length, 3);
 
     t.end();
 });
