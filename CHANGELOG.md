@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v28.1.0
+
+- :rocket: Only allow perfect matches for cardinaled to non-cardinaled features when `strict` mode is disabled.
+
 ### v28.0.0
 
 - :rocket: Prevent past versions of features from being added back or being modified during conflate.
