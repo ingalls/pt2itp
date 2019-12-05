@@ -209,7 +209,6 @@ test('Interpolize', (t) => {
     t.end();
 });
 
-const Split = require('../lib/map/split').Split;
 function legacyFormatter(itps, addressPoints) {
     const asGeoJSON = require('../lib/map/asgeojson');
     if (addressPoints === undefined) {
