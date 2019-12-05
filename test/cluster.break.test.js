@@ -445,7 +445,81 @@ test('split#splitCluster - handle several breaks', (t) => {
     t.end();
 });
 
-test('split#splitCluster - handle breaks over zero length segments', (t) => {
+test('split#splitCluster - handle breaks over zero length segments at the beginning of a cluster', (t) => {
+    const cluster = {
+        network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.01738715171814, 41.34679672392427], [-72.01857805252075, 41.34723971461209], [-72.01957583427429, 41.34738469272805], [-72.02129244804382, 41.34719138850171], [-72.0245110988617, 41.346732288664064]] } },
+        addressPoints: [
+            { coords: [-72.01738715171814, 41.34679672392427], location: 0 }, // break
+            { coords: [-72.01738715171814, 41.34679672392427], location: 0 },
+            { coords: [-72.01738715171814, 41.34679672392427], location: 0 },
+            { coords: [-72.01738715171814, 41.34679672392427], location: 0 }, // break
+            { coords: [-72.01800860032061, 41.34702789006611], location: 0.057895561709495974 },
+            { coords: [-72.01800860032061, 41.34702789006611], location: 0.057895561709495974 },
+            { coords: [-72.01957550055494, 41.34738464423848], location: 0.19575531560060722 },
+            { coords: [-72.02086726582885, 41.347239267366824], location: 0.3047935966401688 },
+            { coords: [-72.02098959915647, 41.34722549167093], location: 0.3151197811713521 }, // break
+            { coords: [-72.02100913910834, 41.3472232913185], location: 0.3167691532352579 },
+            { coords: [-72.02106266533598, 41.34721726384383], location: 0.32128731533415344 },
+            { coords: [-72.02221756350927, 41.347059432479135], location: 0.4192902898769348 },
+            { coords: [-72.02256924083476, 41.3470092701558], location: 0.4491723121311413 },
+            { coords: [-72.02346202860434, 41.34688192527023], location: 0.5250325884806537 }],
+        intersectionPoints: [
+            { coords: [-72.0184081736443, 41.34717652315218], location: 0.09512063190222796 },
+            { coords: [-72.02132477806703, 41.34718677703273], location: 0.34343041088499504 },
+            { coords: [-72.0241499324312, 41.34678380448823], location: 0.5834839510397574 }
+        ]
+    };
+
+    const breaks = [0, 3, 8];
+
+    const res = Split.splitCluster(cluster, breaks);
+
+    t.deepEqual(res, [
+        {
+            network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.01738715171814, 41.34679672392427], [-72.01769787486272, 41.34691230832979]] } },
+            addressPoints: [
+                { coords: [-72.01738715171814, 41.34679672392427], location: 0 },
+                { coords: [-72.01738715171814, 41.34679672392427], location: 0 },
+                { coords: [-72.01738715171814, 41.34679672392427], location: 0 },
+                { coords: [-72.01738715171814, 41.34679672392427], location: 0 }
+            ],
+            intersectionPoints: []
+        },
+        {
+            network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.01769787486272, 41.34691230832979], [-72.01857805252075, 41.34723971461209], [-72.01957583427429, 41.34738469272805], [-72.02099936950121, 41.34722439334008]] } },
+            addressPoints: [
+                { coords: [-72.01800860032061, 41.34702789006611], location: 0.057895561709495974 },
+                { coords: [-72.01800860032061, 41.34702789006611], location: 0.057895561709495974 },
+                { coords: [-72.01957550055494, 41.34738464423848], location: 0.19575531560060722 },
+                { coords: [-72.02086726582885, 41.347239267366824], location: 0.3047935966401688 },
+                { coords: [-72.02098959915647, 41.34722549167093], location: 0.3151197811713521 }
+            ],
+            intersectionPoints: [
+                { coords: [-72.0184081736443, 41.34717652315218], location: 0.09512063190222796 }
+            ]
+        },
+        {
+            network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.02099936950121, 41.34722439334008], [-72.02129244804382, 41.34719138850171], [-72.0245110988617, 41.346732288664064]] } },
+            addressPoints: [
+                { coords: [-72.02100913910834, 41.3472232913185], location: 0.3167691532352579 },
+                { coords: [-72.02106266533598, 41.34721726384383], location: 0.32128731533415344 },
+                { coords: [-72.02221756350927, 41.347059432479135], location: 0.4192902898769348 },
+                { coords: [-72.02256924083476, 41.3470092701558], location: 0.4491723121311413 },
+                { coords: [-72.02346202860434, 41.34688192527023], location: 0.5250325884806537 }
+            ],
+            intersectionPoints: [
+                { coords: [-72.02132477806703, 41.34718677703273], location: 0.34343041088499504 },
+                { coords: [-72.0241499324312, 41.34678380448823], location: 0.5834839510397574 }
+            ]
+        }
+    ]
+    );
+
+    t.end();
+});
+
+
+test('split#splitCluster - handle breaks over zero length segments at the end of a cluster', (t) => {
     const cluster = {
         network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.00832913680851, 41.33974051878503], [-72.00937271118164, 41.340957019505645], [-72.01070308685303, 41.34301909908479]] } },
         addressPoints: [
