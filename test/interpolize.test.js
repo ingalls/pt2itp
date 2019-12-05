@@ -171,7 +171,8 @@ test('Interpolize', (t) => {
         { number:'11', output: true, props: {} }
     ]);
 
-    const res = interpolize.interpolize([seg]);
+    let res = interpolize.interpolize([seg]);
+    res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
 
@@ -194,7 +195,7 @@ test('Interpolize', (t) => {
         'type':'GeometryCollection',
         'geometries':[{
             'type':'MultiLineString',
-            'coordinates':[[[-77.21062123775481,39.17687343078357],[-77.21062630859578,39.17697013090542]],[[-77.21062123775481,39.17687343078357],[-77.21064805984497,39.1773849237293]]]
+            'coordinates':[[[-77.21062123775481,39.17687343078357],[-77.21062630866005,39.17697013213097]],[[-77.21062123775481,39.17687343078357],[-77.21064805984497,39.1773849237293]]]
         },{
             type: 'MultiPoint',
             coordinates: [
@@ -627,8 +628,7 @@ test('Interpolize - No address cluster', (t) => {
         }
     }];
 
-    let res = interpolize.interpolize(segs);
-    res = legacyFormatter(res, undefined);
+    const res = interpolize.interpolize(segs);
     delete res.id;
 
     if (process.env.UPDATE) {
@@ -946,7 +946,7 @@ function placePointsAndProps(network, points, props) {
     return points.map((v, i) => {
         const pt = pointOnLine(network, v);
         return {
-            coords: pt.geometry.coordinates,
+            coords: v,
             dist: pt.properties.dist,
             location: pt.properties.location,
             props: props === undefined ? undefined : props[i],
