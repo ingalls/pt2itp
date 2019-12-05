@@ -79,8 +79,8 @@ test('Split: East Long Street', (t) => {
             t.equals(res.properties['carmen:text'], 'East Long Street', 'Text should be East Long Street');
         }
 
-        t.equals(ress[0].geometry.geometries[0].coordinates.length, 1);
-        t.ok(false, 'skipping test'); // t.equals(ress[1].geometry.geometries[0].coordinates.length, 10);
+        t.equals(ress[0].geometry.geometries[0].coordinates.length, 2);
+        t.equals(ress[1].geometry.geometries[0].coordinates.length, 11);
 
 
         t.end();
