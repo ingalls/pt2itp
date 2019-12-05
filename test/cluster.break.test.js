@@ -338,19 +338,7 @@ test('split#splitCluster - handle single break', (t) => {
 
 test('split#splitCluster - handle several breaks', (t) => {
     const cluster = {
-        network: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'LineString',
-                coordinates: [
-                    [-76.97148084640502, 38.91855973980027],
-                    [-76.9751501083374, 38.91406031605573],
-                    [-76.97629809379578, 38.91257435835576],
-                    [-76.97888374328613, 38.90709775126436]
-                ]
-            }
-        },
+        network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-76.97148084640502, 38.91855973980027], [-76.9751501083374, 38.91406031605573], [-76.97629809379578, 38.91257435835576], [-76.97888374328613, 38.90709775126436]] } },
         addressPoints: [
             { coords: [-76.97188630737034, 38.918062544252905], location: 0.06547512498419607 },
             { coords: [-76.97210715896533, 38.917791725508216], location: 0.10113899766507231 },
@@ -487,9 +475,39 @@ test('split#splitCluster - handle breaks over zero length segments', (t) => {
 
     const res = Split.splitCluster(cluster, breaks);
 
-    console.log(JSON.stringify(res));
-
-    t.deepEqual(res.length, 2);
+    t.deepEqual(res, [
+        {
+            network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.00832913680851, 41.33974051878503], [-72.00937271118164, 41.340957019505645], [-72.01050379475316, 41.34271020602774]] } },
+            addressPoints: [
+                { coords: [-72.0078706741333, 41.3403770478594], location: 0.03877871959783233 },
+                { coords: [-72.0104455947876, 41.34092479899412], location: 0.1967143578104889 },
+                { coords: [-72.00894355773924, 41.342116947303296], location: 0.26135634936089525 },
+                { coords: [-72.01117515563965, 41.34208472736567], location: 0.3393438074323155 }
+            ],
+            intersectionPoints: [
+                { coords: [-72.00832913680851, 41.33974051878503], location: 0 },
+                { coords: [-72.00876921415329, 41.340260247389146], location: 0.06847931087196438 },
+                { coords: [-72.01014518737793, 41.342116947303296], location: 0.30508687658883704 }
+            ]
+        },
+        {
+            network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-72.01050379475316, 41.34271020602774], [-72.01070308685303, 41.34301909908479]] } },
+            addressPoints: [
+                { coords: [-72.0177412033081, 41.34743301869497], location: 0.4156731618972499 },
+                { coords: [-72.0177412033081, 41.34743301869497], location: 0.4156731618972499 },
+                { coords: [-72.01950073242188, 41.34767464799149], location: 0.4156731618972499 },
+                { coords: [-72.0208740234375, 41.34654703693574], location: 0.4156731618972499 },
+                { coords: [-72.0208740234375, 41.34664703693574], location: 0.4156731618972499 },
+                { coords: [-72.02113151550293, 41.34756188776471], location: 0.4156731618972499 },
+                { coords: [-72.02207565307617, 41.34649871031123], location: 0.4156731618972499 },
+                { coords: [-72.02113151550293, 41.34856188776471], location: 0.4156731618972499 },
+                { coords: [-72.02267646789551, 41.34743301869497], location: 0.4156731618972499 },
+                { coords: [-72.02332019805908, 41.34632151238116], location: 0.4156731618972499 }
+            ],
+            intersectionPoints: []
+        }
+    ]
+    );
 
     t.end();
 });
