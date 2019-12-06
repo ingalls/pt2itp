@@ -76,11 +76,11 @@ test('Raise High', (t) => {
 test('ITP Sort', (t) => {
     t.test('ITP Sort: Basic', (q) => {
         const feats = [
-            { id: 2, properties: { 'carmen:lfromhn': [22, null] } },
-            { id: 4, properties: { 'carmen:lfromhn': [1423, null] } },
-            { id: 1, properties: { 'carmen:lfromhn': [3, null] } },
-            { id: 5, properties: { 'carmen:lfromhn': [4362, null] } },
-            { id: 3, properties: { 'carmen:lfromhn': [43, null] } }
+            { id: 2, lstart: 22 },
+            { id: 4, lstart: 1423 },
+            { id: 1, lstart: 3 },
+            { id: 5, lstart: 4362 },
+            { id: 3, lstart: 43 }
         ];
 
         feats.sort(interpolize.itpSort);
@@ -92,11 +92,11 @@ test('ITP Sort', (t) => {
 
     t.test('ITP Sort: Nulls Last', (q) => {
         const feats = [
-            { id: 1, properties: { 'carmen:lfromhn': [22, null] } },
-            { id: 2, properties: { 'carmen:lfromhn': [1423, null] } },
-            { id: 5, properties: { } },
-            { id: 3, properties: { 'carmen:lfromhn': [4362, null] } },
-            { id: 4, properties: { } }
+            { id: 1, lstart: 22 },
+            { id: 2, lstart: 1423 },
+            { id: 5 },
+            { id: 3, lstart: 4362 },
+            { id: 4 }
         ];
 
         feats.sort(interpolize.itpSort);
@@ -171,7 +171,7 @@ test('Interpolize', (t) => {
         { number:'11', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg]);
+    let res = interpolize.interpolize([seg], { dropLow: true, raiseHigh: true });
     res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
@@ -187,8 +187,7 @@ test('Interpolize', (t) => {
         'carmen:parityr':[[null,'E'], null],
         'carmen:rfromhn':[[null, 8], null],
         'carmen:rtohn':  [[null, 10] ,null],
-        'carmen:addressnumber':[null,['8','10','9','11']],
-        'carmen:intersections': []
+        'carmen:addressnumber':[null,['8','10','9','11']]
     }, 'has expected properties');
 
     t.deepEquals(res.geometry, {
@@ -261,7 +260,7 @@ test('Interpolize - Continious network - unique address duplicate num', (t) => {
         { number: '12', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true });
     res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
@@ -318,7 +317,7 @@ test('Interpolize - Continious network - unique address duplicate num - differen
         { number: '2', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
     res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
@@ -367,7 +366,7 @@ test('Interpolize - Ignore addresses above far away from line', (t) => {
         { number: '16000', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
     res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
@@ -410,7 +409,7 @@ test('Interpolize - Addr past line end', (t) => {
         { number: '12', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
     res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
@@ -454,7 +453,7 @@ test('Interpolize - Addr past line end - opposite', (t) => {
         { number: '12', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
     res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
@@ -535,7 +534,7 @@ test('Interpolize - Addr past line end - bend - reverse', (t) => {
         { number:'3', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
     res = legacyFormatter(res, seg);
 
     delete res.id;
@@ -598,7 +597,7 @@ test('Interpolize - Hooked Road', (t) => {
         { number: '9', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
     res = legacyFormatter(res, seg);
 
     delete res.id;
@@ -741,9 +740,7 @@ test('Interpolize - Do not raise high', (t) => {
         { number: '12', output: true, props: {} }
     ]);
 
-    // const segs = [seg];
-    // const res = interpolize.interpolize({ segs, nextDelta: 0 }, { debug: true }); // TODO preserve nextDelta behavior
-    let res = interpolize.interpolize([seg], { debug: true });
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: false });
     res = legacyFormatter(res, seg);
 
     delete res.id;
