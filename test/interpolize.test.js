@@ -493,8 +493,8 @@ test('Interpolize - Addr past line end - bend', (t) => {
         { number:'3', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true });
-    res = legacyFormatter(res, seg);
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true });
+    res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
 
@@ -534,8 +534,8 @@ test('Interpolize - Addr past line end - bend - reverse', (t) => {
         { number:'3', output: true, props: {} }
     ]);
 
-    let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
-    res = legacyFormatter(res, seg);
+    let res = interpolize.interpolize([seg], { debug: true, dropLow: false, raiseHigh: true  });
+    res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
 
@@ -598,7 +598,7 @@ test('Interpolize - Hooked Road', (t) => {
     ]);
 
     let res = interpolize.interpolize([seg], { debug: true, dropLow: true, raiseHigh: true  });
-    res = legacyFormatter(res, seg);
+    res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
 
@@ -785,10 +785,9 @@ test('Interpolize - Do not drop low', (t) => {
         { number: '10', output: true, props: {} },
         { number: '12', output: true, props: {} }
     ]);
-    // const segs = [seg];
-    // const res = interpolize.interpolize({ segs, prevDelta: 0 }, { debug: true }); // TODO preserve prevDelta behavior
-    let res = interpolize.interpolize([seg], { debug: true });
-    res = legacyFormatter(res, seg);
+
+    let res = interpolize.interpolize([seg], { raiseHigh: true, debug: true });
+    res = legacyFormatter(res, seg.addressPoints);
 
     delete res.id;
 

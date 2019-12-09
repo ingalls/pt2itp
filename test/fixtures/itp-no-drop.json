@@ -1,32 +1,6 @@
 {
     "type": "Feature",
     "properties": {
-        "address_props": [
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {}
-        ],
-        "carmen:intersections": [],
-        "carmen:addressnumber": [
-            null,
-            [
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "9",
-                "11",
-                "10",
-                "12"
-            ]
-        ],
         "carmen:rangetype": "tiger",
         "carmen:parityl": [
             [
@@ -69,6 +43,31 @@
                 12
             ],
             null
+        ],
+        "carmen:addressnumber": [
+            null,
+            [
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "9",
+                "11",
+                "10",
+                "12"
+            ]
+        ],
+        "address_props": [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {}
         ]
     },
     "geometry": {
@@ -93,8 +92,8 @@
                             45.900282732840324
                         ],
                         [
-                            -72.52811816729813,
-                            45.899724136812736
+                            -72.52796008114788,
+                            45.89985565841393
                         ]
                     ]
                 ]
@@ -144,7 +143,7 @@
     },
     "debug": [
         {
-            "type": "featurecollection",
+            "type": "FeatureCollection",
             "features": [
                 {
                     "type": "Feature",
@@ -177,13 +176,13 @@
             ]
         },
         {
-            "type": "featurecollection",
+            "type": "FeatureCollection",
             "features": [
                 {
                     "type": "Feature",
                     "properties": {
-                        "start": true,
-                        "right": true
+                        "right": true,
+                        "end": true
                     },
                     "geometry": {
                         "type": "Point",
@@ -196,14 +195,14 @@
                 {
                     "type": "Feature",
                     "properties": {
-                        "end": true,
+                        "start": true,
                         "right": true
                     },
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            -72.65104293823242,
-                            45.80846108136044
+                            -72.52869129180908,
+                            45.90050672127712
                         ]
                     }
                 }

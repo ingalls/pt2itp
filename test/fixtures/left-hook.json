@@ -1,20 +1,55 @@
 {
     "type": "Feature",
     "properties": {
-        "address_props": [
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {}
+        "carmen:rangetype": "tiger",
+        "carmen:parityl": [
+            [
+                "E",
+                "E",
+                "E"
+            ],
+            null
         ],
-        "carmen:intersections": [],
+        "carmen:lfromhn": [
+            [
+                0,
+                2,
+                12
+            ],
+            null
+        ],
+        "carmen:ltohn": [
+            [
+                2,
+                12,
+                20
+            ],
+            null
+        ],
+        "carmen:parityr": [
+            [
+                null,
+                "O",
+                null
+            ],
+            null
+        ],
+        "carmen:rfromhn": [
+            [
+                null,
+                1,
+                null
+            ],
+            null
+        ],
+        "carmen:rtohn": [
+            [
+                null,
+                9,
+                null
+            ],
+            null
+        ],
         "carmen:addressnumber": [
             null,
             [
@@ -31,48 +66,18 @@
                 "9"
             ]
         ],
-        "carmen:rangetype": "tiger",
-        "carmen:parityl": [
-            [
-                "E",
-                "E"
-            ],
-            null
-        ],
-        "carmen:lfromhn": [
-            [
-                2,
-                12
-            ],
-            null
-        ],
-        "carmen:ltohn": [
-            [
-                12,
-                20
-            ],
-            null
-        ],
-        "carmen:parityr": [
-            [
-                "O",
-                null
-            ],
-            null
-        ],
-        "carmen:rfromhn": [
-            [
-                1,
-                null
-            ],
-            null
-        ],
-        "carmen:rtohn": [
-            [
-                9,
-                null
-            ],
-            null
+        "address_props": [
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {}
         ]
     },
     "geometry": {
@@ -81,6 +86,16 @@
             {
                 "type": "MultiLineString",
                 "coordinates": [
+                    [
+                        [
+                            -77.19249486923218,
+                            39.090421398604306
+                        ],
+                        [
+                            -77.19245494516022,
+                            39.09053529637232
+                        ]
+                    ],
                     [
                         [
                             -77.19249486923218,
@@ -164,7 +179,40 @@
     },
     "debug": [
         {
-            "type": "featurecollection",
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "start": true,
+                        "left": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.19264507293701,
+                            39.090575451742545
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "end": true,
+                        "left": true
+                    },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            -77.19264507293701,
+                            39.090575451742545
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "type": "FeatureCollection",
             "features": [
                 {
                     "type": "Feature",
@@ -225,7 +273,7 @@
             ]
         },
         {
-            "type": "featurecollection",
+            "type": "FeatureCollection",
             "features": [
                 {
                     "type": "Feature",
@@ -236,8 +284,8 @@
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            -77.19264507293701,
-                            39.090575451742545
+                            -77.19221591949463,
+                            39.09162466957128
                         ]
                     }
                 },
@@ -252,34 +300,6 @@
                         "coordinates": [
                             -77.19221591949463,
                             39.09162466957128
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "start": true,
-                        "right": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -77.19157218933105,
-                            39.090342290105255
-                        ]
-                    }
-                },
-                {
-                    "type": "Feature",
-                    "properties": {
-                        "end": true,
-                        "right": true
-                    },
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            -77.19125032424927,
-                            39.09124995071007
                         ]
                     }
                 }
