@@ -76,32 +76,32 @@ test('Raise High', (t) => {
 test('ITP Sort', (t) => {
     t.test('ITP Sort: Basic', (q) => {
         const feats = [
-            { id: 2, lstart: 22 },
-            { id: 4, lstart: 1423 },
-            { id: 1, lstart: 3 },
-            { id: 5, lstart: 4362 },
-            { id: 3, lstart: 43 }
-        ];
+            { id: 2, lstart: { number: 22 } },
+            { id: 4, lstart: { number: 1423 } },
+            { id: 1, lstart: { number: 3 } },
+            { id: 5, lstart: { number: 4362 } },
+            { id: 3, lstart: { number: 43 } }
+        ].map((v) => { return  { range: v };});
 
         feats.sort(interpolize.itpSort);
 
-        q.equals(feats.map((v) => v.id).join(' '), '1 2 3 4 5');
+        q.equals(feats.map((v) => v.range.id).join(' '), '1 2 3 4 5');
 
         q.end();
     });
 
     t.test('ITP Sort: Nulls Last', (q) => {
         const feats = [
-            { id: 1, lstart: 22 },
-            { id: 2, lstart: 1423 },
+            { id: 1, lstart: { number: 22 } },
+            { id: 2, lstart: { number: 1423 } },
             { id: 5 },
-            { id: 3, lstart: 4362 },
+            { id: 3, lstart: { number: 4362 } },
             { id: 4 }
-        ];
+        ].map((v) => { return  { range: v };});
 
         feats.sort(interpolize.itpSort);
 
-        q.equals(feats.map((v) => v.id).join(' '), '1 2 3 4 5');
+        q.equals(feats.map((v) => v.range.id).join(' '), '1 2 3 4 5');
 
         q.end();
     });
