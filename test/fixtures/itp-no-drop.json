@@ -181,8 +181,8 @@
                 {
                     "type": "Feature",
                     "properties": {
-                        "right": true,
-                        "end": true
+                        "end": true,
+                        "right": true
                     },
                     "geometry": {
                         "type": "Point",
