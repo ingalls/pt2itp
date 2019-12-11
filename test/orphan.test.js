@@ -148,9 +148,23 @@ test('orphan streets', (t) => {
 
         t.deepEqual(result[0].properties['carmen:text'], 'Hobart Place Northwest');
         t.deepEqual(result[0].properties['carmen:intersections'], [null, ['Georgia Avenue Northwest', 'Us 29']]);
+        t.deepEqual(result[0].properties['carmen:parityl'], [[], null]);
+        t.deepEqual(result[0].properties['carmen:ltohn'], [[], null]);
+        t.deepEqual(result[0].properties['carmen:lfromhn'], [[], null]);
+        t.deepEqual(result[0].properties['carmen:parityr'], [[], null]);
+        t.deepEqual(result[0].properties['carmen:rtohn'], [[], null]);
+        t.deepEqual(result[0].properties['carmen:rfromhn'], [[], null]);
+        t.deepEqual(result[0].properties['carmen:addressnumber'], undefined);
 
         t.deepEqual(result[1].properties['carmen:text'], 'Georgia Avenue Northwest,Us 29');
         t.deepEqual(result[1].properties['carmen:intersections'], [null, ['Hobart Place Northwest']]);
+        t.deepEqual(result[1].properties['carmen:parityl'], [[], null]);
+        t.deepEqual(result[1].properties['carmen:ltohn'], [[], null]);
+        t.deepEqual(result[1].properties['carmen:lfromhn'], [[], null]);
+        t.deepEqual(result[1].properties['carmen:parityr'], [[], null]);
+        t.deepEqual(result[1].properties['carmen:rtohn'], [[], null]);
+        t.deepEqual(result[1].properties['carmen:rfromhn'], [[], null]);
+        t.deepEqual(result[1].properties['carmen:addressnumber'], undefined);
 
         t.end();
     });
