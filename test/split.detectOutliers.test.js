@@ -88,10 +88,9 @@ test('scattered data, no line of best fit', (t) => {
 
 // standard outlier detection cases
 
-//             *
+//           5x*
 //    3x*
 // *
-// TODO: add more points, this is being skipped
 test('clustered duplicates should not affect outlier detection', (t) => {
     const cluster = {
         addressPoints: [
@@ -99,6 +98,10 @@ test('clustered duplicates should not affect outlier detection', (t) => {
             { location: 0.1, props: { number: 105 } },
             { location: 0.1, props: { number: 105 } },
             { location: 0.1 , props: { number: 105 } },
+            { location: 0.5, props: { number: 125 } },
+            { location: 0.5, props: { number: 125 } },
+            { location: 0.5, props: { number: 125 } },
+            { location: 0.5, props: { number: 125 } },
             { location: 0.5, props: { number: 125 } }
         ]
     };
@@ -108,10 +111,11 @@ test('clustered duplicates should not affect outlier detection', (t) => {
     t.end();
 });
 
+//                       *
+//                  *
 //             *
 //    3x*
 // *
-// TODO: add more points, this is being skipped
 test('clustered points should not affect outlier detection', (t) => {
     const cluster = {
         addressPoints: [
@@ -119,7 +123,16 @@ test('clustered points should not affect outlier detection', (t) => {
             { location: 0.1, props: { number: 105 } },
             { location: 0.101, props: { number: 106 } },
             { location: 0.102, props: { number: 107 } },
-            { location: 0.5, props: { number: 125 } }
+            { location: 0.5, props: { number: 125 } },
+            { location: 0.6, props: { number: 131 } },
+            { location: 0.7, props: { number: 134 } },
+            { location: 0.8, props: { number: 140 } },
+            { location: 0.9, props: { number: 146 } },
+            { location: 1.0, props: { number: 150 } },
+            { location: 1.1, props: { number: 157 } },
+            { location: 1.2, props: { number: 161 } },
+            { location: 1.3, props: { number: 165 } },
+            { location: 1.4, props: { number: 169 } }
         ]
     };
 
@@ -179,6 +192,46 @@ test('points far from the best fit line should be flagged', (t) => {
             { location: 0.04176167852794213, props: { number: '30' } },
             { location: 0.047672778951868916, props: { number: '30' } },
             { location: 0.034275959753819696, props: { number: '32' } },
+            { location: 0.023700093993372216, props: { number: '34' } },
+            { location: 0.016429642338136794, props: { number: '34' } },
+            { location: 0.017919232264831074, props: { number: '35' } },
+            { location: 0.015760812596498107, props: { number: '35' } }
+        ]
+    };
+
+    const res = Split.detectOutliers(cluster);
+    t.deepEqual(ignored(res), [6, 8]);
+    t.end();
+});
+
+// *
+//     *
+//         *
+//            *
+//    o          *
+//            o     *
+//                      *
+test('non-numbers do not affect outlier detection', (t) => {
+    const cluster = {
+        addressPoints: [
+            { location: 0.20827621261441853, props: { number: '6' } },
+            { location: 0.20827621261441853, props: { number: 'aaa' } }, // NaN
+            { location: 0.18003714713562896, props: { number: '9' } },
+            { location: 0.17840542484203797, props: { number: '9' } },
+            { location: 0.14741316012491226, props: { number: '15' } },
+            { location: 0.1402793826076209, props: { number: '15' } },
+            { location: 0.09465898879533878, props: { number: '16' } }, // outlier
+            { location: 0.1121956402153018, props: { number: '16' } },
+            { location: 0.010230666323889461, props: { number: '21' } }, // outlier
+            { location: 0.07463149860300924, props: { number: '24' } },
+            { location: 0.08103717611401606, props: { number: '24' } },
+            { location: 0.0931292440395935, props: { number: 'bb' } }, // NaN
+            { location: 0.09086421971711717, props: { number: '25' } },
+            { location: 0.05559651095975835, props: { number: '29' } },
+            { location: 0.04544085578858492, props: { number: '29' } },
+            { location: 0.04176167852794213, props: { number: '30' } },
+            { location: 0.047672778951868916, props: { number: '30' } },
+            { location: 0.034275959753819696, props: { number: 'fff' } }, // NaN
             { location: 0.023700093993372216, props: { number: '34' } },
             { location: 0.016429642338136794, props: { number: '34' } },
             { location: 0.017919232264831074, props: { number: '35' } },
