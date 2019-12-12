@@ -211,7 +211,7 @@ test('points far from the best fit line should be flagged', (t) => {
 //    o          *
 //            o     *
 //                      *
-test('non-numbers do not affect outlier detection', (t) => {
+test('non-numbers are ignored and do not affect outlier detection', (t) => {
     const cluster = {
         addressPoints: [
             { location: 0.20827621261441853, props: { number: '6' } },
@@ -240,7 +240,7 @@ test('non-numbers do not affect outlier detection', (t) => {
     };
 
     const res = Split.detectOutliers(cluster);
-    t.deepEqual(ignored(res), [6, 8]);
+    t.deepEqual(ignored(res), [1, 6, 8, 11, 17]);
     t.end();
 });
 
