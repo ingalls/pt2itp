@@ -53,6 +53,7 @@
     "pg-cursor": "^2.0.0",
     "pluralize": "^8.0.0",
     "progress": "^2.0.0",
+    "regression": "^2.0.1",
     "request": "^2.88.0",
     "simple-statistics": "^7.0.0",
     "split": "^1.0.0",
