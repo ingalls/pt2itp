@@ -378,8 +378,6 @@ test('split#splitCluster - handle several breaks', (t) => {
 
     const res = Split.splitCluster(cluster, breaks);
 
-    console.log(require('util').inspect(res, false, 10));
-
     t.deepEqual(res, [
         {
             network: { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: [[-76.97148084640502, 38.91855973980027], [-76.97317338516022, 38.91648435332585]] } },
