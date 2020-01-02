@@ -6,49 +6,38 @@
             [
                 null,
                 null
-            ],
-            null
+            ]
         ],
         "carmen:lfromhn": [
             [
                 null,
                 null
-            ],
-            null
+            ]
         ],
         "carmen:ltohn": [
             [
                 null,
                 null
-            ],
-            null
+            ]
         ],
         "carmen:parityr": [
             [
                 "E",
                 "E"
-            ],
-            null
+            ]
         ],
         "carmen:rfromhn": [
             [
                 4,
                 12
-            ],
-            null
+            ]
         ],
         "carmen:rtohn": [
             [
                 0,
                 4
-            ],
-            null
-        ],
-        "carmen:addressnumber": [
-            null,
-            []
-        ],
-        "address_props": []
+            ]
+        ]
     },
     "geometry": {
         "type": "GeometryCollection",
@@ -81,10 +70,6 @@
                         ]
                     ]
                 ]
-            },
-            {
-                "type": "MultiPoint",
-                "coordinates": []
             }
         ]
     },
