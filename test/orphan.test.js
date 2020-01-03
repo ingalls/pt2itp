@@ -11,6 +11,7 @@ const db = require('./lib/db');
 
 db.init(test);
 
+const { Writable } = require('stream');
 const fs = require('fs');
 const path = require('path');
 const Queue = require('d3-queue').queue;
@@ -126,10 +127,7 @@ test('orphan streets', (t) => {
 
     intersections('pt_test');
 
-    const { Writable } = require('stream');
-
     let outputBuffer = '';
-
     const output = new Writable({
         write(chunk, encoding, callback) {
             outputBuffer += chunk.toString();
@@ -137,40 +135,79 @@ test('orphan streets', (t) => {
         }
     });
 
-    const pool = db.get();
-    const orphan = new Orphan(pool, {}, output);
+    t.test('Should output intersections if requested', (tt) => {
 
-    orphan.network((err) => {
-        t.error(err);
-        pool.end();
-        const result = outputBuffer.split('\n').filter((v) => v.length > 0).map(JSON.parse);
-        t.equal(result.length, 2);
+        const pool = db.get();
+        const orphan = new Orphan(pool, { intersections: true }, output);
 
-        t.deepEqual(result[0].properties['carmen:text'], 'Hobart Place Northwest');
-        t.deepEqual(result[0].properties['carmen:intersections'], [null, ['Georgia Avenue Northwest', 'Us 29']]);
-        t.deepEqual(result[0].properties['carmen:parityl'], [[], null]);
-        t.deepEqual(result[0].properties['carmen:ltohn'], [[], null]);
-        t.deepEqual(result[0].properties['carmen:lfromhn'], [[], null]);
-        t.deepEqual(result[0].properties['carmen:parityr'], [[], null]);
-        t.deepEqual(result[0].properties['carmen:rtohn'], [[], null]);
-        t.deepEqual(result[0].properties['carmen:rfromhn'], [[], null]);
-        t.deepEqual(result[0].properties['carmen:addressnumber'], undefined);
+        orphan.network((err) => {
+            t.error(err);
+            pool.end();
+            const result = outputBuffer.split('\n').filter((v) => v.length > 0).map(JSON.parse);
+            t.equal(result.length, 2);
 
-        t.deepEqual(result[1].properties['carmen:text'], 'Georgia Avenue Northwest,Us 29');
-        t.deepEqual(result[1].properties['carmen:intersections'], [null, ['Hobart Place Northwest']]);
-        t.deepEqual(result[1].properties['carmen:parityl'], [[], null]);
-        t.deepEqual(result[1].properties['carmen:ltohn'], [[], null]);
-        t.deepEqual(result[1].properties['carmen:lfromhn'], [[], null]);
-        t.deepEqual(result[1].properties['carmen:parityr'], [[], null]);
-        t.deepEqual(result[1].properties['carmen:rtohn'], [[], null]);
-        t.deepEqual(result[1].properties['carmen:rfromhn'], [[], null]);
-        t.deepEqual(result[1].properties['carmen:addressnumber'], undefined);
+            t.deepEqual(result[0].properties['carmen:text'], 'Hobart Place Northwest');
+            t.deepEqual(result[0].properties['carmen:intersections'], [null, ['Georgia Avenue Northwest', 'Us 29']]);
+            t.deepEqual(result[0].properties['carmen:parityl'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:ltohn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:lfromhn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:parityr'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:rtohn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:rfromhn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:addressnumber'], undefined);
 
-        t.end();
+            t.deepEqual(result[1].properties['carmen:text'], 'Georgia Avenue Northwest,Us 29');
+            t.deepEqual(result[1].properties['carmen:intersections'], [null, ['Hobart Place Northwest']]);
+            t.deepEqual(result[1].properties['carmen:parityl'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:ltohn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:lfromhn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:parityr'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:rtohn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:rfromhn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:addressnumber'], undefined);
+
+            tt.end();
+        });
     });
-});
 
-// TODO test for network with no intersections
+    t.test('Should not omit intersections by default', (tt) => {
+        outputBuffer = '';
+
+        const pool = db.get();
+        const orphan = new Orphan(pool, {}, output);
+
+        orphan.network((err) => {
+            t.error(err);
+            pool.end();
+            const result = outputBuffer.split('\n').filter((v) => v.length > 0).map(JSON.parse);
+            t.equal(result.length, 2);
+
+            t.deepEqual(result[0].properties['carmen:text'], 'Hobart Place Northwest');
+            t.deepEqual(result[0].properties['carmen:intersections'], undefined);
+            t.deepEqual(result[0].properties['carmen:parityl'], [[]]);
+            t.deepEqual(result[0].properties['carmen:ltohn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:lfromhn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:parityr'], [[]]);
+            t.deepEqual(result[0].properties['carmen:rtohn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:rfromhn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:addressnumber'], undefined);
+
+            t.deepEqual(result[1].properties['carmen:text'], 'Georgia Avenue Northwest,Us 29');
+            t.deepEqual(result[0].properties['carmen:intersections'], undefined);
+            t.deepEqual(result[1].properties['carmen:parityl'], [[]]);
+            t.deepEqual(result[1].properties['carmen:ltohn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:lfromhn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:parityr'], [[]]);
+            t.deepEqual(result[1].properties['carmen:rtohn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:rfromhn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:addressnumber'], undefined);
+
+            tt.end();
+        });
+    });
+
+    t.end();
+});
 
 
 db.init(test);
