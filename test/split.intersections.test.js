@@ -83,12 +83,12 @@ test('Split: Simple Intersection', (t) => {
             ]],
             'carmen:addressnumber': [null, ['2', '10', '20'], null],
             'carmen:rangetype': 'tiger',
-            'carmen:parityl': [['E', 'E', null], null, null],
-            'carmen:lfromhn': [[2, 20, null], null, null],
-            'carmen:ltohn': [[10, 20, null], null, null],
-            'carmen:parityr': [[null, null, null], null, null],
-            'carmen:rfromhn': [[null, null, null], null, null],
-            'carmen:rtohn': [[null, null, null], null, null],
+            'carmen:parityl': [['E', 'E', 'E', 'E'], null, null],
+            'carmen:lfromhn': [[0, 2, 20, 20], null, null],
+            'carmen:ltohn': [[2, 10, 20, 30], null, null],
+            'carmen:parityr': [[null, null, null, null], null, null],
+            'carmen:rfromhn': [[null, null, null, null], null, null],
+            'carmen:rtohn': [[null, null, null, null], null, null],
             'carmen:text': 'Riverton Road South',
             'carmen:geocoder_stack': 'us',
             'carmen:center': [-79.43694591522217, 38.74308011985037]
@@ -97,8 +97,16 @@ test('Split: Simple Intersection', (t) => {
         t.deepEquals(res.geometry, {
             type: 'GeometryCollection',
             geometries: [{
-                'type':'MultiLineString',
-                'coordinates': [
+                type:'MultiLineString',
+                coordinates: [
+                    [
+                        [-79.43969249725342, 38.74246924858317],
+                        [-79.43917751312256, 38.74222238816381],
+                        [-79.43901658058167, 38.742201467750064],
+                        [-79.43888247013092, 38.74234372644267],
+                        [-79.43876981735228, 38.74251108924762],
+                        [-79.43869951975134, 38.742560014180114]
+                    ],
                     [
                         [-79.43969249725342, 38.74246924858317],
                         [-79.43917751312256, 38.74222238816381],

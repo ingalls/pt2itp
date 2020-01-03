@@ -3,7 +3,6 @@
 const interpolize = require('../lib/map/interpolize');
 const test = require('tape');
 const fs = require('fs');
-const turf = require('@turf/turf');
 
 test('Drop Low', (t) => {
     let d;
