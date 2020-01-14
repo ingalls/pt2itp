@@ -219,6 +219,46 @@ mod tests {
     use geocoder_abbreviations::TokenType;
 
     #[test]
+    fn test_linker_ru() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        tokens.insert(String::from("Пер"), ParsedToken::new(String::from("п"), None));      
+        tokens.insert(String::from("Переулок"), ParsedToken::new(String::from("п"), None));
+        tokens.insert(String::from("улица"), ParsedToken::new(String::from("ул"), None));
+
+        let context = Context::new(String::from("ru"), None, Tokens::new(tokens));
+
+        {
+            let a_name = Names::new(vec![Name::new("Пер. Рогачёвский 2-Й", 0, None, &context)], &context);
+    
+            let b_name = Names::new(vec![Name::new("2-Й Рогачёвский Переулок", 0, None, &context)], &context);
+    
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(1, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(1, 71.43)));
+        }
+
+        {
+            let a_name = Names::new(vec![Name::new("Ул. 1-Ая Набережная", 0, None, &context)], &context);
+    
+            let b_name = Names::new(vec![Name::new("1-Я Набережная Улица", 0, None, &context)], &context);
+    
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(1, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(1, 100.00)));
+        }
+
+        {
+            let a_name = Names::new(vec![Name::new("Ул. 3-Я Чернышевского", 0, None, &context)], &context);
+    
+            let b_name = Names::new(vec![Name::new("3-Я Улица Чернышевского", 0, None, &context)], &context); // 3-Я Вуліца Чарнышэўскага -1
+    
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(1, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(1, 100.00)));
+        }
+    }
+
+    #[test]
     fn test_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
         tokens.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));
