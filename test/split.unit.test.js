@@ -201,7 +201,8 @@ test('Do not split short network into sub-segments', (t) => {
 });
 
 test('Split long network into sub-segments', (t) => {
-    const network = turf.featureCollection([turf.lineString([
+
+    const road = turf.lineString([
         [-77.03641176223755, 38.92910179895564],
         [-77.0355212688446, 38.92708198494835],
         [-77.03518867492676, 38.92108897519732],
@@ -211,8 +212,10 @@ test('Split long network into sub-segments', (t) => {
         [-77.03458786010742, 38.90135353865269],
         [-77.0336651802063, 38.90132014070886],
         [-77.03365445137024, 38.89212675943535]
-    ])]);
+    ]);
+    const origLength = turf.lineDistance(road);
 
+    const network = turf.featureCollection([road]);
     const cluster = {
         network: network.features[0],
         addressPoints: Split.attachPoints(network, [
@@ -225,6 +228,41 @@ test('Split long network into sub-segments', (t) => {
         intersectionPoints: []
     };
     const result = Split.splitSegments(cluster);
-    t.equal(result.length, 3, 'Split segment based on distance');
+    t.equal(result.length, 9, 'Split segment based on distance');
+
+    const resultLength = result.reduce((a, v) => a + turf.lineDistance(v.network), 0);
+    t.equal(resultLength, origLength, 'length is unchanged');
+
+    t.end();
+});
+
+test('Split and retain empty segments', (t) => {
+    const road = turf.lineString([
+        [-77.03641176223755, 38.92910179895564],
+        [-77.0355212688446, 38.92708198494835],
+        [-77.03518867492676, 38.92108897519732],
+        [-77.03475952148438, 38.92060483810483],
+        [-77.03469514846802, 38.91911901743697],
+        [-77.03448057174683, 38.91813401804748],
+        [-77.03458786010742, 38.90135353865269],
+        [-77.0336651802063, 38.90132014070886],
+        [-77.03365445137024, 38.89212675943535]
+    ]);
+    const origLength = turf.lineDistance(road);
+
+    const network = turf.featureCollection([road]);
+    const cluster = {
+        network: network.features[0],
+        addressPoints: Split.attachPoints(network, [
+            [-77.0334130525589,  38.896919824235354]
+        ], [1]),
+        intersectionPoints: []
+    };
+    const result = Split.splitSegments(cluster);
+    t.equal(result.length, 9, 'Split segment based on distance');
+
+    const resultLength = result.reduce((a, v) => a + turf.lineDistance(v.network), 0);
+    t.equal(resultLength, origLength, 'length is unchanged');
+
     t.end();
 });

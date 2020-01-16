@@ -55,19 +55,19 @@ test('Split: Dulaney Valley Rd, MD', (t) => {
         ], 'carmen:addressnumber should be stable');
 
         t.deepEquals(address.lrange, [
-            ['1021 - 1001','null - null','1021 - 1021','1233 - 1213','1317 - 1301','1411 - 1411','2101 - 2203','2101 - 2101','2101 - 3001','null - null','null - null','null - null','null - null','null - null','null - null','null - null'],
-            ['null - null','null - null','null - null','null - null','null - null'],
-            ['null - null','null - null','null - null','null - null'],
-            ['12001 - 12559','12559 - 12621','12814 - 12916','13204 - 13224','null - null','null - null','null - null','null - null'],
-            ['null - null','null - null','null - null']
+            ['1021 - 1001', 'null - null', '1021 - 1021', '1233 - 1213', '1317 - 1301', '1411 - 1411', '2101 - 2101', '2101 - 2203', '2203 - 3001', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null'],
+            ['null - null', 'null - null', 'null - null', 'null - null', 'null - null'],
+            ['null - null', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null'],
+            ['12001 - 12559', '12559 - 12621', '12814 - 12916', '13204 - 13224', 'null - null', 'null - null', 'null - null', 'null - null'],
+            ['null - null', 'null - null', 'null - null']
         ], 'left range should be stable');
 
         t.deepEquals(address.rrange, [
-            ['null - null','1200 - 1000','null - null','1300 - 1200','1320 - 1300','1508 - 1400','2204 - 2118','2300 - 2310','null - null','2300 - 2296','2300 - 3000','2300 - 2300','null - null','null - null','null - null','null - null'],
-            ['801 - 825','825 - 903','1021 - 1021','1021 - 1101','null - null'],
-            ['12101 - 12101','12101 - NaN','null - null','null - null'],
-            ['12001 - 12559','12559 - 12615','12809 - 12915','13207 - 13211','null - null','null - null','null - null','null - null'],
-            ['null - null','null - null','null - null']
+            ['null - null', '1200 - 1000', 'null - null', '1300 - 1200', '1320 - 1300', '1508 - 1400', '2300 - 2310', '2204 - 2118', 'null - null', '2300 - 2300', '3000 - 2300', '2300 - 2296', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null'],
+            ['801 - 825', '825 - 903', '1021 - 1021', '1021 - 1101', 'null - null'],
+            ['12101 - 12101', '12101 - NaN', 'null - null', 'null - null', 'null - null', 'null - null', 'null - null'],
+            ['12001 - 12559', '12559 - 12615', '12809 - 12915', '13207 - 13211', 'null - null', 'null - null', 'null - null', 'null - null'],
+            ['null - null', 'null - null', 'null - null']
         ], 'right range should be stable');
 
         t.end();
