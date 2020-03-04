@@ -2,6 +2,7 @@ use regex::Regex;
 use super::diacritics;
 use std::collections::HashMap;
 use geocoder_abbreviations::{Token, TokenType};
+use neon::prelude::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Tokens {
@@ -169,6 +170,17 @@ pub fn type_us_st(tokens: &Vec<String>, mut tokenized: Vec<Tokenized>) -> Vec<To
         }
     }
     tokenized
+}
+
+pub fn tokenize_name(mut cx: FunctionContext) -> JsResult<JsValue> {
+    let name = cx.argument::<JsString>(0)?.value();
+    let context = cx.argument::<JsValue>(1)?;
+    let context: crate::types::InputContext = neon_serde::from_value(&mut cx, context)?;
+    let context = crate::Context::from(context);
+    
+    let tokenized = context.tokens.process(&name, &context.country);
+
+    Ok(neon_serde::to_value(&mut cx, &tokenized)?)
 }
 
 #[cfg(test)]

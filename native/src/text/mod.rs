@@ -12,7 +12,7 @@ mod titlecase;
 
 pub use self::diacritics::diacritics;
 pub use self::titlecase::titlecase;
-pub use self::tokens::{Tokens, Tokenized, ParsedToken};
+pub use self::tokens::{Tokens, Tokenized, ParsedToken, tokenize_name};
 
 use std::collections::HashMap;
 use regex::{Regex, RegexSet};
