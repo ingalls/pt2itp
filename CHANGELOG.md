@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v28.2.0
+
+- :tada: Add back new and improved `analyze` mode for assessing text quality of address/network data.
+
 ### v28.1.0
 
 - :rocket: Only allow perfect matches for cardinaled to non-cardinaled features when `strict` mode is disabled.
