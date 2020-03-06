@@ -134,6 +134,17 @@ Full Options:
 ./index.js convert --help
 ```
 
+## `analyze` Mode
+
+### Basic Usage
+
+Analyzes the name field of a set of address and network data from either the database or a GeoJSON file. Outputs a CSV and markdown summary of the frequency distribution of each token in the data. Also includes a comparison mode for comparing address and network tokens.
+
+Basic Usage:
+```
+./index.js analyze --cc us_ia --type address --output=/tmp/us_ia.text-analysis/address
+```
+
 ## Version Numbers
 
 PT2ITP follows the [Semver](http://semver.org/) spec for it's **CLI interface**.
