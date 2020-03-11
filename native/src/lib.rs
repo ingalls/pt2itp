@@ -59,7 +59,7 @@ register_module!(mut m, {
 
     m.export_function("dedupe_syn", map::dedupe_syn)?;
 
-    m.export_function("tokenize_name", text::tokenize_name)?;
+    m.export_function("tokenize_names", text::tokenize_names)?;
 
     m.export_function("classify", classify::classify)?;
     m.export_function("conflate", conflate::conflate)?;

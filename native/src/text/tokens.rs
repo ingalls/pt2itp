@@ -172,13 +172,20 @@ pub fn type_us_st(tokens: &Vec<String>, mut tokenized: Vec<Tokenized>) -> Vec<To
     tokenized
 }
 
-pub fn tokenize_name(mut cx: FunctionContext) -> JsResult<JsValue> {
-    let name = cx.argument::<JsString>(0)?.value();
+pub fn tokenize_names(mut cx: FunctionContext) -> JsResult<JsValue> {
+    let names: Handle<JsArray> = cx.argument(0)?;
+    let vec: Vec<Handle<JsValue>> = names.to_vec(&mut cx)?;
     let context = cx.argument::<JsValue>(1)?;
     let context: crate::types::InputContext = neon_serde::from_value(&mut cx, context)?;
     let context = crate::Context::from(context);
     
-    let tokenized = context.tokens.process(&name, &context.country);
+    let string_vec: Vec<String> = vec.iter().map(|js_value| {
+            js_value.downcast::<JsString>().unwrap().value()
+    }).collect();
+
+    let tokenized: Vec<Vec<Tokenized>> = string_vec.iter().map(|name| {
+        context.tokens.process(&name, &context.country)
+    }).collect();
 
     Ok(neon_serde::to_value(&mut cx, &tokenized)?)
 }
