@@ -28,6 +28,7 @@ pub mod stats;
 pub mod dedupe;
 pub mod classify;
 pub mod conflate;
+pub mod consensus;
 
 pub use self::types::Address;
 pub use self::types::Network;
@@ -59,10 +60,11 @@ register_module!(mut m, {
 
     m.export_function("dedupe_syn", map::dedupe_syn)?;
 
-    m.export_function("tokenize_name", text::tokenize_name)?;
+    m.export_function("tokenize_name", text::tokenize_names)?;
 
     m.export_function("classify", classify::classify)?;
     m.export_function("conflate", conflate::conflate)?;
+    m.export_function("consensus", consensus::consensus)?;
     m.export_function("convert", convert::convert)?;
     m.export_function("stats", stats::stats)?;
     m.export_function("dedupe", dedupe::dedupe)?;
