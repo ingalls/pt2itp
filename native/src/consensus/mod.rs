@@ -82,15 +82,11 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let pgaddress = pg::Address::new();
     pgaddress.create(&conn);
     for source in sources {
-        let err_source = match args.error_sources {
-            Some(error_sources) => Some(format!("{}{}", error_sources, source)),
-            None => None
-        };
-        pgaddress.input(&conn, AddrStream::new(GeoStream::new(Some(source)), context.clone(), err_source));
+        pgaddress.input(&conn, AddrStream::new(GeoStream::new(Some(source)), context.clone(), args.error_sources.clone()));
     }
     pgaddress.index(&conn);
 
-    let source_map: HashMap<String, Option<Address>> = HashMap::new();
+    let mut source_map: HashMap<String, Option<Address>> = HashMap::new();
     let rows = conn.query("SELECT source FROM address GROUP BY source", &[]).unwrap();
     for row in rows.iter() {
         let source: String = row.get(0);
@@ -118,8 +114,10 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             AND ST_DWithin(ST_SetSRID(ST_Point($2, $3), 4326), p.geom, 0.01);
     ";
 
+    let sources: Vec<String> = source_map.keys().cloned().collect();
+
     for addr in AddrStream::new(GeoStream::new(Some(test_set)), context.clone(), args.error_test_set) {
-        for &source in source_map.keys() {
+        for source in &sources {
             // pull the addresses matching this address number within 1 km
             let rows = conn.query(query, &[ &addr.number, &addr.geom[0], &addr.geom[1], &source ]).unwrap();
 
@@ -135,14 +133,14 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             match compare(&addr, &mut potential_matches) {
                 Some(link_id) => {
                     let mut pmatches: Vec<Address> = potential_matches.into_iter().filter(|potential| {
-                        link_id == potential.id.unwrap() && potential.output // do we need "output"?
+                        link_id == potential.id.unwrap()
                     }).collect();
 
                     match pmatches.len() {
                         0 => continue,
                         1 => {
                             let paddr = pmatches.pop();
-                            source_map.entry(source).and_modify(|e| *e = paddr);
+                            source_map.entry(source.to_string()).and_modify(|e| *e = paddr);
                         },
                         _ => panic!("Duplicate IDs are not allowed in input data")
                     }
@@ -153,6 +151,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             };
         }
 
+        output.write(format!("{:?}\n", source_map).as_bytes()).unwrap();
         // TODO: run consensus here, source_map is populated with address matches for each source
     }
 
@@ -189,7 +188,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn consensus_test() 
+    fn consensus_test() {
 
     }
 }
