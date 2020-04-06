@@ -218,6 +218,7 @@ if (require.main === module) {
     module.exports = {
         classify: require('./native/index.node').classify,
         conflate: require('./native/index.node').conflate,
+        consensus: require('./native/index.node').consensus,
         dedupe: require('./native/index.node').dedupe,
         stat: require('./native/index.node').stats,
         convert: require('./native/index.node').convert,
