@@ -361,7 +361,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     linker::Link::new(potential.id, &potential.names)
                 }).collect();
 
-                match linker::linker(primary, potentials, false) {
+                match linker::linker(primary, potentials, false, true) {
                     Some(link_match) => {
                         match trans.execute(&*"
                             UPDATE address SET netid = $1 WHERE id = $2;

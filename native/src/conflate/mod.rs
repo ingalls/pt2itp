@@ -35,7 +35,7 @@ impl ConflateArgs {
     pub fn new() -> Self {
         ConflateArgs {
             db: String::from("conflate"),
-            country: None,
+            country: String::from("us"),
             context: None,
             in_address: None,
             in_persistent: None,
@@ -81,7 +81,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     };
 
     println!("Country: {}", args.country);
-    bool is_us = args.country == "us";
+    let bool is_us =  args.country == "us";
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
 
