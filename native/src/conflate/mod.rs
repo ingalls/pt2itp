@@ -81,7 +81,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     };
 
     println!("Country: {}", args.country);
-    let mut is_us =  args.country == "us";
+    let is_us =  args.country == "us";
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
 
