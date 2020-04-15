@@ -63,7 +63,7 @@ impl LinkResult {
 /// being matched with a slightly less desirable match, usually due to data
 /// reasons.
 ///
-pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<LinkResult> {
+pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool, is_us: bool) -> Option<LinkResult> {
     for name in &primary.names.names {
         let tokenized = name.tokenized_string();
         let tokenless = name.tokenless_string();
@@ -113,8 +113,10 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
-                if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
-                    continue;
+                if is_us {
+                    if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
+                        continue;
+                    }
                 }
 
                 // Don't bother considering if both addr and network are a numbered street that
