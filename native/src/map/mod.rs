@@ -218,7 +218,7 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         }
     };
 
-    println!("{:?}", cx.argument_opt(1))
+    println!("{:?}", cx.argument_opt(1));
 
     let context = match cx.argument_opt(1) {
         Some(context) => CrateContext::from(context),
