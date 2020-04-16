@@ -114,11 +114,13 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool, is_us: boo
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
 
-                // if is_us {
-                //     if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
-                //        continue;
-                //     }
-                // }
+                println!("name: {}", name.country);
+                println!("potential.country: {}", potential.country);
+                if is_us {
+                    if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
+                       continue;
+                    }
+                }
 
                 if is_us {
                     println!("in the us");
@@ -768,6 +770,17 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, true, false), None);
+            println!("context:{}", context.country);
+        }
+
+        {
+            let a_name = Names::new(vec![Name::new("The Umpqua St", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Umpqua St", 0, None, &context)], &context);
+
+            
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true, true), None);
             println!("context:{}", context.country);
         }
 
