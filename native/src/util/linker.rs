@@ -124,9 +124,10 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool, context: C
                 println!("{:?}", context);
 
                 if context.country == "US" {
-                    println!("in the us";
-                } else {
-                    println!("not in the us";
+                    println!("in the us");
+                } 
+                else {
+                    println!("not in the us");
                 }
                 
                 // Don't bother considering if both addr and network are a numbered street that
