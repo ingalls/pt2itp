@@ -338,7 +338,7 @@ mod tests {
                 Link::new(42, &b_name41),
                 Link::new(43, &b_name42)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(14, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(14, 100.0)));
         }
 
         /*
@@ -366,7 +366,7 @@ mod tests {
                 Link::new(2, &b_1_name),
                 Link::new(3, &b_2_name)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -374,7 +374,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -382,7 +382,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("St Peter St", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -390,7 +390,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("Maim Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 85.71)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 85.71)));
         }
 
         {
@@ -398,7 +398,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("US Route 50 West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 98.08)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 98.08)));
         }
 
         {
@@ -406,7 +406,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("11th Avenue West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 92.11)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 92.11)));
         }
 
         {
@@ -424,7 +424,7 @@ mod tests {
                 Link::new(4, &b_name3),
                 Link::new(5, &b_name4)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -442,7 +442,7 @@ mod tests {
                 Link::new(4, &b_name3),
                 Link::new(5, &b_name4)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 100.0)));
         }
 
         {
@@ -456,7 +456,7 @@ mod tests {
                 Link::new(2, &b_name1),
                 Link::new(3, &b_name2)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 80.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 80.0)));
         }
 
         {
@@ -470,7 +470,7 @@ mod tests {
                 Link::new(2, &b_name1),
                 Link::new(3, &b_name2)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 77.78)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 77.78)));
         }
 
         {
@@ -486,7 +486,7 @@ mod tests {
                 Link::new(3, &b_name2),
                 Link::new(4, &b_name3)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 77.78)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 77.78)));
         }
 
         {
@@ -502,7 +502,7 @@ mod tests {
                 Link::new(3, &b_name2),
                 Link::new(4, &b_name3)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(4, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(4, 100.0)));
         }
 
         {
@@ -511,7 +511,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 85.71)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 85.71)));
         }
 
         {
@@ -527,7 +527,7 @@ mod tests {
                 Link::new(3, &b_name2),
                 Link::new(4, &b_name3)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 85.71)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(2, 85.71)));
         }
 
         {
@@ -545,7 +545,7 @@ mod tests {
                 Link::new(4, &b_name3),
                 Link::new(5, &b_name4)
             ];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(3, 100.0)));
+            assert_eq!(linker(a, b, false, true), Some(LinkResult::new(3, 100.0)));
         }
 
         // === Intentional Non-Matches ===
@@ -556,7 +556,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("2nd Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false, true), None);
         }
 
         {
@@ -564,7 +564,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("3rd Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false, true), None);
         }
 
         {
@@ -572,7 +572,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("4th Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false, true), None);
         }
 
         {
@@ -580,7 +580,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("21st Street West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false, true), None);
         }
 
         {
@@ -588,7 +588,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("US Route 51 West", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false, true), None);
         }
 
         {
@@ -596,7 +596,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("West Saint Street", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false, true), None);
         }
 
         {
@@ -604,7 +604,7 @@ mod tests {
             let b_name = Names::new(vec![Name::new("Anne Boulevard", 0, None, &context)], &context);
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false, true), None);
         }
 
         // === Intentional Strict Matches ===
