@@ -230,10 +230,7 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         }
     };
 
-    let context = match args.context {
-        Some(context) => CrateContext::from(context),
-        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
-    };
+
 
 
     let count = pg::Address::new().max(&conn);
@@ -265,6 +262,10 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             let mut it = min_id;
             while it < max_id {
+                let context = match args.context {
+                    Some(context) => CrateContext::from(context),
+                    None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
+                };
                 link_process(&conn, it, it + 5000, &context);
                 it += 5001;
             }
