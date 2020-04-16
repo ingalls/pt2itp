@@ -114,8 +114,8 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool, is_us: boo
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
 
-                println!("name: {}", name.country);
-                println!("potential.country: {}", potential.country);
+                println!("name: {}", name.to_string());
+                println!("potential: {}", potential.to_string());
                 if is_us {
                     if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
                        continue;
