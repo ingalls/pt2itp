@@ -218,6 +218,11 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         }
     };
 
+    let context = match args.context {
+        Some(context) => CrateContext::from(context),
+        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
+    };
+
     let count = pg::Address::new().max(&conn);
 
     let cpus = num_cpus::get() as i64;
@@ -247,7 +252,7 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             let mut it = min_id;
             while it < max_id {
-                link_process(&conn, it, it + 5000);
+                link_process(&conn, it, it + 5000, context);
                 it += 5001;
             }
         }) {
@@ -290,7 +295,7 @@ pub struct DbType {
     names: Names
 }
 
-pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64) {
+pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64, context: Context) {
     match conn.query("
         SELECT
             a.id AS id,
@@ -361,7 +366,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     linker::Link::new(potential.id, &potential.names)
                 }).collect();
 
-                match linker::linker(primary, potentials, false, &context) {
+                match linker::linker(primary, potentials, false, context) {
                     Some(link_match) => {
                         match trans.execute(&*"
                             UPDATE address SET netid = $1 WHERE id = $2;
