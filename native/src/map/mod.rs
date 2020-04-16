@@ -265,7 +265,7 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             let mut it = min_id;
             while it < max_id {
-                link_process(&conn, it, it + 5000, context);
+                link_process(&conn, it, it + 5000, &context);
                 it += 5001;
             }
         }) {
@@ -308,7 +308,7 @@ pub struct DbType {
     names: Names
 }
 
-pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64, context: CrateContext) {
+pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64, context: &CrateContext) {
     match conn.query("
         SELECT
             a.id AS id,
