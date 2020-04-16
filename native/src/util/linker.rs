@@ -759,7 +759,7 @@ mod tests {
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq(linker(a, b, true, false), None);
+            assert_eq!(linker(a, b, true, false), None);
         }
 
     }
