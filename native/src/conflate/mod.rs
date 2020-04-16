@@ -9,6 +9,7 @@ use neon::prelude::*;
 
 use crate::{
     Names,
+    Context,
     Address,
     hecate,
     util::linker,
@@ -80,9 +81,6 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         }
     };
 
-    println!("Country: {}", args.country);
-    let is_us =  args.country == "us";
-
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
 
     conn.execute("
@@ -145,7 +143,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             persistents.push(paddr);
         }
 
-        match compare(&addr, &mut persistents, is_us) {
+        match compare(&addr, &mut persistents, context) {
             // persistent address matches new address, consider modifying persistent address
             Some(link_id) => {
                 let mut pmatches: Vec<&mut Address> = persistents.iter_mut().filter(|persistent| {
@@ -270,7 +268,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 ///
 /// The function will return Some(i64) if the address matches an existing address
 ///
-pub fn compare(potential: &Address, persistents: &mut Vec<Address>, is_us: bool) -> Option<i64> {
+pub fn compare(potential: &Address, persistents: &mut Vec<Address>, context: Context) -> Option<i64> {
     // The address does not exist in the database and should be created
     if persistents.len() == 0 {
         return None;
@@ -280,7 +278,7 @@ pub fn compare(potential: &Address, persistents: &mut Vec<Address>, is_us: bool)
         linker::Link::new(persistent.id.unwrap(), &persistent.names)
     }).collect();
 
-    match linker::linker(potential_link, persistent_links, true, is_us) {
+    match linker::linker(potential_link, persistent_links, true, context) {
         Some(link) => Some(link.id),
         None => None
     }
