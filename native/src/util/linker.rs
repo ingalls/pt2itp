@@ -761,8 +761,8 @@ mod tests {
         }
 
         {
-            let a_name = Names::new(vec![Name::new("Street De Prim", 0, None, &context)], &context);
-            let b_name = Names::new(vec![Name::new("Street Prim", 0, None, &context)], &context);
+            let a_name = Names::new(vec![Name::new("The Umpqua St", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Umpqua St", 0, None, &context)], &context);
 
             
             let a = Link::new(1, &a_name);
