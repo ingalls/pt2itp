@@ -254,8 +254,8 @@ mod tests {
         tokens.insert(String::from("w"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("e"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
 
-        let context = Context::new(String::from("us"), None, Tokens::new(tokens));
-        let context_eu = Context::new(String::from("be"), None, Tokens::new(tokens));
+        let mut context = Context::new(String::from("us"), None, Tokens::new(tokens));
+        // let context_eu = Context::new(String::from("be"), None, Tokens::new(tokens));
 
         // === Intentional Matches ===
         // The following tests should match one of the given potential matches
@@ -773,8 +773,8 @@ mod tests {
             
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true, context_eu), None);
-            println!("context:{}", context_eu.country);
+            assert_eq!(linker(a, b, true, context), None);
+            println!("context:{}", context.country);
         }
 
     }
