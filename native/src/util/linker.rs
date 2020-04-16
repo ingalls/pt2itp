@@ -5,7 +5,7 @@ use crate::text::{
 };
 
 use crate::types::Names;
-use crate::types::Context;
+use crate::Context;
 use geocoder_abbreviations::TokenType;
 
 #[derive(Debug)]
