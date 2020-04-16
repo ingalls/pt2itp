@@ -205,6 +205,18 @@ pub fn cluster_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 }
 
 pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
+    let args: MapArgs = match cx.argument_opt(0) {
+        None => MapArgs::new(),
+        Some(arg) => {
+            if arg.is_a::<JsUndefined>() || arg.is_a::<JsNull>() {
+                MapArgs::new()
+            } else {
+                let arg_val = cx.argument::<JsValue>(0)?;
+                neon_serde::from_value(&mut cx, arg_val)?
+            }
+        }
+    };
+    
     let db = match cx.argument_opt(0) {
         Some(arg) => arg.downcast::<JsString>().or_throw(&mut cx)?.value(),
         None => String::from("pt_test")
@@ -218,12 +230,11 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         }
     };
 
-    println!("{:?}", cx.argument_opt(1));
-
-    let context = match cx.argument_opt(1) {
+    let context = match args.context {
         Some(context) => CrateContext::from(context),
         None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
     };
+
 
     let count = pg::Address::new().max(&conn);
 
