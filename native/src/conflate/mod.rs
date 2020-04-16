@@ -9,13 +9,14 @@ use neon::prelude::*;
 
 use crate::{
     Names,
-    Context,
     Address,
     hecate,
     util::linker,
     types::name::InputName,
     stream::{GeoStream, AddrStream}
 };
+
+use crate::Context as CrateContext;
 
 use super::pg;
 use super::pg::{Table, InputTable};
@@ -268,7 +269,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 ///
 /// The function will return Some(i64) if the address matches an existing address
 ///
-pub fn compare(potential: &Address, persistents: &mut Vec<Address>, context: Context) -> Option<i64> {
+pub fn compare(potential: &Address, persistents: &mut Vec<Address>, context: CrateContext) -> Option<i64> {
     // The address does not exist in the database and should be created
     if persistents.len() == 0 {
         return None;
