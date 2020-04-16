@@ -295,7 +295,7 @@ pub struct DbType {
     names: Names
 }
 
-pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64, context: Context) {
+pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64, context: CrateContext) {
     match conn.query("
         SELECT
             a.id AS id,
