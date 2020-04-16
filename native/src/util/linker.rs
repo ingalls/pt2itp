@@ -113,12 +113,19 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool, is_us: boo
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
-                if is_us {
-                    if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
-                        continue;
-                    }
-                }
 
+                // if is_us {
+                //     if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
+                //        continue;
+                //     }
+                // }
+
+                if is_us {
+                    println!("in the us";
+                } else {
+                    println!("not in the us";
+                }
+                
                 // Don't bother considering if both addr and network are a numbered street that
                 // doesn't match (1st != 11th)
                 let name_numbered = is_numbered(name);
