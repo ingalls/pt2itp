@@ -279,7 +279,7 @@ pub fn compare(potential: &Address, persistents: &mut Vec<Address>, context: Cra
         linker::Link::new(persistent.id.unwrap(), &persistent.names)
     }).collect();
 
-    match linker::linker(potential_link, persistent_links, true, context) {
+    match linker::linker(potential_link, persistent_links, true, &context) {
         Some(link) => Some(link.id),
         None => None
     }

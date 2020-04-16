@@ -216,7 +216,7 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             }
         }
     };
-    
+
     let db = match cx.argument_opt(0) {
         Some(arg) => arg.downcast::<JsString>().or_throw(&mut cx)?.value(),
         None => String::from("pt_test")
@@ -379,7 +379,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64,
                     linker::Link::new(potential.id, &potential.names)
                 }).collect();
 
-                match linker::linker(primary, potentials, false, context) {
+                match linker::linker(primary, potentials, false, &context) {
                     Some(link_match) => {
                         match trans.execute(&*"
                             UPDATE address SET netid = $1 WHERE id = $2;
