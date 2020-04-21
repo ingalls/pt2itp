@@ -217,6 +217,34 @@ mod tests {
     use crate::{Context, Tokens, Name, Names};
     use crate::text::ParsedToken;
     use geocoder_abbreviations::TokenType;
+    
+    #[test]
+    fn test_de_linker() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(String::from("de"), None, Tokens::new(tokens));
+
+        {
+            let a_name = Names::new(vec![Name::new("weserstrandstrasse", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("weserstrandstr", 0, None, &context)], &context);
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
+        }
+        {
+            let a_name = Names::new(vec![Name::new("kuferstr", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("kuferstrasse", 0, None, &context)], &context);
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
+        }
+        {
+            let a_name = Names::new(vec![Name::new("kuferstraße", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("kuferstrasse", 0, None, &context)], &context);
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true), Some(LinkResult::new(2, 100.0)));
+        }
+    }
 
     #[test]
     fn test_linker() {
