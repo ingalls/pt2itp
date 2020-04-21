@@ -292,6 +292,10 @@ impl Name {
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
         }
+        // standardize straße & str --> strasse
+        if context.country == String::from("DE") {
+            display = text::str_replace_strasse(&display);
+        }
 
         let tokenized = context.tokens.process(&display, &context.country);
 
@@ -871,5 +875,43 @@ mod tests {
         let mut empty_c = Names::new(vec![Name::new(String::from(""), 0, None, &context), Name::new(String::from("\t  \n"), 0, None, &context)], &context);
         empty_c.empty();
         assert_eq!(empty_c, Names { names: Vec::new() });
+    }
+
+    #[test]
+    fn test_germany() {
+        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new()));
+
+        assert_eq!(
+            Name::new(String::from("hauptstr"), 0, None, &context),
+            Name {
+                display: String::from("Hauptstrasse"),
+                priority: 0,
+                source: None,
+                tokenized: vec![Tokenized::new(String::from("hauptstrasse"), None)],
+                freq: 1
+            }
+        );
+
+        assert_eq!(
+            Name::new(String::from("kuferstr"), 0, None, &context),
+            Name {
+                display: String::from("Kuferstrasse"),
+                priority: 0,
+                source: None,
+                tokenized: vec![Tokenized::new(String::from("kuferstrasse"), None)],
+                freq: 1
+            }
+        );
+
+        assert_eq!(
+            Name::new(String::from("fresenbergstr"), -1, None, &context),
+            Name {
+                display: String::from("Fresenbergstrasse"),
+                priority: -1,
+                source: None,
+                tokenized: vec![Tokenized::new(String::from("fresenbergstrasse"), None)],
+                freq: 1
+            }
+        );
     }
 }

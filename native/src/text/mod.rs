@@ -179,6 +179,18 @@ pub fn str_remove_octo(text: &String) -> String {
 }
 
 ///
+/// Replace German street names that end in straße & str with strasse
+/// for better token matching
+///
+pub fn str_replace_strasse(text: &String) -> String {
+    lazy_static! {
+        static ref STRASSE: Regex = Regex::new(r"(straße|str)$").unwrap();
+    }
+
+    return STRASSE.replace_all(&text, "strasse").to_string();
+}
+
+///
 /// Detect Strings like `5 Avenue` and return a synonym like `5th Avenue` where possible
 ///
 pub fn syn_number_suffix(name: &Name, context: &Context) -> Vec<Name> {
