@@ -40,7 +40,7 @@ impl Tokens {
     }
 
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
-        let tokens = self.tokenize(&text);
+        let tokens = self.tokenize(&text, &country);
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
 
@@ -65,7 +65,7 @@ impl Tokens {
     /// Remove all diacritics, punctuation non-space whitespace
     /// returning a vector of component tokens
     ///
-    fn tokenize(&self, text: &String) -> Vec<String> {
+    fn tokenize(&self, text: &String, country: &String) -> Vec<String> {
         let text = text.trim();
 
         lazy_static! {
@@ -89,6 +89,14 @@ impl Tokens {
         normalized = PUNC.replace_all(normalized.as_str(), "").to_string();
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
+
+        // standardize strasse & str --> straße for German tokens to allow for easy matching with networks
+        match country {
+            _ if country == "DE" => {
+                normalized = Regex::new(r"(strasse|str).?$").unwrap().replace_all(&normalized, "straße").to_string();
+            },
+            _ => {},
+        }
 
         let tokens: Vec<String> = normalized.split(" ").map(|split| {
             String::from(split)
@@ -279,6 +287,15 @@ mod tests {
                 Tokenized::new(String::from("foo"), None),
                 Tokenized::new(String::from("foo"), None)
             ]);
+    }
+
+    #[test]
+    fn test_de_replacement() {
+        let tokens = Tokens::generate(vec![String::from("de")]);
+        assert_eq!(tokens.process(&String::from("Fresenbergstr"), &String::from("DE")),
+        vec![
+            Tokenized::new(String::from("fresenbergstraße"), None),
+        ]);
     }
 
     #[test]

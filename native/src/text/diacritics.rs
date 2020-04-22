@@ -898,6 +898,8 @@ mod tests {
 
         assert_eq!(diacritics(&String::from("Fußball")), String::from("Fussball"));
 
+        assert_eq!(diacritics(&String::from("hauptstraße")), String::from("hauptstrasse"));
+
         assert_eq!(diacritics(&String::from("ABCDEFGHIJKLMNOPQRSTUVWXYZé")), String::from("ABCDEFGHIJKLMNOPQRSTUVWXYZe"));
     }
 }

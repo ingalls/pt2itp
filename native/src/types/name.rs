@@ -292,10 +292,6 @@ impl Name {
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
         }
-        // standardize straße & str --> strasse
-        if context.country == String::from("DE") {
-            display = text::str_replace_strasse(&display);
-        }
 
         let tokenized = context.tokens.process(&display, &context.country);
 
@@ -884,21 +880,21 @@ mod tests {
         assert_eq!(
             Name::new(String::from("hauptstr"), 0, None, &context),
             Name {
-                display: String::from("Hauptstrasse"),
+                display: String::from("Hauptstr"),
                 priority: 0,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("hauptstrasse"), None)],
+                tokenized: vec![Tokenized::new(String::from("hauptstraße"), None)],
                 freq: 1
             }
         );
 
         assert_eq!(
-            Name::new(String::from("kuferstr"), 0, None, &context),
+            Name::new(String::from("kuferstr."), 0, None, &context),
             Name {
-                display: String::from("Kuferstrasse"),
+                display: String::from("Kuferstr."),
                 priority: 0,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("kuferstrasse"), None)],
+                tokenized: vec![Tokenized::new(String::from("kuferstraße"), None)],
                 freq: 1
             }
         );
@@ -906,10 +902,10 @@ mod tests {
         assert_eq!(
             Name::new(String::from("fresenbergstr"), -1, None, &context),
             Name {
-                display: String::from("Fresenbergstrasse"),
+                display: String::from("Fresenbergstr"),
                 priority: -1,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("fresenbergstrasse"), None)],
+                tokenized: vec![Tokenized::new(String::from("fresenbergstraße"), None)],
                 freq: 1
             }
         );
