@@ -1,18 +1,18 @@
-use std::collections::HashMap;
 use crate::text::Tokens;
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct InputContext {
     pub country: Option<String>,
     pub region: Option<String>,
-    pub languages: Option<Vec<String>>
+    pub languages: Option<Vec<String>>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Context {
     pub country: String,
     pub region: Option<String>,
-    pub tokens: Tokens
+    pub tokens: Tokens,
 }
 
 impl From<InputContext> for Context {
@@ -20,14 +20,13 @@ impl From<InputContext> for Context {
         let country = input.country.unwrap_or(String::from(""));
         let region = input.region;
         let tokens = match input.languages {
-            None => Tokens::new(HashMap::new()),
-            Some(languages) => Tokens::generate(languages)
+            None => Tokens::new(HashMap::new(), HashMap::new()),
+            Some(languages) => Tokens::generate(languages),
         };
 
         Context::new(country, region, tokens)
     }
 }
-
 
 impl Context {
     pub fn new(country: String, region: Option<String>, tokens: Tokens) -> Self {
@@ -35,16 +34,16 @@ impl Context {
             country: country.to_uppercase(),
             region: match region {
                 None => None,
-                Some(region) => Some(region.to_uppercase())
+                Some(region) => Some(region.to_uppercase()),
             },
-            tokens: tokens
+            tokens: tokens,
         }
     }
 
     pub fn region_code(&self) -> Option<String> {
         match self.region {
             None => None,
-            Some(ref region) => Some(format!("{}-{}", self.country, region))
+            Some(ref region) => Some(format!("{}-{}", self.country, region)),
         }
     }
 
@@ -108,7 +107,10 @@ impl Context {
                 m.insert(String::from("US-GU"), "Guam");
                 m.insert(String::from("US-MP"), "Northern Mariana Islands");
                 m.insert(String::from("US-PR"), "Puerto Rico");
-                m.insert(String::from("US-UM"), "United States Minor Outlying Islands");
+                m.insert(
+                    String::from("US-UM"),
+                    "United States Minor Outlying Islands",
+                );
                 m.insert(String::from("US-VI"), "Virgin Islands");
 
                 m.insert(String::from("CA-ON"), "Ontario");
@@ -133,8 +135,8 @@ impl Context {
             None => None,
             Some(ref code) => match REGIONS.get(code) {
                 None => None,
-                Some(name) => Some(format!("{}", name))
-            }
+                Some(name) => Some(format!("{}", name)),
+            },
         }
     }
 }
@@ -145,19 +147,37 @@ mod tests {
 
     #[test]
     fn context_test() {
-        assert_eq!(Context::new(String::from("us"), None, Tokens::new(HashMap::new())), Context {
-            country: String::from("US"),
-            region: None,
-            tokens: Tokens::new(HashMap::new())
-        });
+        assert_eq!(
+            Context::new(
+                String::from("us"),
+                None,
+                Tokens::new(HashMap::new(), HashMap::new())
+            ),
+            Context {
+                country: String::from("US"),
+                region: None,
+                tokens: Tokens::new(HashMap::new(), HashMap::new())
+            }
+        );
 
-        assert_eq!(Context::new(String::from("uS"), Some(String::from("wv")), Tokens::new(HashMap::new())), Context {
-            country: String::from("US"),
-            region: Some(String::from("WV")),
-            tokens: Tokens::new(HashMap::new())
-        });
+        assert_eq!(
+            Context::new(
+                String::from("uS"),
+                Some(String::from("wv")),
+                Tokens::new(HashMap::new(), HashMap::new())
+            ),
+            Context {
+                country: String::from("US"),
+                region: Some(String::from("WV")),
+                tokens: Tokens::new(HashMap::new(), HashMap::new())
+            }
+        );
 
-        let cntx = Context::new(String::from("uS"), Some(String::from("wv")), Tokens::new(HashMap::new()));
+        let cntx = Context::new(
+            String::from("uS"),
+            Some(String::from("wv")),
+            Tokens::new(HashMap::new(), HashMap::new()),
+        );
 
         assert_eq!(cntx.region_code(), Some(String::from("US-WV")));
 

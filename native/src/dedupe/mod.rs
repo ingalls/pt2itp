@@ -1,20 +1,20 @@
-use std::convert::From;
 use postgres::{Connection, TlsMode};
 use std::collections::HashMap;
-use std::thread;
+use std::convert::From;
 use std::fs::File;
 use std::io::{BufWriter, Write};
+use std::thread;
 
 use neon::prelude::*;
 
 use crate::{
-    Address,
+    stream::{AddrStream, GeoStream, PolyStream},
     types::hecate,
-    stream::{GeoStream, AddrStream, PolyStream}
+    Address,
 };
 
 use super::pg;
-use super::pg::{Table, InputTable};
+use super::pg::{InputTable, Table};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct DedupeArgs {
@@ -23,7 +23,7 @@ struct DedupeArgs {
     buildings: Option<String>,
     input: Option<String>,
     output: Option<String>,
-    hecate: Option<bool>
+    hecate: Option<bool>,
 }
 
 impl DedupeArgs {
@@ -34,7 +34,7 @@ impl DedupeArgs {
             buildings: None,
             input: None,
             output: None,
-            hecate: None
+            hecate: None,
         }
     }
 }
@@ -54,16 +54,27 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let is_hecate = args.hecate.unwrap_or(false);
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
+    let conn = Connection::connect(
+        format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(),
+        TlsMode::None,
+    )
+    .unwrap();
 
     let context = match args.context {
         Some(context) => crate::Context::from(context),
-        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new()))
+        None => crate::Context::new(
+            String::from(""),
+            None,
+            crate::Tokens::new(HashMap::new(), HashMap::new()),
+        ),
     };
 
     let address = pg::Address::new();
     address.create(&conn);
-    address.input(&conn, AddrStream::new(GeoStream::new(args.input), context, None));
+    address.input(
+        &conn,
+        AddrStream::new(GeoStream::new(args.input), context, None),
+    );
 
     if !is_hecate {
         // Hecate Addresses will already have ids present
@@ -77,10 +88,13 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         Some(buildings) => {
             let polygon = pg::Polygon::new(String::from("buildings"));
             polygon.create(&conn);
-            polygon.input(&conn, PolyStream::new(GeoStream::new(Some(buildings)), None));
+            polygon.input(
+                &conn,
+                PolyStream::new(GeoStream::new(Some(buildings)), None),
+            );
             polygon.index(&conn);
-        },
-        None => ()
+        }
+        None => (),
     };
 
     let count = address.count(&conn);
@@ -96,23 +110,28 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         let db_conn = args.db.clone();
         let tx_n = tx.clone();
 
-        let strand = match thread::Builder::new().name(format!("Exact Dup #{}", &cpu)).spawn(move || {
-            let mut min_id = batch * cpu;
-            let max_id = batch * cpu + batch + batch_extra;
+        let strand = match thread::Builder::new()
+            .name(format!("Exact Dup #{}", &cpu))
+            .spawn(move || {
+                let mut min_id = batch * cpu;
+                let max_id = batch * cpu + batch + batch_extra;
 
-            if cpu != 0 {
-                min_id = min_id + batch_extra + 1;
-            }
+                if cpu != 0 {
+                    min_id = min_id + batch_extra + 1;
+                }
 
-            let conn = match Connection::connect(format!("postgres://postgres@localhost:5432/{}", &db_conn).as_str(), TlsMode::None) {
-                Ok(conn) => conn,
-                Err(err) => panic!("Connection Error: {}", err.to_string())
-            };
+                let conn = match Connection::connect(
+                    format!("postgres://postgres@localhost:5432/{}", &db_conn).as_str(),
+                    TlsMode::None,
+                ) {
+                    Ok(conn) => conn,
+                    Err(err) => panic!("Connection Error: {}", err.to_string()),
+                };
 
-            exact_batch(is_hecate, min_id, max_id, conn, tx_n);
-        }) {
+                exact_batch(is_hecate, min_id, max_id, conn, tx_n);
+            }) {
             Ok(strand) => strand,
-            Err(err) => panic!("Thread Creation Error: {}", err.to_string())
+            Err(err) => panic!("Thread Creation Error: {}", err.to_string()),
         };
 
         web.push(strand);
@@ -124,12 +143,14 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         Some(outpath) => {
             let outfile = match File::create(outpath) {
                 Ok(outfile) => outfile,
-                Err(err) => { panic!("Unable to write to output file: {}", err); }
+                Err(err) => {
+                    panic!("Unable to write to output file: {}", err);
+                }
             };
 
             output(is_hecate, rx, BufWriter::new(outfile))
-        },
-        None => output(is_hecate, rx, std::io::stdout().lock())
+        }
+        None => output(is_hecate, rx, std::io::stdout().lock()),
     }
 
     for strand in web {
@@ -141,10 +162,11 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
 fn output(is_hecate: bool, receive: crossbeam::Receiver<Address>, mut sink: impl Write) {
     for result in receive.iter() {
-
         let result: String = match is_hecate {
-            true => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete, false)).to_string(),
-            false => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None, false)).to_string()
+            true => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete, false))
+                .to_string(),
+            false => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None, false))
+                .to_string(),
         };
 
         if sink.write(format!("{}\n", result).as_bytes()).is_err() {
@@ -157,8 +179,17 @@ fn output(is_hecate: bool, receive: crossbeam::Receiver<Address>, mut sink: impl
     }
 }
 
-fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connection, tx: crossbeam::Sender<Address>) {
-    let exact_dups = match pg::Cursor::new(conn, format!(r#"
+fn exact_batch(
+    is_hecate: bool,
+    min_id: i64,
+    max_id: i64,
+    conn: postgres::Connection,
+    tx: crossbeam::Sender<Address>,
+) {
+    let exact_dups = match pg::Cursor::new(
+        conn,
+        format!(
+            r#"
         SELECT
             JSON_Build_Object(
                 'primary', JSON_Build_Object(
@@ -195,48 +226,51 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
             a.id >= {min_id}
             AND a.id <= {max_id}
     "#,
-        min_id = min_id,
-        max_id = max_id
-    )) {
+            min_id = min_id,
+            max_id = max_id
+        ),
+    ) {
         Ok(cursor) => cursor,
-        Err(err) => panic!("ERR: {}", err.to_string())
+        Err(err) => panic!("ERR: {}", err.to_string()),
     };
 
     for dup_feats in exact_dups {
         let mut dup_feats = match dup_feats {
             serde_json::value::Value::Object(object) => object,
-            _ => panic!("result must be JSON Object")
+            _ => panic!("result must be JSON Object"),
         };
 
-        let feat: Address = match Address::from_value(dup_feats.remove(&String::from("primary")).unwrap()) {
-            Ok(feat) => feat,
-            Err(err) => panic!("Address Error: {}", err.to_string())
-        };
+        let feat: Address =
+            match Address::from_value(dup_feats.remove(&String::from("primary")).unwrap()) {
+                Ok(feat) => feat,
+                Err(err) => panic!("Address Error: {}", err.to_string()),
+            };
 
-        let mut dup_feats: Vec<Address> = match dup_feats.remove(&String::from("proximal")).unwrap() {
+        let mut dup_feats: Vec<Address> = match dup_feats.remove(&String::from("proximal")).unwrap()
+        {
             serde_json::value::Value::Array(feats) => {
                 let mut addrfeats = Vec::with_capacity(feats.len());
 
                 for feat in feats {
                     addrfeats.push(match Address::from_value(feat) {
                         Ok(feat) => feat,
-                        Err(err) => panic!("Vec<Address> Error: {}", err.to_string())
+                        Err(err) => panic!("Vec<Address> Error: {}", err.to_string()),
                     });
                 }
 
                 addrfeats
-            },
-            _ => panic!("Duplicate Features should be Vec<Value>")
+            }
+            _ => panic!("Duplicate Features should be Vec<Value>"),
         };
 
         //
         // For now the dup logic is rather simple & strict
         // - Number must be the same - apt numbers included
         // - Text synonyms must match
-        dup_feats = dup_feats.into_iter().filter(|dup_feat| {
-            dup_feat.number == feat.number
-            && dup_feat.names == feat.names
-        }).collect();
+        dup_feats = dup_feats
+            .into_iter()
+            .filter(|dup_feat| dup_feat.number == feat.number && dup_feat.names == feat.names)
+            .collect();
 
         dup_feats.sort_by(|a, b| {
             if a.id.unwrap() < b.id.unwrap() {
@@ -254,7 +288,10 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
         // the dup_feat will only be processed if the lowest ID in the match falls within
         // the min_id/max_id that the given thread is processing
         //
-        if dup_feats[0].id.unwrap() < feat.id.unwrap() || dup_feats[0].id.unwrap() < min_id || dup_feats[0].id.unwrap() > max_id {
+        if dup_feats[0].id.unwrap() < feat.id.unwrap()
+            || dup_feats[0].id.unwrap() < min_id
+            || dup_feats[0].id.unwrap() > max_id
+        {
             continue;
         }
 

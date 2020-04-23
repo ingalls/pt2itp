@@ -30,7 +30,7 @@ impl Tokens {
                         map.insert(
                             diacritics(&tk.to_lowercase()),
                             ParsedToken::new(diacritics(&group.canonical.to_lowercase()), group.token_type.to_owned())
-                            )
+                            );
                         }
                     }
                 if group.regex {

@@ -221,7 +221,8 @@ mod tests {
     #[test]
     fn test_de_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let context = Context::new(String::from("de"), None, Tokens::new(tokens));
+        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(String::from("de"), None, Tokens::new(tokens, regex_tokens));
 
         {
             let a_name = Names::new(vec![Name::new("weserstrandstrasse", 0, None, &context)], &context);
@@ -249,6 +250,7 @@ mod tests {
     #[test]
     fn test_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
         tokens.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));
         tokens.insert(String::from("street"), ParsedToken::new(String::from("st"), Some(TokenType::Way)));
         tokens.insert(String::from("st"), ParsedToken::new(String::from("st"), Some(TokenType::Way)));
@@ -269,7 +271,7 @@ mod tests {
         tokens.insert(String::from("w"), ParsedToken::new(String::from("w"), Some(TokenType::Cardinal)));
         tokens.insert(String::from("e"), ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)));
 
-        let context = Context::new(String::from("us"), None, Tokens::new(tokens));
+        let context = Context::new(String::from("us"), None, Tokens::new(tokens, regex_tokens));
 
         // === Intentional Matches ===
         // The following tests should match one of the given potential matches

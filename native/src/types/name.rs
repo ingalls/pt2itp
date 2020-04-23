@@ -408,7 +408,7 @@ mod tests {
 
     #[test]
     fn test_name() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(Name::new(String::from("main ST nw"), 0, None, &context), Name {
             display: String::from("Main St NW"),
@@ -514,7 +514,7 @@ mod tests {
 
     #[test]
     fn test_names_concat() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         let mut names = Names {
             names: vec![
@@ -600,7 +600,7 @@ mod tests {
 
     #[test]
     fn test_names_from_value() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         let expected = Names::new(vec![Name::new(String::from("Main St NE"), 0, Some(Source::Network), &context)], &context);
 
@@ -629,7 +629,7 @@ mod tests {
     #[test]
     #[should_panic(expected = "1 network synonym must have greater priority: [InputName { display: \"Main St\", priority: -1 }, InputName { display: \"E Main St\", priority: -1 }]")]
     fn test_names_from_value_invalid_priority() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         let _names = Names::from_value(Some(json!([{
             "display": "Main St",
@@ -643,7 +643,7 @@ mod tests {
 
     #[test]
     fn test_names_has_diff() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         let a_name = Names::new(vec![Name::new("Main St", 0, None, &context)], &context);
         let b_name = Names::new(vec![Name::new("Main St", 0, None, &context)], &context);
@@ -858,7 +858,7 @@ mod tests {
 
     #[test]
     fn test_empty() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         let mut empty_a = Names::new(vec![Name::new(String::from(""), 0, None, &context)], &context);
         empty_a.empty();
@@ -875,7 +875,7 @@ mod tests {
 
     #[test]
     fn test_germany() {
-        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(
             Name::new(String::from("hauptstr"), 0, None, &context),

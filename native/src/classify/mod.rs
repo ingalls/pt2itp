@@ -1,18 +1,18 @@
 use postgres::{Connection, TlsMode};
 use std::{
-    io::{Write, BufWriter},
     collections::HashMap,
+    convert::From,
     fs::File,
-    convert::From
+    io::{BufWriter, Write},
 };
 
 use neon::prelude::*;
 
 use crate::{
     pg,
-    pg::{Table, InputTable},
+    pg::{InputTable, Table},
+    stream::{AddrStream, GeoStream, PolyStream},
     Tokens,
-    stream::{GeoStream, AddrStream, PolyStream}
 };
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -22,7 +22,7 @@ struct ClassifyArgs {
     buildings: Option<String>,
     parcels: Option<String>,
     input: Option<String>,
-    output: Option<String>
+    output: Option<String>,
 }
 
 impl ClassifyArgs {
@@ -33,7 +33,7 @@ impl ClassifyArgs {
             buildings: None,
             parcels: None,
             input: None,
-            output: None
+            output: None,
         }
     }
 }
@@ -57,11 +57,15 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => panic!("Output file required"),
         Some(output) => match File::create(output) {
             Ok(outfile) => BufWriter::new(outfile),
-            Err(err) => panic!("Unable to write to output file: {}", err)
-        }
+            Err(err) => panic!("Unable to write to output file: {}", err),
+        },
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
+    let conn = Connection::connect(
+        format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(),
+        TlsMode::None,
+    )
+    .unwrap();
 
     let address = pg::Address::new();
     address.create(&conn);
@@ -69,9 +73,13 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         &conn,
         AddrStream::new(
             GeoStream::new(args.input),
-            crate::Context::new(String::from("xx"), None, Tokens::new(HashMap::new())),
-            None
-        )
+            crate::Context::new(
+                String::from("xx"),
+                None,
+                Tokens::new(HashMap::new(), HashMap::new()),
+            ),
+            None,
+        ),
     );
     println!("ok - imported addresses");
 
@@ -88,30 +96,41 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     buildings.create(&conn);
     match args.buildings {
         Some(buildings_in) => {
-            buildings.input(&conn, PolyStream::new(GeoStream::new(Some(buildings_in)), None));
+            buildings.input(
+                &conn,
+                PolyStream::new(GeoStream::new(Some(buildings_in)), None),
+            );
             buildings.index(&conn);
             println!("ok - imported buildings");
-        },
-        None => ()
+        }
+        None => (),
     };
 
     let parcels = pg::Polygon::new(String::from("parcels"));
     parcels.create(&conn);
     match args.parcels {
         Some(parcels_in) => {
-            parcels.input(&conn, PolyStream::new(GeoStream::new(Some(parcels_in)), None));
+            parcels.input(
+                &conn,
+                PolyStream::new(GeoStream::new(Some(parcels_in)), None),
+            );
             parcels.index(&conn);
             println!("ok - imported parcels");
-        },
-        None => ()
+        }
+        None => (),
     };
 
-    conn.execute("
+    conn.execute(
+        "
         ALTER TABLE address
             ADD COLUMN accuracy TEXT
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
 
-    conn.execute("
+    conn.execute(
+        "
         UPDATE address
             SET
                 accuracy = 'rooftop'
@@ -119,21 +138,33 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 buildings
             WHERE
                 ST_Intersects(address.geom, buildings.geom)
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
     println!("ok - calculated accuracy: building");
 
-    conn.execute("
+    conn.execute(
+        "
         ALTER TABLE parcels
             ADD COLUMN centroid GEOMETRY(POINT, 4326)
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
 
-    conn.execute("
+    conn.execute(
+        "
         UPDATE parcels
             SET centroid = ST_PointOnSurface(parcels.geom)
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
     println!("ok - calculated parcel centroids");
 
-    conn.execute("
+    conn.execute(
+        "
         UPDATE address
             SET
                 accuracy = 'parcel'
@@ -142,39 +173,57 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             WHERE
                 accuracy IS NULL
                 AND ST_DWithin(address.geom, parcels.centroid, 0.0001)
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
     println!("ok - calculated accuracy: parcel");
 
-    conn.execute("
+    conn.execute(
+        "
         UPDATE address
             SET
                 accuracy = 'point'
             WHERE
                 accuracy IS NULL
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
     println!("ok - calculated accuracy: point");
 
     let modified = match is_hecate {
         true => {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 UPDATE address
                     SET
                         accuracy = NULL
                     WHERE
                         accuracy = props->>'accuracy'
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 UPDATE address
                     SET
                         props = props::JSONB || JSON_Build_Object('accuracy', accuracy)::JSONB
                     WHERE
                         accuracy IS NOT NULL
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
             println!("ok - outputting hecate addresses");
 
-            pg::Cursor::new(conn, format!(r#"
+            pg::Cursor::new(
+                conn,
+                format!(
+                    r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -188,18 +237,28 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                     address
                 WHERE
                     accuracy IS NOT NULL
-            "#)).unwrap()
-        },
+            "#
+                ),
+            )
+            .unwrap()
+        }
         false => {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 UPDATE address
                     SET
                         props = props::JSONB || JSON_Build_Object('accuracy', accuracy)::JSONB
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
             println!("ok - outputting addresses");
 
-            pg::Cursor::new(conn, format!(r#"
+            pg::Cursor::new(
+                conn,
+                format!(
+                    r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -209,7 +268,10 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                     )
                 FROM
                     address
-            "#)).unwrap()
+            "#
+                ),
+            )
+            .unwrap()
         }
     };
 

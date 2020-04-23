@@ -1,5 +1,5 @@
+use crate::{text, Context, Names, Source};
 use postgis::ewkb::EwkbWrite;
-use crate::{Context, text, Names, Source};
 
 #[derive(Debug)]
 ///
@@ -19,19 +19,23 @@ pub struct Network {
     pub props: serde_json::Map<String, serde_json::Value>,
 
     /// Simple representation of MultiLineString
-    pub geom: Vec<geojson::LineStringType>
+    pub geom: Vec<geojson::LineStringType>,
 }
 
 impl Network {
     pub fn new(feat: geojson::GeoJson, context: &Context) -> Result<Self, String> {
         let feat = match feat {
             geojson::GeoJson::Feature(feat) => feat,
-            _ => { return Err(String::from("Not a GeoJSON Feature")); }
+            _ => {
+                return Err(String::from("Not a GeoJSON Feature"));
+            }
         };
 
         let mut props = match feat.properties {
             Some(props) => props,
-            None => { return Err(String::from("Feature has no properties")); }
+            None => {
+                return Err(String::from("Feature has no properties"));
+            }
         };
 
         let source = match props.get(&String::from("source")) {
@@ -42,27 +46,30 @@ impl Network {
                 } else {
                     String::from("")
                 }
-            },
-            None => String::from("")
+            }
+            None => String::from(""),
         };
 
         let geom = match feat.geometry {
             Some(geom) => match geom.value {
                 geojson::Value::LineString(ln) => vec![ln],
                 geojson::Value::MultiLineString(mln) => mln,
-                _ => { return Err(String::from("Network must have (Multi)LineString geometry")); }
+                _ => {
+                    return Err(String::from("Network must have (Multi)LineString geometry"));
+                }
             },
-            None => { return Err(String::from("Network must have geometry")); }
+            None => {
+                return Err(String::from("Network must have geometry"));
+            }
         };
-
 
         let street = match props.remove(&String::from("street")) {
             Some(street) => {
                 props.insert(String::from("street"), street.clone());
 
                 Some(street)
-            },
-            None => None
+            }
+            None => None,
         };
 
         let names = Names::from_value(street, Some(Source::Network), &context)?;
@@ -74,12 +81,12 @@ impl Network {
         let mut net = Network {
             id: match feat.id {
                 Some(geojson::feature::Id::Number(id)) => id.as_i64(),
-                _ => None
+                _ => None,
             },
             names: names,
             source: source,
             props: props,
-            geom: geom
+            geom: geom,
         };
 
         net.std(&context)?;
@@ -104,19 +111,17 @@ impl Network {
     pub fn to_tsv(self) -> String {
         let mut twkb = postgis::twkb::MultiLineString {
             lines: Vec::with_capacity(self.geom.len()),
-            ids: None
+            ids: None,
         };
 
         for ln in self.geom {
             let mut line = postgis::twkb::LineString {
-                points: Vec::with_capacity(ln.len())
+                points: Vec::with_capacity(ln.len()),
             };
 
             for pt in ln {
-                line.points.push(postgis::twkb::Point {
-                    x: pt[0],
-                    y: pt[1]
-                });
+                line.points
+                    .push(postgis::twkb::Point { x: pt[0], y: pt[1] });
             }
 
             twkb.lines.push(line);
@@ -125,10 +130,12 @@ impl Network {
         let geom = postgis::ewkb::EwkbMultiLineString {
             geom: &twkb,
             srid: Some(4326),
-            point_type: postgis::ewkb::PointType::Point
-        }.to_hex_ewkb();
+            point_type: postgis::ewkb::PointType::Point,
+        }
+        .to_hex_ewkb();
 
-        format!("{names}\t{source}\t{props}\t{geom}\n",
+        format!(
+            "{names}\t{source}\t{props}\t{geom}\n",
             names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
             source = self.source,
             props = serde_json::value::Value::from(self.props),
@@ -140,12 +147,13 @@ impl Network {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Tokens, Context};
+    use crate::{Context, Tokens};
     use std::collections::HashMap;
 
     #[test]
     fn test_network_simple_geom() {
-        let feat: geojson::GeoJson = String::from(r#"{
+        let feat: geojson::GeoJson = String::from(
+            r#"{
             "type":"Feature",
             "properties":{
                 "id":6052094,
@@ -154,12 +162,15 @@ mod tests {
                 "type":"LineString",
                 "coordinates":[[-77.008941,38.859243],[-77.008447,38.859],[-77.0081173,38.8588497]]
             }
-        }"#).parse().unwrap();
+        }"#,
+        )
+        .parse()
+        .unwrap();
 
         let context = Context::new(
             String::from("us"),
             Some(String::from("dc")),
-            Tokens::new(HashMap::new())
+            Tokens::new(HashMap::new(), HashMap::new()),
         );
 
         let net = Network::new(feat, &context).unwrap();
@@ -168,9 +179,15 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "1 network synonym must have greater priority: [InputName { display: \"Main St\", priority: -1 }, InputName { display: \"E Main St\", priority: -1 }]")]
+    #[should_panic(
+        expected = "1 network synonym must have greater priority: [InputName { display: \"Main St\", priority: -1 }, InputName { display: \"E Main St\", priority: -1 }]"
+    )]
     fn test_network_invalid_priority() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(
+            String::from("us"),
+            None,
+            Tokens::new(HashMap::new(), HashMap::new()),
+        );
 
         let feat: geojson::GeoJson = String::from(r#"{
             "type": "Feature",
