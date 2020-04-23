@@ -1,8 +1,8 @@
 use std::convert::From;
 use postgres::{Connection, TlsMode};
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{BufWriter, Write};
+
+mod cluster;
 
 use neon::prelude::*;
 
@@ -22,8 +22,7 @@ struct ConsensusArgs {
     sources: Option<Vec<String>>,
     test_set: Option<String>,
     error_sources: Option<String>,
-    error_test_set: Option<String>,
-    output: Option<String>
+    error_test_set: Option<String>
 }
 
 impl ConsensusArgs {
@@ -34,13 +33,12 @@ impl ConsensusArgs {
             sources: None,
             test_set: None,
             error_sources: None,
-            error_test_set: None,
-            output: None
+            error_test_set: None
         }
     }
 }
 
-pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
+pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     let args: ConsensusArgs = match cx.argument_opt(0) {
         None => ConsensusArgs::new(),
         Some(arg) => {
@@ -64,14 +62,6 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     let sources = args.sources.expect("sources argument is required");
     let test_set = args.test_set.expect("test_set argument is required");
 
-    let mut output = match args.output {
-        None => panic!("Output file required"),
-        Some(output) => match File::create(output) {
-            Ok(outfile) => BufWriter::new(outfile),
-            Err(err) => panic!("Unable to write to output file: {}", err)
-        }
-    };
-
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
 
     let context = match args.context {
@@ -86,7 +76,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     }
     pgaddress.index(&conn);
 
-    let mut source_map: HashMap<String, Option<Address>> = HashMap::new();
+    let mut source_map: HashMap<String, Option<(f64, f64)>> = HashMap::new();
     let rows = conn.query("SELECT source FROM address GROUP BY source", &[]).unwrap();
     for row in rows.iter() {
         let source: String = row.get(0);
@@ -115,6 +105,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     ";
 
     let sources: Vec<String> = source_map.keys().cloned().collect();
+    let mut agreement = cluster::Agreement::new(sources.clone(), 25);
 
     for addr in AddrStream::new(GeoStream::new(Some(test_set)), context.clone(), args.error_test_set) {
         for source in &sources {
@@ -140,22 +131,26 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                         0 => continue,
                         1 => {
                             let paddr = pmatches.pop();
-                            source_map.entry(source.to_string()).and_modify(|e| *e = paddr);
+                            let coords = match paddr {
+                                Some(point) => {
+                                    Some((point.geom[0], point.geom[1]))
+                                },
+                                None => None
+                            };
+                            source_map.entry(source.to_string()).and_modify(|e| *e = coords);
                         },
                         _ => panic!("Duplicate IDs are not allowed in input data")
                     }
                 },
-                // no match found for this source: we should write out to an error stream,
-                // or count the occurrences of these
                 None => ()
             };
         }
 
-        output.write(format!("{:?}\n", source_map).as_bytes()).unwrap();
-        // TODO: run consensus here, source_map is populated with address matches for each source
+        agreement.process_points(&source_map);
     }
 
-    Ok(cx.boolean(true))
+    let results = agreement.get_results();
+    Ok(neon_serde::to_value(&mut cx, results)?)
 }
 
 ///
@@ -179,16 +174,5 @@ pub fn compare(addr: &Address, potentials: &mut Vec<Address>) -> Option<i64> {
     match linker::linker(addr_link, potential_links, true) {
         Some(link) => Some(link.id),
         None => None
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn consensus_test() {
-
     }
 }

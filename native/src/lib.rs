@@ -10,6 +10,7 @@ extern crate geojson;
 extern crate rstar;
 extern crate regex;
 extern crate geo;
+extern crate kodama;
 
 // Internal Helper Libraries
 pub mod util;
