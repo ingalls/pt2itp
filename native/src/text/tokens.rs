@@ -30,10 +30,9 @@ impl Tokens {
                         map.insert(
                             diacritics(&tk.to_lowercase()),
                             ParsedToken::new(diacritics(&group.canonical.to_lowercase()), group.token_type.to_owned())
-                            ),
-                        );
+                            )
+                        }
                     }
-                }
                 if group.regex {
                     for tk in &group.tokens {
                         regex_map.insert(
@@ -281,6 +280,7 @@ mod tests {
     #[test]
     fn test_replacement_tokens() {
         let mut map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
         map.insert(String::from("barter"), ParsedToken::new(String::from("foo"), None));
         map.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));
         map.insert(String::from("street"), ParsedToken::new(String::from("st"), Some(TokenType::Way)));
