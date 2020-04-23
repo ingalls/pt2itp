@@ -22,8 +22,15 @@ impl Tokens {
 
         for language in import.keys() {
             for group in import.get(language).unwrap() {
-                // if it's a simple, non regex token replacer
-                if !group.regex {
+                // if !group.regex {
+                //  for tk in &group.tokens {
+                //     map.insert(
+                //         diacritics(&tk.to_lowercase()),
+                //         ParsedToken::new(diacritics(&group.canonical.to_lowercase()), group.token_type.to_owned())
+                //     );
+                //  }
+                // }
+                if group.regex {
                     for tk in &group.tokens {
                         map.insert(
                             diacritics(&tk.to_lowercase()),
@@ -46,14 +53,25 @@ impl Tokens {
 
         for token in &tokens {
             match self.tokens.get(token) {
-                None => {
-                    tokenized.push(Tokenized::new(token.to_owned(), None));
-                },
-                Some(t) => {
-                    tokenized.push(Tokenized::new(t.canonical.to_owned(), t.token_type.to_owned()));
+                    None => {
+                        // try here to apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
+                        for (regex_string, v) in self.tokens.iter() {
+                            let re = Regex::new(&format!(r"{}", regex_string));
+                            if re.unwrap().is_match(token) {
+                                // now let's replace with the token canonical value
+                                let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
+                                let regexed_token = re.replace_all(&token, |c: &regex::Captures| v.canonical.to_owned()).to_string();
+                                tokenized.push(Tokenized::new(regexed_token, v.token_type.to_owned()));
+                        } else {
+                            tokenized.push(Tokenized::new(token.to_owned(), None));
+                        }
+                    }
                 }
-            };
-        }
+                    Some(t) => {
+                        tokenized.push(Tokenized::new(t.canonical.to_owned(), t.token_type.to_owned()));
+                    }
+                };
+            }
         if country == &String::from("US") {
             tokenized = type_us_st(&tokens, tokenized);
         }
@@ -89,14 +107,6 @@ impl Tokens {
         normalized = PUNC.replace_all(normalized.as_str(), "").to_string();
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
-
-        // standardize strasse & str --> straße for German tokens to allow for easy matching with networks
-        match country {
-            _ if country == "DE" => {
-                normalized = Regex::new(r"(strasse|str).?$").unwrap().replace_all(&normalized, "straße").to_string();
-            },
-            _ => {},
-        }
 
         let tokens: Vec<String> = normalized.split(" ").map(|split| {
             String::from(split)
