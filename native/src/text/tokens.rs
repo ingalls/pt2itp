@@ -6,35 +6,42 @@ use neon::prelude::*;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Tokens {
-    tokens: HashMap<String, ParsedToken>
+    tokens: HashMap<String, ParsedToken>,
+    regex_tokens: HashMap<String, ParsedToken>,
 }
 
 impl Tokens {
-    pub fn new(tokens: HashMap<String, ParsedToken>) -> Self {
+    pub fn new(tokens: HashMap<String, ParsedToken>, regex_tokens: HashMap<String, ParsedToken>) -> Self {
         Tokens {
-            tokens: tokens
+            tokens: tokens,
+            regex_tokens: regex_tokens,
         }
     }
 
     pub fn generate(languages: Vec<String>) -> Self {
         let import: HashMap<String, Vec<Token>> = geocoder_abbreviations::config(languages).unwrap();
         let mut map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
 
         for language in import.keys() {
             for group in import.get(language).unwrap() {
-                // if !group.regex {
-                //  for tk in &group.tokens {
-                //     map.insert(
-                //         diacritics(&tk.to_lowercase()),
-                //         ParsedToken::new(diacritics(&group.canonical.to_lowercase()), group.token_type.to_owned())
-                //     );
-                //  }
-                // }
-                if group.regex {
+                if !group.regex {
                     for tk in &group.tokens {
                         map.insert(
                             diacritics(&tk.to_lowercase()),
                             ParsedToken::new(diacritics(&group.canonical.to_lowercase()), group.token_type.to_owned())
+                            ),
+                        );
+                    }
+                }
+                if group.regex {
+                    for tk in &group.tokens {
+                        regex_map.insert(
+                            tk.to_lowercase(),
+                            ParsedToken::new(
+                                group.canonical.to_lowercase(),
+                                group.token_type.to_owned(),
+                            ),
                         );
                     }
                 }
@@ -42,7 +49,8 @@ impl Tokens {
         }
 
         Tokens {
-            tokens: map
+            tokens: map,
+            regex_tokens: regex_map,
         }
     }
 
@@ -53,15 +61,17 @@ impl Tokens {
 
         for token in &tokens {
             match self.tokens.get(token) {
-                    None => {
-                        // try here to apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
-                        for (regex_string, v) in self.tokens.iter() {
-                            let re = Regex::new(&format!(r"{}", regex_string));
-                            if re.unwrap().is_match(token) {
-                                // now let's replace with the token canonical value
-                                let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
-                                let regexed_token = re.replace_all(&token, |c: &regex::Captures| v.canonical.to_owned()).to_string();
-                                tokenized.push(Tokenized::new(regexed_token, v.token_type.to_owned()));
+                None => {
+                    // try here to apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
+                    for (regex_string, v) in self.regex_tokens.iter() {
+                        let re = Regex::new(&format!(r"{}", regex_string));
+                        if re.unwrap().is_match(token) {
+                            // now let's replace with the token canonical value
+                            let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
+                            let regexed_token = re
+                                .replace_all(&token, |_c: &regex::Captures| v.canonical.to_owned())
+                                .to_string();
+                            tokenized.push(Tokenized::new(regexed_token, v.token_type.to_owned()));
                         } else {
                             tokenized.push(Tokenized::new(token.to_owned(), None));
                         }
@@ -216,7 +226,7 @@ mod tests {
 
     #[test]
     fn test_remove_diacritics() {
-        let tokens = Tokens::new(HashMap::new());
+        let tokens = Tokens::new(HashMap::new(), HashMap::new());
 
         // diacritics are removed from latin text
         assert_eq!(tokenized_string(tokens.process(&String::from("Hérê àrë søme wöřdš, including diacritics and puncatuation!"), &String::from(""))), String::from("here are some words including diacritics and puncatuation"));
@@ -236,7 +246,7 @@ mod tests {
 
     #[test]
     fn test_tokenize() {
-        let tokens = Tokens::new(HashMap::new());
+        let tokens = Tokens::new(HashMap::new(), HashMap::new());
 
         assert_eq!(tokenized_string(tokens.process(&String::from(""), &String::from(""))), String::from(""));
 
@@ -275,7 +285,7 @@ mod tests {
         map.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));
         map.insert(String::from("street"), ParsedToken::new(String::from("st"), Some(TokenType::Way)));
 
-        let tokens = Tokens::new(map);
+        let tokens = Tokens::new(map, regex_map);
 
         assert_eq!(tokens.process(&String::from("Main Street"), &String::from("")),
             vec![
