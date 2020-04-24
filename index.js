@@ -129,7 +129,7 @@ if (require.main === module) {
         }
         case ('consensus'): {
             const consensus_arg = require('minimist')(process.argv, Context.args({
-                string: ['test_set', 'output', 'languages', 'db'],
+                string: ['test_set', 'languages', 'db'],
                 alias: {
                     database: 'db'
                 }
@@ -138,12 +138,9 @@ if (require.main === module) {
             const args = {
                 sources: consensus_arg._.slice(3),
                 test_set: consensus_arg.test_set,
-                output: consensus_arg.output,
                 context: new Context(consensus_arg).as_json(),
                 db: consensus_arg.db
             };
-
-            console.log(args);
 
             require('./native/index.node').consensus(args);
 

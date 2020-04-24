@@ -92,20 +92,18 @@ impl Agreement {
     }
 }
 
-fn haversine((lat1, lon1): (f64, f64), (lat2, lon2): (f64, f64)) -> f64 {
-    const EARTH_RADIUS: f64 = 3958.756;
-    //6371.0;
+fn haversine((lon1, lat1): (f64, f64), (lon2, lat2): (f64, f64)) -> f64 {
+    const EARTH_RADIUS: f64 = 6371.0; // meters
 
-    let (lat1, lon1) = (lat1.to_radians(), lon1.to_radians());
-    let (lat2, lon2) = (lat2.to_radians(), lon2.to_radians());
+    let (lon1, lat1) = (lon1.to_radians(), lat1.to_radians());
+    let (lon2, lat2) = (lon2.to_radians(), lat2.to_radians());
 
     let delta_lat = lat2 - lat1;
     let delta_lon = lon2 - lon1;
     let x =
         (delta_lat / 2.0).sin().powi(2)
         + lat1.cos() * lat2.cos() * (delta_lon / 2.0).sin().powi(2);
-    2.0 * EARTH_RADIUS * x.sqrt().atan() 
-    //* 1000.0
+    2.0 * EARTH_RADIUS * x.sqrt().atan() * 1000.0
 }
 
 #[cfg(test)]
@@ -113,7 +111,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_clustering() {
+    fn test_agreement_towns() {
         let sources = vec![
             String::from("Fitchburg"),
             String::from("Framingham"),
@@ -123,18 +121,120 @@ mod tests {
             String::from("Westborough")
         ];
 
-        let mut agreement = Agreement::new(sources, 10);
+        let mut agreement = Agreement::new(sources, 16093); // 10 miles
 
         let mut source_map = HashMap::new();
-        source_map.insert(String::from("Fitchburg"), Some((42.5833333, -71.8027778)));
-        source_map.insert(String::from("Framingham"), Some((42.2791667, -71.4166667)));
-        source_map.insert(String::from("Marlborough"), Some((42.3458333, -71.5527778)));
-        source_map.insert(String::from("Northbridge"), Some((42.1513889, -71.6500000)));
-        source_map.insert(String::from("Southborough"), Some((42.3055556, -71.5250000)));
-        source_map.insert(String::from("Westborough"), Some((42.2694444, -71.6166667)));
+        source_map.insert(String::from("Fitchburg"), Some((-71.8027778, 42.5833333)));
+        source_map.insert(String::from("Framingham"), Some((-71.4166667, 42.2791667)));
+        source_map.insert(String::from("Marlborough"), Some((-71.5527778, 42.3458333)));
+        source_map.insert(String::from("Northbridge"), Some((-71.6500000, 42.1513889)));
+        source_map.insert(String::from("Southborough"), Some((-71.5250000, 42.3055556)));
+        source_map.insert(String::from("Westborough"), Some((-71.6166667, 42.2694444)));
 
         agreement.process_points(&source_map);
+
         let results = agreement.get_results();
-        println!("results: {:?}", results);
+
+        assert_eq!(results.get("Fitchburg").unwrap().agreement_count, 0);
+        assert_eq!(results.get("Framingham").unwrap().agreement_count, 1);
+        assert_eq!(results.get("Marlborough").unwrap().agreement_count, 1);
+        assert_eq!(results.get("Northbridge").unwrap().agreement_count, 1);
+        assert_eq!(results.get("Southborough").unwrap().agreement_count, 1);
+        assert_eq!(results.get("Westborough").unwrap().agreement_count, 1);
+    }
+
+    #[test]
+    fn test_agreement_bad_source() {
+        let sources = vec![
+            String::from("source1"),
+            String::from("source2"),
+            String::from("source3")
+        ];
+
+        let mut agreement = Agreement::new(sources, 25);
+
+        let mut source_map = HashMap::new();
+        source_map.insert(String::from("source1"), Some((-77.0013365,38.8959637)));
+        source_map.insert(String::from("source2"), Some((-77.0013338,38.8959407)));
+        source_map.insert(String::from("source3"), Some((-77.0013311,38.8955170)));
+
+        agreement.process_points(&source_map);
+
+        source_map.entry(String::from("source1")).and_modify(|e| *e = Some((-77.0033025,38.8971410)));
+        source_map.entry(String::from("source2")).and_modify(|e| *e = Some((-77.0032677,38.8971390)));
+        source_map.entry(String::from("source3")).and_modify(|e| *e = Some((-77.0038872,38.8970513)));
+
+        agreement.process_points(&source_map);
+
+        let results = agreement.get_results();
+
+        assert_eq!(results.get("source1").unwrap().agreement_count, 2);
+        assert_eq!(results.get("source2").unwrap().agreement_count, 2);
+        assert_eq!(results.get("source3").unwrap().agreement_count, 0);
+    }
+
+    #[test]
+    fn test_agreement_no_agreement() {
+        let sources = vec![
+            String::from("source1"),
+            String::from("source2"),
+            String::from("source3")
+        ];
+
+        let mut agreement = Agreement::new(sources, 25);
+
+        let mut source_map = HashMap::new();
+        source_map.insert(String::from("source1"), Some((-76.9732081,38.9168672)));
+        source_map.insert(String::from("source2"), Some((-76.9733476,38.9163518)));
+        source_map.insert(String::from("source3"), Some((-76.9731089,38.9175434)));
+
+        agreement.process_points(&source_map);
+
+        source_map.entry(String::from("source1")).and_modify(|e| *e = Some((-76.9717141,38.9309358)));
+        source_map.entry(String::from("source2")).and_modify(|e| *e = Some((-76.9710302,38.9312738)));
+        source_map.entry(String::from("source3")).and_modify(|e| *e = Some((-76.9720950,38.9308064)));
+
+        agreement.process_points(&source_map);
+
+        let results = agreement.get_results();
+
+        assert_eq!(results.get("source1").unwrap().agreement_count, 0);
+        assert_eq!(results.get("source2").unwrap().agreement_count, 0);
+        assert_eq!(results.get("source3").unwrap().agreement_count, 0);
+    }
+
+    #[test]
+    fn test_agreement_misses() {
+        let sources = vec![
+            String::from("source1"),
+            String::from("source2"),
+            String::from("source3")
+        ];
+
+        let mut agreement = Agreement::new(sources, 25);
+
+        let mut source_map = HashMap::new();
+        source_map.insert(String::from("source1"), Some((-76.9732081,38.9168672)));
+        source_map.insert(String::from("source2"), Some((-76.9733476,38.9163518)));
+        source_map.insert(String::from("source3"), None);
+
+        agreement.process_points(&source_map);
+
+        source_map.entry(String::from("source1")).and_modify(|e| *e = None);
+        source_map.entry(String::from("source2")).and_modify(|e| *e = Some((-76.9710302,38.9312738)));
+        source_map.entry(String::from("source3")).and_modify(|e| *e = Some((-76.9720950,38.9308064)));
+
+        agreement.process_points(&source_map);
+
+        let results = agreement.get_results();
+
+        assert_eq!(results.get("source1").unwrap().agreement_count, 0);
+        assert_eq!(results.get("source1").unwrap().hit_count, 1);
+
+        assert_eq!(results.get("source2").unwrap().agreement_count, 0);
+        assert_eq!(results.get("source2").unwrap().hit_count, 2);
+
+        assert_eq!(results.get("source3").unwrap().agreement_count, 0);
+        assert_eq!(results.get("source3").unwrap().hit_count, 1);
     }
 }

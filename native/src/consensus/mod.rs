@@ -2,7 +2,7 @@ use std::convert::From;
 use postgres::{Connection, TlsMode};
 use std::collections::HashMap;
 
-mod cluster;
+mod agreement;
 
 use neon::prelude::*;
 
@@ -105,7 +105,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     ";
 
     let sources: Vec<String> = source_map.keys().cloned().collect();
-    let mut agreement = cluster::Agreement::new(sources.clone(), 25);
+    let mut agreement = agreement::Agreement::new(sources.clone(), 25);
 
     for addr in AddrStream::new(GeoStream::new(Some(test_set)), context.clone(), args.error_test_set) {
         for source in &sources {
