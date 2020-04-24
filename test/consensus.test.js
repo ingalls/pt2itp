@@ -47,7 +47,11 @@ test('consensus', (t) => {
         db: 'pt_test'
     });
 
-    console.error(results);
+    t.deepEqual(results, {
+        'source-3': { agreement_count: 0, hit_count: 1 },
+        'source-2': { agreement_count: 1, hit_count: 1 },
+        'source-1': { agreement_count: 1, hit_count: 1 }
+    });
 
     t.doesNotThrow(() => {
         fs.accessSync('/tmp/error-sources');
