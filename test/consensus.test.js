@@ -21,7 +21,7 @@ test('consensus - test_set argument error', (t) => {
     t.end();
 });
 
-test('consensus', (t) => {
+test('consensus - full agreement', (t) => {
     // Ensure files don't exist before test
     try {
         fs.unlinkSync('/tmp/error-sources');
@@ -32,9 +32,9 @@ test('consensus', (t) => {
 
     const results = worker({
         sources: [
-            path.resolve(__dirname, './fixtures/dc-consensus-source-1.geojson'),
-            path.resolve(__dirname, './fixtures/dc-consensus-source-2.geojson'),
-            path.resolve(__dirname, './fixtures/dc-consensus-source-3.geojson')
+            path.resolve(__dirname, './fixtures/dc-consensus-source-1-close.geojson'),
+            path.resolve(__dirname, './fixtures/dc-consensus-source-2-close.geojson'),
+            path.resolve(__dirname, './fixtures/dc-consensus-source-3-close.geojson')
         ],
         'test_set': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
         'error_sources': '/tmp/error-sources',
@@ -48,9 +48,93 @@ test('consensus', (t) => {
     });
 
     t.deepEqual(results, {
-        'source-3': { agreement_count: 0, hit_count: 1 },
+        'source-1': { agreement_count: 1, hit_count: 1 },
         'source-2': { agreement_count: 1, hit_count: 1 },
-        'source-1': { agreement_count: 1, hit_count: 1 }
+        'source-3': { agreement_count: 1, hit_count: 1 }
+    });
+
+    t.doesNotThrow(() => {
+        fs.accessSync('/tmp/error-sources');
+        fs.accessSync('/tmp/error-test-set');
+    });
+
+    fs.unlinkSync('/tmp/error-sources');
+    fs.unlinkSync('/tmp/error-test-set');
+    t.end();
+});
+
+test('consensus - partial agreement', (t) => {
+    // Ensure files don't exist before test
+    try {
+        fs.unlinkSync('/tmp/error-sources');
+        fs.unlinkSync('/tmp/error-test-set');
+    } catch (err) {
+        console.error('ok - cleaned tmp files');
+    }
+
+    const results = worker({
+        sources: [
+            path.resolve(__dirname, './fixtures/dc-consensus-source-1-close.geojson'),
+            path.resolve(__dirname, './fixtures/dc-consensus-source-2-close.geojson'),
+            path.resolve(__dirname, './fixtures/dc-consensus-source-4-far.geojson')
+        ],
+        'test_set': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
+        'error_sources': '/tmp/error-sources',
+        'error_test_set': '/tmp/error-test-set',
+        context: {
+            country: 'us',
+            region: 'dc',
+            languages: ['en']
+        },
+        db: 'pt_test'
+    });
+
+    t.deepEqual(results, {
+        'source-1': { agreement_count: 1, hit_count: 1 },
+        'source-2': { agreement_count: 1, hit_count: 1 },
+        'source-4': { agreement_count: 0, hit_count: 1 }
+    });
+
+    t.doesNotThrow(() => {
+        fs.accessSync('/tmp/error-sources');
+        fs.accessSync('/tmp/error-test-set');
+    });
+
+    fs.unlinkSync('/tmp/error-sources');
+    fs.unlinkSync('/tmp/error-test-set');
+    t.end();
+});
+
+test('consensus - no agreement', (t) => {
+    // Ensure files don't exist before test
+    try {
+        fs.unlinkSync('/tmp/error-sources');
+        fs.unlinkSync('/tmp/error-test-set');
+    } catch (err) {
+        console.error('ok - cleaned tmp files');
+    }
+
+    const results = worker({
+        sources: [
+            path.resolve(__dirname, './fixtures/dc-consensus-source-1-close.geojson'),
+            path.resolve(__dirname, './fixtures/dc-consensus-source-4-far.geojson'),
+            path.resolve(__dirname, './fixtures/dc-consensus-source-5-far.geojson')
+        ],
+        'test_set': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
+        'error_sources': '/tmp/error-sources',
+        'error_test_set': '/tmp/error-test-set',
+        context: {
+            country: 'us',
+            region: 'dc',
+            languages: ['en']
+        },
+        db: 'pt_test'
+    });
+
+    t.deepEqual(results, {
+        'source-1': { agreement_count: 0, hit_count: 1 },
+        'source-4': { agreement_count: 0, hit_count: 1 },
+        'source-5': { agreement_count: 0, hit_count: 1 }
     });
 
     t.doesNotThrow(() => {
