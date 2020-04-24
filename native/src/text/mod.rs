@@ -1718,11 +1718,10 @@ mod tests {
 
     #[test]
     fn test_syn_us_cr() {
-        let context = Context::new(
-            String::from("us"),
-            None,
-            Tokens::new(HashMap::new(), HashMap::new()),
-        );
+        let mut map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
+        let tokens = Tokens::new(map, regex_map);
+        let context = Context::new(String::from("us"), None, tokens);
 
         assert_eq!(
             syn_us_cr(&Name::new(String::from(""), 0, None, &context), &context),

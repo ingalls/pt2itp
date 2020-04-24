@@ -1,8 +1,8 @@
-use regex::Regex;
 use super::diacritics;
-use std::collections::HashMap;
 use geocoder_abbreviations::{Token, TokenType};
 use neon::prelude::*;
+use regex::Regex;
+use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Tokens {
@@ -57,30 +57,50 @@ impl Tokens {
         let tokens = self.tokenize(&text, &country);
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
-
         for token in &tokens {
-            match self.tokens.get(token) {
-                None => {
-                    // try here to apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
-                    for (regex_string, v) in self.regex_tokens.iter() {
-                        let re = Regex::new(&format!(r"{}", regex_string));
-                        if re.unwrap().is_match(token) {
-                            // now let's replace with the token canonical value
-                            let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
-                            let regexed_token = re
-                                .replace_all(&token, |_c: &regex::Captures| v.canonical.to_owned())
-                                .to_string();
-                            tokenized.push(Tokenized::new(regexed_token, v.token_type.to_owned()));
-                        } else {
-                            tokenized.push(Tokenized::new(token.to_owned(), None));
+            // for right now let's only apply regexes to Germany. English has a negative lookahead query that rust doesn't support
+            if country == &String::from("DE") {
+                match self.tokens.get(token) {
+                    None => {
+                        // apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
+                        // loop through regexes to apply any rcanonical value eplacements that match
+                        let mut no_token_match = Tokenized::new(token.to_owned(), None);
+                        for (regex_string, v) in self.regex_tokens.iter() {
+                            let re = Regex::new(&format!(r"{}", regex_string));
+                            if re.unwrap().is_match(token) {
+                                let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
+                                let regexed_token = re
+                                    .replace_all(&token, |_c: &regex::Captures| {
+                                        v.canonical.to_owned()
+                                    })
+                                    .to_string();
+                                no_token_match =
+                                    Tokenized::new(regexed_token, v.token_type.to_owned());
+                            }
                         }
+                        tokenized.push(no_token_match);
                     }
-                }
                     Some(t) => {
-                        tokenized.push(Tokenized::new(t.canonical.to_owned(), t.token_type.to_owned()));
+                        tokenized.push(Tokenized::new(
+                            t.canonical.to_owned(),
+                            t.token_type.to_owned(),
+                        ));
                     }
                 };
+            } else {
+                match self.tokens.get(token) {
+                    None => {
+                        tokenized.push(Tokenized::new(token.to_owned(), None));
+                    }
+                    Some(t) => {
+                        tokenized.push(Tokenized::new(
+                            t.canonical.to_owned(),
+                            t.token_type.to_owned(),
+                        ));
+                    }
+                }
             }
+        }
         if country == &String::from("US") {
             tokenized = type_us_st(&tokens, tokenized);
         }
@@ -171,7 +191,6 @@ pub fn type_us_st(tokens: &Vec<String>, mut tokenized: Vec<Tokenized>) -> Vec<To
     // check if original name contained "st"
     // don't modify if "street" or "saint" has already been tokenized
     if tokens.contains(&String::from("st")) {
-
         let mut st_index = Vec::new();
         let mut way_tokens = false;
         for (i, tk) in tokenized.iter().enumerate() {
@@ -204,7 +223,7 @@ pub fn tokenize_name(mut cx: FunctionContext) -> JsResult<JsValue> {
     let context = cx.argument::<JsValue>(1)?;
     let context: crate::types::InputContext = neon_serde::from_value(&mut cx, context)?;
     let context = crate::Context::from(context);
-    
+
     let tokenized = context.tokens.process(&name, &context.country);
 
     Ok(neon_serde::to_value(&mut cx, &tokenized)?)

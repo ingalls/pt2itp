@@ -875,7 +875,11 @@ mod tests {
 
     #[test]
     fn test_germany() {
-        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new(), HashMap::new()));
+        let context = Context::new(
+            String::from("de"),
+            None,
+            Tokens::generate(vec![String::from("de")]),
+        );
 
         assert_eq!(
             Name::new(String::from("hauptstr"), 0, None, &context),
@@ -883,7 +887,7 @@ mod tests {
                 display: String::from("Hauptstr"),
                 priority: 0,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("hauptstraße"), None)],
+                tokenized: vec![Tokenized::new(String::from("hbf"), None)],
                 freq: 1
             }
         );
