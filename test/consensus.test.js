@@ -14,10 +14,10 @@ test('consensus - sources argument error', (t) => {
     t.end();
 });
 
-test('consensus - test_set argument error', (t) => {
+test('consensus - query_points argument error', (t) => {
     t.throws(() => worker({
         sources: [path.resolve(__dirname, './fixtures/dc-persistent.geojson')]
-    }), /test_set argument is required/);
+    }), /query_points argument is required/);
     t.end();
 });
 
@@ -36,9 +36,9 @@ test('consensus - full agreement', (t) => {
             path.resolve(__dirname, './fixtures/dc-consensus-source-2-close.geojson'),
             path.resolve(__dirname, './fixtures/dc-consensus-source-3-close.geojson')
         ],
-        'test_set': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
+        'query_points': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
         'error_sources': '/tmp/error-sources',
-        'error_test_set': '/tmp/error-test-set',
+        'error_query_points': '/tmp/error-test-set',
         context: {
             country: 'us',
             region: 'dc',
@@ -48,9 +48,13 @@ test('consensus - full agreement', (t) => {
     });
 
     t.deepEqual(results, {
-        'source-1': { agreement_count: 1, hit_count: 1 },
-        'source-2': { agreement_count: 1, hit_count: 1 },
-        'source-3': { agreement_count: 1, hit_count: 1 }
+        results: {
+            'source-1': { agreement_count: 1, hit_count: 1 },
+            'source-2': { agreement_count: 1, hit_count: 1 },
+            'source-3': { agreement_count: 1, hit_count: 1 }
+        },
+        threshold: 25,
+        sample_count: 1
     });
 
     t.doesNotThrow(() => {
@@ -78,9 +82,9 @@ test('consensus - partial agreement', (t) => {
             path.resolve(__dirname, './fixtures/dc-consensus-source-2-close.geojson'),
             path.resolve(__dirname, './fixtures/dc-consensus-source-4-far.geojson')
         ],
-        'test_set': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
+        'query_points': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
         'error_sources': '/tmp/error-sources',
-        'error_test_set': '/tmp/error-test-set',
+        'error_query_points': '/tmp/error-test-set',
         context: {
             country: 'us',
             region: 'dc',
@@ -90,9 +94,13 @@ test('consensus - partial agreement', (t) => {
     });
 
     t.deepEqual(results, {
-        'source-1': { agreement_count: 1, hit_count: 1 },
-        'source-2': { agreement_count: 1, hit_count: 1 },
-        'source-4': { agreement_count: 0, hit_count: 1 }
+        results: {
+            'source-1': { agreement_count: 1, hit_count: 1 },
+            'source-2': { agreement_count: 1, hit_count: 1 },
+            'source-4': { agreement_count: 0, hit_count: 1 }
+        },
+        threshold: 25,
+        sample_count: 1
     });
 
     t.doesNotThrow(() => {
@@ -120,9 +128,9 @@ test('consensus - no agreement', (t) => {
             path.resolve(__dirname, './fixtures/dc-consensus-source-4-far.geojson'),
             path.resolve(__dirname, './fixtures/dc-consensus-source-5-far.geojson')
         ],
-        'test_set': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
+        'query_points': path.resolve(__dirname, './fixtures/dc-consensus-test-set.geojson'),
         'error_sources': '/tmp/error-sources',
-        'error_test_set': '/tmp/error-test-set',
+        'error_query_points': '/tmp/error-test-set',
         context: {
             country: 'us',
             region: 'dc',
@@ -132,9 +140,13 @@ test('consensus - no agreement', (t) => {
     });
 
     t.deepEqual(results, {
-        'source-1': { agreement_count: 0, hit_count: 1 },
-        'source-4': { agreement_count: 0, hit_count: 1 },
-        'source-5': { agreement_count: 0, hit_count: 1 }
+        results: {
+            'source-1': { agreement_count: 0, hit_count: 1 },
+            'source-4': { agreement_count: 0, hit_count: 1 },
+            'source-5': { agreement_count: 0, hit_count: 1 }
+        },
+        threshold: 25,
+        sample_count: 1
     });
 
     t.doesNotThrow(() => {

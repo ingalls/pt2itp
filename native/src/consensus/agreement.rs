@@ -16,6 +16,7 @@ impl Results {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Agreement {
     results: HashMap<String, Results>,
     threshold: u32,
@@ -35,6 +36,10 @@ impl Agreement {
         }
     }
 
+    //
+    // Take in set of matching address points for each source, and perform hierarchical clustering
+    // to determine which points "agree" with eachother
+    //
     pub fn process_points(&mut self, source_map: &HashMap<String, Option<(f64, f64)>>) {
         self.sample_count += 1;
 
@@ -55,8 +60,8 @@ impl Agreement {
             return;
         }
 
-        // Build our condensed matrix by computing the dissimilarity between all
-        // possible coordinate pairs.
+        // Build a condensed matrix by computing the dissimilarity between all
+        // coordinate pairs.
         let mut condensed = vec![];
         for row in 0..coordinates.len() - 1 {
             for col in row + 1..coordinates.len() {
@@ -64,8 +69,10 @@ impl Agreement {
             }
         }
     
+        // Perform hierarchical clustering and return the resulting dendrogram
         let dend = linkage(&mut condensed, coordinates.len(), Method::Single);
-    
+
+        // Use the threshold value to assign points to a modal cluster
         let mut modal_cluster = vec![];
         for step in dend.steps() {
             if step.dissimilarity < self.threshold as f64 {
@@ -76,19 +83,15 @@ impl Agreement {
             }
         }
     
+        // Re-associate indexes with source values, and update the agreement counts for each
         let modal_cluster: Vec<&String> = modal_cluster
             .into_iter()
             .filter(|&x| x < dend.observations())
             .map(|x| labels[x])
             .collect();
-
         for source in modal_cluster {
             self.results.entry(String::from(source)).and_modify(|e| e.agreement_count += 1);
         }
-    }
-
-    pub fn get_results(&self) -> &HashMap<String, Results> {
-        &self.results
     }
 }
 
@@ -109,39 +112,6 @@ fn haversine((lon1, lat1): (f64, f64), (lon2, lat2): (f64, f64)) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_agreement_towns() {
-        let sources = vec![
-            String::from("Fitchburg"),
-            String::from("Framingham"),
-            String::from("Marlborough"),
-            String::from("Northbridge"),
-            String::from("Southborough"),
-            String::from("Westborough")
-        ];
-
-        let mut agreement = Agreement::new(sources, 16093); // 10 miles
-
-        let mut source_map = HashMap::new();
-        source_map.insert(String::from("Fitchburg"), Some((-71.8027778, 42.5833333)));
-        source_map.insert(String::from("Framingham"), Some((-71.4166667, 42.2791667)));
-        source_map.insert(String::from("Marlborough"), Some((-71.5527778, 42.3458333)));
-        source_map.insert(String::from("Northbridge"), Some((-71.6500000, 42.1513889)));
-        source_map.insert(String::from("Southborough"), Some((-71.5250000, 42.3055556)));
-        source_map.insert(String::from("Westborough"), Some((-71.6166667, 42.2694444)));
-
-        agreement.process_points(&source_map);
-
-        let results = agreement.get_results();
-
-        assert_eq!(results.get("Fitchburg").unwrap().agreement_count, 0);
-        assert_eq!(results.get("Framingham").unwrap().agreement_count, 1);
-        assert_eq!(results.get("Marlborough").unwrap().agreement_count, 1);
-        assert_eq!(results.get("Northbridge").unwrap().agreement_count, 1);
-        assert_eq!(results.get("Southborough").unwrap().agreement_count, 1);
-        assert_eq!(results.get("Westborough").unwrap().agreement_count, 1);
-    }
 
     #[test]
     fn test_agreement_bad_source() {
@@ -166,11 +136,9 @@ mod tests {
 
         agreement.process_points(&source_map);
 
-        let results = agreement.get_results();
-
-        assert_eq!(results.get("source1").unwrap().agreement_count, 2);
-        assert_eq!(results.get("source2").unwrap().agreement_count, 2);
-        assert_eq!(results.get("source3").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("source1").unwrap().agreement_count, 2);
+        assert_eq!(agreement.results.get("source2").unwrap().agreement_count, 2);
+        assert_eq!(agreement.results.get("source3").unwrap().agreement_count, 0);
     }
 
     #[test]
@@ -196,11 +164,9 @@ mod tests {
 
         agreement.process_points(&source_map);
 
-        let results = agreement.get_results();
-
-        assert_eq!(results.get("source1").unwrap().agreement_count, 0);
-        assert_eq!(results.get("source2").unwrap().agreement_count, 0);
-        assert_eq!(results.get("source3").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("source1").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("source2").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("source3").unwrap().agreement_count, 0);
     }
 
     #[test]
@@ -226,15 +192,45 @@ mod tests {
 
         agreement.process_points(&source_map);
 
-        let results = agreement.get_results();
+        assert_eq!(agreement.results.get("source1").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("source1").unwrap().hit_count, 1);
 
-        assert_eq!(results.get("source1").unwrap().agreement_count, 0);
-        assert_eq!(results.get("source1").unwrap().hit_count, 1);
+        assert_eq!(agreement.results.get("source2").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("source2").unwrap().hit_count, 2);
 
-        assert_eq!(results.get("source2").unwrap().agreement_count, 0);
-        assert_eq!(results.get("source2").unwrap().hit_count, 2);
+        assert_eq!(agreement.results.get("source3").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("source3").unwrap().hit_count, 1);
+    }
 
-        assert_eq!(results.get("source3").unwrap().agreement_count, 0);
-        assert_eq!(results.get("source3").unwrap().hit_count, 1);
+    #[test]
+    fn test_agreement_towns() {
+        // example lifted from https://docs.rs/kodama/0.2.2/kodama/#example
+        let sources = vec![
+            String::from("Fitchburg"),
+            String::from("Framingham"),
+            String::from("Marlborough"),
+            String::from("Northbridge"),
+            String::from("Southborough"),
+            String::from("Westborough")
+        ];
+
+        let mut agreement = Agreement::new(sources, 16093); // 10 miles
+
+        let mut source_map = HashMap::new();
+        source_map.insert(String::from("Fitchburg"), Some((-71.8027778, 42.5833333)));
+        source_map.insert(String::from("Framingham"), Some((-71.4166667, 42.2791667)));
+        source_map.insert(String::from("Marlborough"), Some((-71.5527778, 42.3458333)));
+        source_map.insert(String::from("Northbridge"), Some((-71.6500000, 42.1513889)));
+        source_map.insert(String::from("Southborough"), Some((-71.5250000, 42.3055556)));
+        source_map.insert(String::from("Westborough"), Some((-71.6166667, 42.2694444)));
+
+        agreement.process_points(&source_map);
+
+        assert_eq!(agreement.results.get("Fitchburg").unwrap().agreement_count, 0);
+        assert_eq!(agreement.results.get("Framingham").unwrap().agreement_count, 1);
+        assert_eq!(agreement.results.get("Marlborough").unwrap().agreement_count, 1);
+        assert_eq!(agreement.results.get("Northbridge").unwrap().agreement_count, 1);
+        assert_eq!(agreement.results.get("Southborough").unwrap().agreement_count, 1);
+        assert_eq!(agreement.results.get("Westborough").unwrap().agreement_count, 1);
     }
 }

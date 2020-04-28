@@ -19,10 +19,11 @@ use super::pg::{Table, InputTable};
 struct ConsensusArgs {
     db: String,
     context: Option<super::types::InputContext>,
+    threshold: Option<u32>,
     sources: Option<Vec<String>>,
-    test_set: Option<String>,
+    query_points: Option<String>,
     error_sources: Option<String>,
-    error_test_set: Option<String>
+    error_query_points: Option<String>
 }
 
 impl ConsensusArgs {
@@ -30,14 +31,23 @@ impl ConsensusArgs {
         ConsensusArgs {
             db: String::from("consensus"),
             context: None,
+            threshold: None,
             sources: None,
-            test_set: None,
+            query_points: None,
             error_sources: None,
-            error_test_set: None
+            error_query_points: None
         }
     }
 }
 
+//
+// Calculate consensus agreement across multiple sets of address points
+//
+// This function will take in a multiple sets of address points and stream them into the database.
+// It then loops through the set of query points and uses the linker to find a matching address
+// from each source. It sends those points to the agreement module to continually update the agreement
+// metrics, then returns those metrics as the final result after each query point is processed.
+//
 pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     let args: ConsensusArgs = match cx.argument_opt(0) {
         None => ConsensusArgs::new(),
@@ -60,7 +70,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     };
 
     let sources = args.sources.expect("sources argument is required");
-    let test_set = args.test_set.expect("test_set argument is required");
+    let query_points = args.query_points.expect("query_points argument is required");
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
 
@@ -105,9 +115,10 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     ";
 
     let sources: Vec<String> = source_map.keys().cloned().collect();
-    let mut agreement = agreement::Agreement::new(sources.clone(), 25);
+    let threshold = args.threshold.unwrap_or(25);
+    let mut agreement = agreement::Agreement::new(sources.clone(), threshold);
 
-    for addr in AddrStream::new(GeoStream::new(Some(test_set)), context.clone(), args.error_test_set) {
+    for addr in AddrStream::new(GeoStream::new(Some(query_points)), context.clone(), args.error_query_points) {
         for source in &sources {
             // pull the addresses matching this address number within 1 km
             let rows = conn.query(query, &[ &addr.number, &addr.geom[0], &addr.geom[1], &source ]).unwrap();
@@ -137,6 +148,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
                                 },
                                 None => None
                             };
+                            // update source_map with current match for source
                             source_map.entry(source.to_string()).and_modify(|e| *e = coords);
                         },
                         _ => panic!("Duplicate IDs are not allowed in input data")
@@ -146,11 +158,11 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
             };
         }
 
+        // update agreement with current set of matched points
         agreement.process_points(&source_map);
     }
 
-    let results = agreement.get_results();
-    Ok(neon_serde::to_value(&mut cx, results)?)
+    Ok(neon_serde::to_value(&mut cx, &agreement)?)
 }
 
 ///

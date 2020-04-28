@@ -145,6 +145,22 @@ Basic Usage:
 ./index.js analyze --cc us_ia --type address --output=/tmp/us_ia.text-analysis/address
 ```
 
+## `consensus` Mode
+
+### Basic Usage
+
+Takes in multiple sets of address points, links addresses together using a set of query points, and calculates agreement metrics for each set of linked addresses.
+
+Basic Usage:
+```
+./index.js consensus linedelimited1.geojson linedelimited2.geojson linedelimited3.geojson --query_points linedelimited.geojson --db consensus --languages en --country us
+```
+
+Full Options:
+```
+./index.js consensus --help
+```
+
 ## Version Numbers
 
 PT2ITP follows the [Semver](http://semver.org/) spec for it's **CLI interface**.
