@@ -27,7 +27,7 @@ serde_derive = "1.0"
 serde = "1.0"
 fancy-regex = "0.1.0"
 memchr = "2.0.2"
-geocoder-abbreviations = { git = "https://github.com/mapbox/geocoder-abbreviations", rev = "92527eb169a6f2fea52c24ba5806b4959b84b8ae" }
+geocoder-abbreviations = { git = "https://github.com/mapbox/geocoder-abbreviations", rev = "b518011c0a42070dc36f2a61356bec6e074930fc" }
 unicode-segmentation = "1.3.0"
 
 [dependencies.geojson]
