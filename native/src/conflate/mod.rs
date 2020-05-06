@@ -179,7 +179,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             },
             // no match in persistent addresses, write new address to output
             None => {
-                output.write(format!("{}\n", GeoJson::Feature(addr.to_geojson(hecate::Action::Create, false)).to_string()).as_bytes()).unwrap();
+                output.write_all(format!("{}\n", GeoJson::Feature(addr.to_geojson(hecate::Action::Create, false)).to_string()).as_bytes()).unwrap();
             }
         };
     }
@@ -251,7 +251,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             Err(e) => panic!(e)
         };
 
-        output.write(format!("{}\n", modified.to_string()).as_bytes()).unwrap();
+        output.write_all(format!("{}\n", modified.to_string()).as_bytes()).unwrap();
     }
 
     Ok(cx.boolean(true))

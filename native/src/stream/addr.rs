@@ -79,7 +79,7 @@ impl Iterator for AddrStream {
                     Err(err) => match self.errors {
                         None => Err(err),
                         Some(ref mut file) => {
-                            file.write(format!("{}\n", err).as_bytes()).unwrap();
+                            file.write_all(format!("{}\n", err).as_bytes()).unwrap();
 
                             Err(err)
                         }
