@@ -6,7 +6,7 @@ pub fn addresses(feat: &geojson::Feature) -> i64 {
             Some(prop) => match prop.as_array() {
                 None => 0,
                 Some(ref array) => {
-                    if array.len() == 0 {
+                    if array.is_empty() {
                         return 0;
                     }
 
@@ -39,7 +39,7 @@ pub fn intersections(feat: &geojson::Feature) -> i64 {
             Some(prop) => match prop.as_array() {
                 None => 0,
                 Some(ref array) => {
-                    if array.len() == 0 {
+                    if array.is_empty() {
                         return 0;
                     }
 

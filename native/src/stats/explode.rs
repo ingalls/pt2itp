@@ -32,7 +32,7 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
 
                 let array = array.as_array().unwrap();
 
-                if array.len() == 0 {
+                if array.is_empty() {
                     return addrs;
                 }
 
@@ -43,7 +43,7 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                     // Feature is a GeometryCollection
                     let mut ele = 0;
                     for arr in array {
-                        if arr.is_array() && arr.as_array().unwrap().len() > 0 {
+                        if arr.is_array() && !arr.as_array().unwrap().is_empty() {
                             break;
                         } else {
                             ele = ele + 1;
@@ -159,13 +159,13 @@ pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
 
                 let array = array.as_array().unwrap();
 
-                if array.len() == 0 {
+                if array.is_empty() {
                     return ints;
                 }
 
                 let mut ele = 0;
                 for arr in array {
-                    if arr.is_array() && arr.as_array().unwrap().len() > 0 {
+                    if arr.is_array() && !arr.as_array().unwrap().is_empty() {
                         break;
                     } else {
                         ele = ele + 1;

@@ -194,7 +194,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
 
                         bm_item.addresses = bm_item.addresses + 1;
 
-                        if names.len() > 0 {
+                        if !names.is_empty() {
                             if !bm_item.names.contains(&names[0]) {
                                 bm_item.names.push(names[0].clone());
                             }

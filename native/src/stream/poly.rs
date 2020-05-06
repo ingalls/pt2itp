@@ -40,13 +40,13 @@ impl std::io::Read for PolyStream {
                 };
 
                 let mut bytes = feat.into_bytes();
-                if bytes.len() == 0 {
+                if bytes.is_empty() {
                     end = true;
                 } else {
                     write.append(&mut bytes);
                 }
 
-                if write.len() == 0 {
+                if write.is_empty() {
                     return Ok(0);
                 }
             }

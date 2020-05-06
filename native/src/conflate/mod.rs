@@ -267,7 +267,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 ///
 pub fn compare(potential: &Address, persistents: &mut Vec<Address>) -> Option<i64> {
     // The address does not exist in the database and should be created
-    if persistents.len() == 0 {
+    if persistents.is_empty() {
         return None;
     }
     let potential_link = linker::Link::new(0, &potential.names);

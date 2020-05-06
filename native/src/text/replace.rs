@@ -12,7 +12,7 @@ impl ReplaceAll for Regex {
         let mut new = String::new();
 
         if rep.contains("$") {
-            while input.len() > 0 {
+            while !input.is_empty() {
                 // captures finds the left-most first match in a string
                 match self.captures(input)? {
                     None => {
@@ -32,7 +32,7 @@ impl ReplaceAll for Regex {
                 }
             }
         } else {
-            while input.len() > 0 {
+            while !input.is_empty() {
                 match self.find(input)? {
                     None => {
                         new.push_str(&input);

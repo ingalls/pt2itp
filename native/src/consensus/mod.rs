@@ -173,7 +173,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
 ///
 pub fn compare(addr: &Address, potentials: &mut Vec<Address>) -> Option<i64> {
     // No nearby addresses with this number
-    if potentials.len() == 0 {
+    if potentials.is_empty() {
         return None;
     }
     let addr_link = linker::Link::new(0, &addr.names);

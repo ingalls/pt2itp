@@ -113,7 +113,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
-                if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
+                if !potential_tokenless.is_empty() && !tokenless.is_empty() && potential_tokenless.get(0..1) != tokenless.get(0..1) {
                     continue;
                 }
 
@@ -131,9 +131,9 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Use a weighted average w/ the tokenless dist score if possible
                 let mut lev_score: Option<f64> = None;
 
-                if tokenless.len() > 0 && potential_tokenless.len() > 0 {
+                if !tokenless.is_empty() && !potential_tokenless.is_empty() {
                     lev_score = Some((0.25 * distance(&tokenized, &potential_tokenized) as f64) + (0.75 * distance(&tokenless, &potential_tokenless) as f64));
-                } else if (tokenless.len() > 0 && potential_tokenless.len() == 0) || (tokenless.len() == 0 && potential_tokenless.len() > 0) {
+                } else if (!tokenless.is_empty() && potential_tokenless.is_empty()) || (tokenless.is_empty() && !potential_tokenless.is_empty()) {
                     lev_score = Some(distance(&tokenized, &potential_tokenized) as f64);
                 } else {
 

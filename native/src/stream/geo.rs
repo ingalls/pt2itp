@@ -57,7 +57,7 @@ impl Iterator for GeoStream {
     fn next(&mut self) -> Option<Self::Item> {
         let mut line = Some(String::from(""));
 
-        while line.is_some() && line.as_ref().unwrap().trim().len() == 0 {
+        while line.is_some() && line.as_ref().unwrap().trim().is_empty() {
             line = match GeoStream::line(&mut self.input) {
                 None => None,
                 Some(line) => Some(line)

@@ -18,7 +18,7 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     let mut last_match = 0;
     for mat in WORD_BOUNDARY.find_iter(&text[..]) {
         let word = &text[last_match..mat.start()];
-        if word.len() > 0 {
+        if !word.is_empty() {
             word_count = word_count + 1;
             new.push_str(&capitalize(word, word_count, context));
         }

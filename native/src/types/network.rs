@@ -67,7 +67,7 @@ impl Network {
 
         let names = Names::from_value(street, Some(Source::Network), &context)?;
 
-        if names.names.len() == 0 {
+        if names.names.is_empty() {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
 

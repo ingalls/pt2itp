@@ -37,7 +37,7 @@ impl Names {
             names: names
         };
 
-        if names.names.len() == 0 {
+        if names.names.is_empty() {
             return names;
         }
 
@@ -394,7 +394,7 @@ impl Name {
             .filter(|x| x.token_type == token_type)
             .collect();
 
-        tokens.len() > 0
+        !tokens.is_empty()
     }
 
 }

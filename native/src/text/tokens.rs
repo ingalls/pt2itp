@@ -94,11 +94,7 @@ impl Tokens {
             String::from(split)
         }).filter(|token| {
             // Remove Empty Tokens (Double Space/Non Trimmed Input)
-            if token.len() == 0 {
-                false
-            } else {
-                true
-            }
+            !token.is_empty()
         }).collect();
 
         tokens
