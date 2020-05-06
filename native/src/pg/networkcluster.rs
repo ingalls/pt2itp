@@ -197,9 +197,8 @@ impl Table for NetworkCluster {
         ", table = table).as_str(), &[]).unwrap();
 
         if !self.orphan {
-            conn.execute(format!("
-                CREATE INDEX network_cluster_source_ids_idx ON network_cluster USING GIN (source_ids);
-            ").as_str(), &[]).unwrap();
+            let query = "CREATE INDEX network_cluster_source_ids_idx ON network_cluster USING GIN (source_ids);";
+            conn.execute(query, &[]).unwrap();
         }
 
         conn.execute(format!("

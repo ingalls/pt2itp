@@ -184,7 +184,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         };
     }
 
-    let modifieds = pg::Cursor::new(conn, format!("
+    let modifieds = pg::Cursor::new(conn, "
         SELECT
             json_build_object(
                 'id', id,
@@ -200,7 +200,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             id,
             version,
             geom
-    ")).unwrap();
+    ".to_owned()).unwrap();
 
     for mut modified in modifieds {
         let modified_obj = modified.as_object_mut().unwrap();

@@ -174,7 +174,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             println!("ok - outputting hecate addresses");
 
-            pg::Cursor::new(conn, format!(r#"
+            pg::Cursor::new(conn, r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -188,7 +188,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                     address
                 WHERE
                     accuracy IS NOT NULL
-            "#)).unwrap()
+            "#.to_owned()).unwrap()
         },
         false => {
             conn.execute(r#"
@@ -199,7 +199,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
             println!("ok - outputting addresses");
 
-            pg::Cursor::new(conn, format!(r#"
+            pg::Cursor::new(conn, r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -209,7 +209,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                     )
                 FROM
                     address
-            "#)).unwrap()
+            "#.to_owned()).unwrap()
         }
     };
 

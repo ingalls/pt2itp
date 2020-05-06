@@ -129,13 +129,9 @@ impl Context {
             };
         }
 
-        match self.region_code() {
-            None => None,
-            Some(ref code) => match REGIONS.get(code) {
-                None => None,
-                Some(name) => Some(format!("{}", name))
-            }
-        }
+        self.region_code()
+            .and_then(|ref code| REGIONS.get(code))
+            .map(|&name| name.to_string())
     }
 }
 

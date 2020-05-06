@@ -73,7 +73,7 @@ fn convert_stream(stream: GeoStream, mut sink: impl Write) {
 
                 for feat in fc.features {
                     if fcfirst {
-                        line = format!("{}", geojson::GeoJson::from(feat).to_string());
+                        line = geojson::GeoJson::from(feat).to_string();
                         fcfirst = false;
                     } else {
                         line = format!("{},\n{}", line, geojson::GeoJson::from(feat).to_string());
@@ -84,7 +84,7 @@ fn convert_stream(stream: GeoStream, mut sink: impl Write) {
         };
 
         if first {
-            if sink.write(format!("{}", line).as_bytes()).is_err() { panic!("Failed to write to output stream"); };
+            if sink.write(line.as_bytes()).is_err() { panic!("Failed to write to output stream"); };
             first = false;
         } else if sink.write(format!("\n,{}", line).as_bytes()).is_err() {
             panic!("Failed to write to output stream");
