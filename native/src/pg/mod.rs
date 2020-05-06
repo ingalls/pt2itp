@@ -99,14 +99,14 @@ impl Iterator for Cursor {
 
         // Cursor is finished
         if rows.is_empty() {
-            return None;
+            None
         } else {
             self.cache = rows.iter().map(|row| {
                 let json: Value = row.get(0);
                 json
             }).collect();
 
-            return self.cache.pop();
+            self.cache.pop()
         }
     }
 }

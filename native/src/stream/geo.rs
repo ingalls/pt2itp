@@ -64,25 +64,15 @@ impl Iterator for GeoStream {
             };
         }
 
-        match line {
-            None => {
-                return None;
-            },
-            Some(mut line) => {
-                //Remove Ascii Record Separators at beginning or end of line
-                if line.ends_with("\u{001E}") {
-                    line.pop();
-                } else if line.starts_with("\u{001E}") {
-                    line.replace_range(0..1, "");
-                }
-
-                match line.parse::<geojson::GeoJson>() {
-                    Ok(geojson) => Some(geojson),
-                    Err(err) => {
-                        panic!("Invalid GeoJSON ({:?}): {}", err, line);
-                    }
-                }
+        line.map(|mut line| {
+            //Remove Ascii Record Separators at beginning or end of line
+            if line.ends_with("\u{001E}") {
+                line.pop();
+            } else if line.starts_with("\u{001E}") {
+                line.replace_range(0..1, "");
             }
-        }
+            line.parse::<geojson::GeoJson>()
+                .unwrap_or_else(|err| panic!("Invalid GeoJSON ({:?}): {}", err, line))
+        })
     }
 }
