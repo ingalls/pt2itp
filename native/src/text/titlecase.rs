@@ -80,7 +80,7 @@ pub fn normalize_cardinals(text: &str) -> String {
     lazy_static! {
         static ref CARDINAL: Regex = Regex::new(r"(?i)(^|\s)(?P<cardinal>(n\.w\.|nw|n\.e\.|ne|s\.w\.|sw|s\.e\.|se))(\s|$)").unwrap();
     }
-    let output = match CARDINAL.captures(text) {
+    match CARDINAL.captures(text) {
         Some(capture) => {
             match capture.name("cardinal") {
                 Some(mat) => {
@@ -91,8 +91,7 @@ pub fn normalize_cardinals(text: &str) -> String {
             }
         },
         None => text.to_string()
-    };
-    output
+    }
 }
 
 #[cfg(test)]

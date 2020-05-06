@@ -188,8 +188,7 @@ mod tests {
             .into_iter()
             .map(|x| String::from(x.token))
             .collect();
-        let token_string = String::from(tokens.join(" ").trim());
-        token_string
+        String::from(tokens.join(" ").trim())
     }
 
     #[test]

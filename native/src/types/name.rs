@@ -346,10 +346,7 @@ impl Name {
             .iter()
             .map(|x| x.token.to_owned())
             .collect();
-
-        let tokenized = String::from(tokens.join(" ").trim());
-
-        tokenized
+       String::from(tokens.join(" ").trim())
     }
 
     ///
@@ -365,9 +362,7 @@ impl Name {
             .filter(|x| x.token_type.is_none())
             .map(|x| x.token.to_owned())
             .collect();
-        let tokenless = String::from(tokens.join(" ").trim());
-
-        tokenless
+        String::from(tokens.join(" ").trim())
     }
 
     ///

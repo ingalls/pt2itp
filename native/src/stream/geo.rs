@@ -14,7 +14,7 @@ pub enum Input {
 
 impl GeoStream {
     pub fn new(input: Option<String>) -> Self {
-        let stream = match input {
+        match input {
             Some(inpath) => match File::open(inpath) {
                 Ok(file) => GeoStream {
                     input: Input::File(BufReader::new(file).lines())
@@ -26,9 +26,7 @@ impl GeoStream {
                     input: Input::StdIn(Box::leak(Box::new(io::stdin())).lock().lines())
                 }
             }
-        };
-
-        stream
+        }
     }
 
     fn line(input: &mut Input) -> Option<String> {
