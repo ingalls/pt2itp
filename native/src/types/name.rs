@@ -103,10 +103,8 @@ impl Names {
                     }
                 };
                 // network features must have a name with a higher priority than alternative names
-                if source == Some(Source::Network) && names.len() > 1 {
-                    if names[0].priority == names[1].priority {
-                        panic!("1 network synonym must have greater priority: {:?}", names);
-                    }
+                if source == Some(Source::Network) && names.len() > 1 && names[0].priority == names[1].priority {
+                    panic!("1 network synonym must have greater priority: {:?}", names);
                 }
 
                 // lower the priority of names on address features
@@ -216,14 +214,12 @@ impl Names {
                 std::cmp::Ordering::Less
             } else if a.priority < b.priority {
                 std::cmp::Ordering::Greater
+            } else if a.freq > b.freq {
+                std::cmp::Ordering::Less
+            } else if a.freq < b.freq {
+                std::cmp::Ordering::Greater
             } else {
-                if a.freq > b.freq {
-                    std::cmp::Ordering::Less
-                } else if a.freq < b.freq {
-                    std::cmp::Ordering::Greater
-                } else {
-                    std::cmp::Ordering::Equal
-                }
+                std::cmp::Ordering::Equal
             }
         });
     }

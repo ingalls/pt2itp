@@ -86,8 +86,8 @@ fn convert_stream(stream: GeoStream, mut sink: impl Write) {
         if first {
             if sink.write(format!("{}", line).as_bytes()).is_err() { panic!("Failed to write to output stream"); };
             first = false;
-        } else {
-            if sink.write(format!("\n,{}", line).as_bytes()).is_err() { panic!("Failed to write to output stream"); };
+        } else if sink.write(format!("\n,{}", line).as_bytes()).is_err() {
+            panic!("Failed to write to output stream");
         }
     }
 
