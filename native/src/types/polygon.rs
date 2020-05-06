@@ -41,8 +41,8 @@ impl Polygon {
                 Some(geojson::feature::Id::Number(id)) => id.as_i64(),
                 _ => None
             },
-            props: props,
-            geom: geom
+            props,
+            geom
         })
     }
 

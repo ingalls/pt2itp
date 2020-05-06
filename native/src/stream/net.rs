@@ -15,8 +15,8 @@ pub struct NetStream {
 impl NetStream {
     pub fn new(input: GeoStream, context: Context, errors: Option<String>) -> Self {
         NetStream {
-            context: context,
-            input: input,
+            context,
+            input,
             buffer: None,
             errors: match errors {
                 None => None,

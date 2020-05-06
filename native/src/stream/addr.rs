@@ -15,8 +15,8 @@ pub struct AddrStream {
 impl AddrStream {
     pub fn new(input: GeoStream, context: Context, errors: Option<String>) -> Self {
         AddrStream {
-            context: context,
-            input: input,
+            context,
+            input,
             buffer: None,
             errors: match errors {
                 None => None,

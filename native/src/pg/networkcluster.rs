@@ -7,9 +7,7 @@ pub struct NetworkCluster {
 
 impl NetworkCluster {
     pub fn new(orphan: bool) -> Self {
-        NetworkCluster {
-            orphan: orphan
-        }
+        NetworkCluster { orphan }
     }
 
     ///

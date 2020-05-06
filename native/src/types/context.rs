@@ -37,7 +37,7 @@ impl Context {
                 None => None,
                 Some(region) => Some(region.to_uppercase())
             },
-            tokens: tokens
+            tokens
         }
     }
 

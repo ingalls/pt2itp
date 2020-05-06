@@ -11,9 +11,7 @@ pub struct Tokens {
 
 impl Tokens {
     pub fn new(tokens: HashMap<String, ParsedToken>) -> Self {
-        Tokens {
-            tokens: tokens
-        }
+        Tokens { tokens }
     }
 
     pub fn generate(languages: Vec<String>) -> Self {

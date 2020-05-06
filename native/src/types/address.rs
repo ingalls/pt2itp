@@ -97,14 +97,14 @@ impl Address {
                 Some(geojson::feature::Id::Number(id)) => id.as_i64(),
                 _ => None
             },
-            number: number,
-            version: version,
-            names: names,
-            output: output,
-            source: source,
-            interpolate: interpolate,
-            props: props,
-            geom: geom
+            number,
+            version,
+            names,
+            output,
+            source,
+            interpolate,
+            props,
+            geom
         };
 
         addr.std()?;
@@ -130,9 +130,7 @@ impl Address {
                     Err(err) => { return Err(format!("Names Conversion Error: {}", err.to_string())); }
                 };
 
-                Names {
-                    names: names
-                }
+                Names { names }
             },
             None => { return Err(String::from("names key/value is required")); }
         };
@@ -166,12 +164,12 @@ impl Address {
             id: get_id(&mut value)?,
             number: get_number(&mut value)?,
             version: get_version(&mut value)?,
-            names: names,
+            names,
             output: get_output(&mut value)?,
             source: get_source(&mut value)?,
             interpolate: get_interpolate(&mut value)?,
-            props: props,
-            geom: geom
+            props,
+            geom
         })
     }
 

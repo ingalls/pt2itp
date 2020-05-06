@@ -332,9 +332,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     Ok(names) => names
                 };
 
-                let names = Names {
-                    names: names
-                };
+                let names = Names { names };
 
                 let dbpotentials: serde_json::Value = result.get(2);
 
@@ -461,10 +459,7 @@ pub fn dedupe_syn(mut cx: FunctionContext) -> JsResult<JsArray> {
     if names.is_empty() { return Ok(cx.empty_array()); }
 
     // don't use Names::new() so we're not generating synonyms again
-    let mut names = Names {
-        names: names
-    };
-
+    let mut names = Names { names };
     names.empty();
     names.sort();
     names.dedupe();

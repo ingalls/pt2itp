@@ -76,10 +76,10 @@ impl Network {
                 Some(geojson::feature::Id::Number(id)) => id.as_i64(),
                 _ => None
             },
-            names: names,
-            source: source,
-            props: props,
-            geom: geom
+            names,
+            source,
+            props,
+            geom
         };
 
         net.std(&context)?;

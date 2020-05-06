@@ -14,7 +14,7 @@ pub struct PolyStream {
 impl PolyStream {
     pub fn new(input: GeoStream, errors: Option<String>) -> Self {
         PolyStream {
-            input: input,
+            input,
             buffer: None,
             errors: match errors {
                 None => None,

@@ -17,7 +17,7 @@ impl Rect {
         let bound = geom.bounding_rect().unwrap();
 
         Rect {
-            geom: geom,
+            geom,
             name: name.to_string(),
             rect: rstar::primitives::Rectangle::from_corners(
                 [bound.min.x, bound.min.y],

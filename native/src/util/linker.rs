@@ -17,9 +17,9 @@ pub struct Link<'a> {
 impl<'a> Link<'a> {
     pub fn new(id: i64, names: &'a Names) -> Self {
         Link {
-            id: id,
+            id,
             maxscore: 0.0,
-            names: names
+            names
         }
     }
 }
@@ -32,10 +32,7 @@ pub struct LinkResult {
 
 impl LinkResult {
     pub fn new(id: i64, score: f64) -> Self {
-        LinkResult {
-            id: id,
-            score: score
-        }
+        LinkResult { id, score }
     }
 }
 

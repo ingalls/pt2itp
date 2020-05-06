@@ -73,10 +73,10 @@ impl Cursor {
         };
 
         Ok(Cursor {
-            fetch: fetch,
+            fetch,
             conn: pg_conn,
-            trans: trans,
-            query: query,
+            trans,
+            query,
             cache: Vec::with_capacity(fetch as usize)
         })
     }

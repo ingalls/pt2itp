@@ -33,9 +33,7 @@ pub struct Names {
 
 impl Names {
     pub fn new(names: Vec<Name>, context: &Context) -> Self {
-        let mut names = Names {
-            names: names
-        };
+        let mut names = Names { names };
 
         if names.names.is_empty() {
             return names;
@@ -300,10 +298,10 @@ impl Name {
         }
 
         Name {
-            display: display,
-            priority: priority,
-            source: source,
-            tokenized: tokenized,
+            display,
+            priority,
+            source,
+            tokenized,
             freq: 1
         }
     }
