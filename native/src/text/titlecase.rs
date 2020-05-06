@@ -62,8 +62,8 @@ pub fn capitalize(word: &str, word_count: usize, context: &Context) -> String {
             || context.country == String::from("CA"))
             && MINOR_EN.contains(&word) {
             return String::from(word);
-        } else if context.country == String::from("DE")
-            && MINOR_DE.contains(&word) {
+        }
+        if context.country == String::from("DE") && MINOR_DE.contains(&word) {
             return String::from(word);
         }
     }
