@@ -15,6 +15,9 @@ use crate::{
 use super::pg;
 use super::pg::{Table, InputTable};
 
+const SEARCH_RADIUS: f64 = 0.01;
+const WGS84: i32 = 4326;
+
 #[derive(Serialize, Deserialize, Debug)]
 struct ConsensusArgs {
     db: String,
@@ -93,9 +96,9 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
         source_map.insert(source, None);
     }
 
-    let query = "
+    let query = format!("
         SELECT
-            ST_Distance(ST_SetSRID(ST_Point($2, $3), 4326), p.geom),
+            ST_Distance(ST_SetSRID(ST_Point($2, $3), {0}), p.geom),
             json_build_object(
                 'id', p.id,
                 'number', p.number,
@@ -111,8 +114,8 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
         WHERE
             p.number = $1
             AND p.source = $4
-            AND ST_DWithin(ST_SetSRID(ST_Point($2, $3), 4326), p.geom, 0.01);
-    ";
+            AND ST_DWithin(ST_SetSRID(ST_Point($2, $3), {0}), p.geom, {1});
+    ", WGS84, SEARCH_RADIUS);
 
     let sources: Vec<String> = source_map.keys().cloned().collect();
     let threshold = args.threshold.unwrap_or(25);
@@ -121,7 +124,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     for addr in AddrStream::new(GeoStream::new(Some(query_points)), context.clone(), args.error_query_points) {
         for source in &sources {
             // pull the addresses matching this address number within 1 km
-            let rows = conn.query(query, &[ &addr.number, &addr.geom[0], &addr.geom[1], &source ]).unwrap();
+            let rows = conn.query(&query, &[ &addr.number, &addr.geom[0], &addr.geom[1], &source ]).unwrap();
 
             // populate potential_matches with db response
             let mut potential_matches: Vec<Address> = Vec::with_capacity(rows.len());
@@ -142,16 +145,11 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
                         0 => continue,
                         1 => {
                             let paddr = pmatches.pop();
-                            let coords = match paddr {
-                                Some(point) => {
-                                    Some((point.geom[0], point.geom[1]))
-                                },
-                                None => None
-                            };
+                            let coords = paddr.map(|p| (p.geom[0], p.geom[1]));
                             // update source_map with current match for source
                             source_map.entry(source.to_string()).and_modify(|e| *e = coords);
                         },
-                        _ => panic!("Duplicate IDs are not allowed in input data")
+                        _ => panic!("{} is a duplicate ID - this is not allowed in input data", link_id)
                     }
                 },
                 None => ()
@@ -183,8 +181,5 @@ pub fn compare(addr: &Address, potentials: &mut Vec<Address>) -> Option<i64> {
         linker::Link::new(potential.id.unwrap(), &potential.names)
     }).collect();
 
-    match linker::linker(addr_link, potential_links, true) {
-        Some(link) => Some(link.id),
-        None => None
-    }
+    linker::linker(addr_link, potential_links, true).map(|link| link.id)
 }

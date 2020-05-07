@@ -9,18 +9,6 @@ const fs = require('fs');
 const db = require('./lib/db');
 db.init(test);
 
-test('consensus - sources argument error', (t) => {
-    t.throws(() => worker(), /sources argument is required/);
-    t.end();
-});
-
-test('consensus - query_points argument error', (t) => {
-    t.throws(() => worker({
-        sources: [path.resolve(__dirname, './fixtures/dc-persistent.geojson')]
-    }), /query_points argument is required/);
-    t.end();
-});
-
 test('consensus - full agreement', (t) => {
     // Ensure files don't exist before test
     try {
