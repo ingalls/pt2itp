@@ -20,8 +20,8 @@ struct ConsensusArgs {
     db: String,
     context: Option<super::types::InputContext>,
     threshold: Option<u32>,
-    sources: Option<Vec<String>>,
-    query_points: Option<String>,
+    sources: Vec<String>,
+    query_points: String,
     error_sources: Option<String>,
     error_query_points: Option<String>
 }
@@ -32,8 +32,8 @@ impl ConsensusArgs {
             db: String::from("consensus"),
             context: None,
             threshold: None,
-            sources: None,
-            query_points: None,
+            sources: vec![String::from("")],
+            query_points: String::from(""),
             error_sources: None,
             error_query_points: None
         }
@@ -69,8 +69,8 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
     };
 
-    let sources = args.sources.expect("sources argument is required");
-    let query_points = args.query_points.expect("query_points argument is required");
+    let sources = args.sources;
+    let query_points = args.query_points;
 
     let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
 
@@ -116,7 +116,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
 
     let sources: Vec<String> = source_map.keys().cloned().collect();
     let threshold = args.threshold.unwrap_or(25);
-    let mut agreement = agreement::Agreement::new(sources.clone(), threshold);
+    let mut agreement = agreement::Agreement::new(threshold);
 
     for addr in AddrStream::new(GeoStream::new(Some(query_points)), context.clone(), args.error_query_points) {
         for source in &sources {

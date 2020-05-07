@@ -24,11 +24,8 @@ pub struct Agreement {
 }
 
 impl Agreement {
-    pub fn new(sources: Vec<String>, threshold: u32) -> Self {
-        let mut results = HashMap::new();
-        for source in sources {
-            results.insert(source, Results::new());
-        }
+    pub fn new(threshold: u32) -> Self {
+        let results = HashMap::new();
         Agreement {
             results,
             threshold,
@@ -51,7 +48,7 @@ impl Agreement {
                 source_hit_count += 1;
                 labels.push(source);
                 coordinates.push(point);
-                self.results.entry(String::from(source)).and_modify(|e| e.hit_count += 1);
+                self.results.entry(String::from(source)).or_insert(Results::new()).hit_count += 1;
             }
         }
 
@@ -96,7 +93,7 @@ impl Agreement {
 }
 
 fn haversine((lon1, lat1): (f64, f64), (lon2, lat2): (f64, f64)) -> f64 {
-    const EARTH_RADIUS: f64 = 6371.0; // meters
+    const EARTH_RADIUS: f64 = 6371.0; // kilometers
 
     let (lon1, lat1) = (lon1.to_radians(), lat1.to_radians());
     let (lon2, lat2) = (lon2.to_radians(), lat2.to_radians());
@@ -115,13 +112,7 @@ mod tests {
 
     #[test]
     fn test_agreement_bad_source() {
-        let sources = vec![
-            String::from("source1"),
-            String::from("source2"),
-            String::from("source3")
-        ];
-
-        let mut agreement = Agreement::new(sources, 25);
+        let mut agreement = Agreement::new(25);
 
         let mut source_map = HashMap::new();
         source_map.insert(String::from("source1"), Some((-77.0013365,38.8959637)));
@@ -143,13 +134,7 @@ mod tests {
 
     #[test]
     fn test_agreement_no_agreement() {
-        let sources = vec![
-            String::from("source1"),
-            String::from("source2"),
-            String::from("source3")
-        ];
-
-        let mut agreement = Agreement::new(sources, 25);
+        let mut agreement = Agreement::new(25);
 
         let mut source_map = HashMap::new();
         source_map.insert(String::from("source1"), Some((-76.9732081,38.9168672)));
@@ -171,13 +156,7 @@ mod tests {
 
     #[test]
     fn test_agreement_misses() {
-        let sources = vec![
-            String::from("source1"),
-            String::from("source2"),
-            String::from("source3")
-        ];
-
-        let mut agreement = Agreement::new(sources, 25);
+        let mut agreement = Agreement::new(25);
 
         let mut source_map = HashMap::new();
         source_map.insert(String::from("source1"), Some((-76.9732081,38.9168672)));
@@ -205,16 +184,7 @@ mod tests {
     #[test]
     fn test_agreement_towns() {
         // example lifted from https://docs.rs/kodama/0.2.2/kodama/#example
-        let sources = vec![
-            String::from("Fitchburg"),
-            String::from("Framingham"),
-            String::from("Marlborough"),
-            String::from("Northbridge"),
-            String::from("Southborough"),
-            String::from("Westborough")
-        ];
-
-        let mut agreement = Agreement::new(sources, 16093); // 10 miles
+        let mut agreement = Agreement::new(16093); // 10 miles
 
         let mut source_map = HashMap::new();
         source_map.insert(String::from("Fitchburg"), Some((-71.8027778, 42.5833333)));

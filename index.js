@@ -135,13 +135,24 @@ if (require.main === module) {
                 }
             }));
 
+            const { query_points, threshold, db, error_sources, error_query_points } = consensus_arg;
+            const sources = consensus_arg._.slice(3);
+            if (!query_points) {
+                console.error('--query-points=<FILE> argument required');
+                process.exit(1);
+            } else if (sources.length < 1) {
+                console.error('no source <FILE> arguments provided');
+                process.exit(1);
+            }
+
             const args = {
-                sources: consensus_arg._.slice(3),
-                query_points: consensus_arg.query_points,
+                sources,
+                query_points,
                 context: new Context(consensus_arg).as_json(),
-                db: consensus_arg.db,
-                error_sources: consensus_arg.error_sources,
-                error_query_points: consensus_arg.error_query_points
+                threshold,
+                db,
+                error_sources,
+                error_query_points
             };
 
             require('./native/index.node').consensus(args);
