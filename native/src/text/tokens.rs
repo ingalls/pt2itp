@@ -52,7 +52,7 @@ impl Tokens {
                 }
             };
         }
-        if country == &String::from("US") {
+        if country == "US" {
             tokenized = type_us_st(&tokens, tokenized);
         }
 
@@ -142,7 +142,7 @@ pub fn type_us_st(tokens: &Vec<String>, mut tokenized: Vec<Tokenized>) -> Vec<To
         let mut st_index = Vec::new();
         let mut way_tokens = false;
         for (i, tk) in tokenized.iter().enumerate() {
-            if tk.token == String::from("st") {
+            if tk.token == "st" {
                 st_index.push(i);
             }
             // if there are non-st ways

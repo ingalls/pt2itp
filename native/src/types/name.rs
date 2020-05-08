@@ -41,7 +41,7 @@ impl Names {
 
         let mut synonyms: Vec<Name> = Vec::new();
 
-        if context.country == String::from("US") {
+        if context.country == "US" {
             for name in names.names.iter_mut() {
                 if name.source == Some(Source::Network) {
                     synonyms.append(&mut text::syn_number_suffix(&name, &context));
@@ -56,7 +56,7 @@ impl Names {
                     }
                 }
             }
-        } else if context.country == String::from("CA") {
+        } else if context.country == "CA" {
             for name in names.names.iter_mut() {
                 if name.source == Some(Source::Network) {
                     synonyms.append(&mut text::syn_ca_hwy(&name, &context));
@@ -238,7 +238,7 @@ impl Names {
     /// Remove all Name instances where display is whitespace
     ///
     pub fn empty(&mut self) {
-        self.names.retain(|name| name.display.trim() != String::from(""));
+        self.names.retain(|name| !name.display.trim().is_empty())
     }
 }
 
@@ -289,7 +289,7 @@ impl Name {
 
         let tokenized = context.tokens.process(&display, &context.country);
 
-        if context.country == String::from("US") || context.country == String::from("CA") {
+        if context.country == "US" || context.country == "CA" {
             display = text::str_remove_octo(&display);
             // penalize less desireable street names
             if text::is_undesireable(&tokenized) {

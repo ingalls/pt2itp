@@ -32,8 +32,8 @@ pub fn titlecase(text: &String, context: &Context) -> String {
         new.push_str(&capitalize(word, word_count, context));
     }
 
-    if context.country == String::from("US")
-    || context.country == String::from("CA") {
+    if context.country == "US"
+    || context.country == "CA" {
         new = normalize_cardinals(&new)
     }
 
@@ -51,19 +51,19 @@ pub fn capitalize(word: &str, word_count: usize, context: &Context) -> String {
 
     const MINOR_DE: [&str; 1] = ["du"];
 
-    if (context.country == String::from("US")
-        || context.country == String::from("CA"))
+    if (context.country == "US"
+        || context.country == "CA")
         && MAJOR_EN.contains(&word) {
         return String::from(word).to_uppercase();
     }
     // don't apply lower casing to the first word in the string
     if word_count > 1 {
-        if (context.country == String::from("US")
-            || context.country == String::from("CA"))
+        if (context.country == "US"
+            || context.country == "CA")
             && MINOR_EN.contains(&word) {
             return String::from(word);
         }
-        if context.country == String::from("DE") && MINOR_DE.contains(&word) {
+        if context.country == "DE" && MINOR_DE.contains(&word) {
             return String::from(word);
         }
     }

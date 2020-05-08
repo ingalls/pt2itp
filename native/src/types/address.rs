@@ -317,7 +317,7 @@ impl Address {
 
         self.props.insert(String::from("street"), serde_json::to_value(names).unwrap());
 
-        if self.source != String::from("") {
+        if !self.source.is_empty() {
             self.props.insert(String::from("source"), serde_json::value::Value::String(self.source));
         }
 

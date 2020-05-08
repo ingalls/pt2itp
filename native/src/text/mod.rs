@@ -118,18 +118,18 @@ pub fn is_drivethrough(text: &String, context: &Context) -> bool {
     }
 
     if (
-        context.country == String::from("US")
-        || context.country == String::from("CA")
-        || context.country == String::from("GB")
-        || context.country == String::from("DE")
-        || context.country == String::from("CH")
-        || context.country == String::from("AT")
+        context.country == "US"
+        || context.country == "CA"
+        || context.country == "GB"
+        || context.country == "DE"
+        || context.country == "CH"
+        || context.country == "AT"
     ) && EN.is_match(text.as_str()) {
         return true;
     }
 
     if (
-        context.country == String::from("DE")
+        context.country == "DE"
     ) && DE.is_match(text.as_str()) {
         return true;
     }
@@ -312,7 +312,7 @@ pub fn syn_ca_hwy(name: &Name, context: &Context) -> Vec<Name> {
     }
 
     // Trans Canada shouldn't be provincial highway
-    if name.display == String::from("1") {
+    if name.display == "1" {
         Vec::new()
     } else if HIGHWAY.is_match(name.display.as_str()) {
         match NUM.captures(name.display.as_str()) {
@@ -320,10 +320,10 @@ pub fn syn_ca_hwy(name: &Name, context: &Context) -> Vec<Name> {
                 let num = capture["num"].to_string();
                 let hwy_type: String;
                 if
-                    region == &String::from("NB")
-                    || region == &String::from("NL")
-                    || region == &String::from("PE")
-                    || region == &String::from("QC")
+                    region == "NB"
+                    || region == "NL"
+                    || region == "PE"
+                    || region == "QC"
                 {
                     hwy_type = String::from("Highway");
                 } else {
