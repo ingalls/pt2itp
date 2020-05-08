@@ -1,6 +1,6 @@
 {
-  "name": "pt2itp",
-  "version": "28.2.0",
+  "name": "@mapbox/pt2itp",
+  "version": "28.2.0-consensus",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
