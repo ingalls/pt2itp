@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v28.3.0
+
+- :tada: Add `consensus` mode agreement metrics for sets of address data.
+
 ### v28.2.0
 
 - :tada: Add back new and improved `analyze` mode for assessing text quality of address/network data.
