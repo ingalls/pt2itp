@@ -71,11 +71,8 @@ pub fn is_numbered(name: &Name) -> Option<String> {
     }
 
     for token in tokens {
-        match NUMBERED.captures(&token) {
-            Some(capture) => {
-                return Some(capture["num"].to_string());
-            }
-            None => ()
+        if let Some(capture) =  NUMBERED.captures(&token) {
+            return Some(capture["num"].to_string());
         };
     }
 
@@ -97,11 +94,8 @@ pub fn is_routish(name: &Name) -> Option<String> {
     }
 
     for token in tokens {
-        match ROUTISH.captures(&token) {
-            Some(capture) => {
-                return Some(capture["num"].to_string());
-            }
-            None => ()
+        if let Some(capture) =  ROUTISH.captures(&token) {
+            return Some(capture["num"].to_string());
         };
     }
 

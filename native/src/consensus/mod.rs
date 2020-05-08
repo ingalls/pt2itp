@@ -135,25 +135,22 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
             }
 
             // find a match using linker
-            match compare(&addr, &mut potential_matches) {
-                Some(link_id) => {
-                    let mut pmatches: Vec<Address> = potential_matches.into_iter().filter(|potential| {
-                        link_id == potential.id.unwrap()
-                    }).collect();
+            if let Some(link_id) = compare(&addr, &mut potential_matches) {
+                let mut pmatches: Vec<Address> = potential_matches.into_iter().filter(|potential| {
+                    link_id == potential.id.unwrap()
+                }).collect();
 
-                    match pmatches.len() {
-                        0 => continue,
-                        1 => {
-                            let paddr = pmatches.pop();
-                            let coords = paddr.map(|p| (p.geom[0], p.geom[1]));
-                            // update source_map with current match for source
-                            source_map.entry(source.to_string()).and_modify(|e| *e = coords);
-                        },
-                        _ => panic!("{} is a duplicate ID - this is not allowed in input data", link_id)
-                    }
-                },
-                None => ()
-            };
+                match pmatches.len() {
+                    0 => continue,
+                    1 => {
+                        let paddr = pmatches.pop();
+                        let coords = paddr.map(|p| (p.geom[0], p.geom[1]));
+                        // update source_map with current match for source
+                        source_map.entry(source.to_string()).and_modify(|e| *e = coords);
+                    },
+                    _ => panic!("{} is a duplicate ID - this is not allowed in input data", link_id)
+                }
+            }
         }
 
         // update agreement with current set of matched points

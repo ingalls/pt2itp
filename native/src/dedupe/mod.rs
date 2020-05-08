@@ -73,14 +73,11 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     address.index(&conn);
 
-    match args.buildings {
-        Some(buildings) => {
-            let polygon = pg::Polygon::new(String::from("buildings"));
-            polygon.create(&conn);
-            polygon.input(&conn, PolyStream::new(GeoStream::new(Some(buildings)), None));
-            polygon.index(&conn);
-        },
-        None => ()
+    if let Some(buildings) = args.buildings {
+        let polygon = pg::Polygon::new(String::from("buildings"));
+        polygon.create(&conn);
+        polygon.input(&conn, PolyStream::new(GeoStream::new(Some(buildings)), None));
+        polygon.index(&conn);
     };
 
     let count = address.count(&conn);

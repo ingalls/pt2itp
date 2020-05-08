@@ -86,24 +86,18 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let buildings = pg::Polygon::new(String::from("buildings"));
     buildings.create(&conn);
-    match args.buildings {
-        Some(buildings_in) => {
-            buildings.input(&conn, PolyStream::new(GeoStream::new(Some(buildings_in)), None));
-            buildings.index(&conn);
-            println!("ok - imported buildings");
-        },
-        None => ()
+    if let Some(buildings_in) = args.buildings {
+        buildings.input(&conn, PolyStream::new(GeoStream::new(Some(buildings_in)), None));
+        buildings.index(&conn);
+        println!("ok - imported buildings");
     };
 
     let parcels = pg::Polygon::new(String::from("parcels"));
     parcels.create(&conn);
-    match args.parcels {
-        Some(parcels_in) => {
-            parcels.input(&conn, PolyStream::new(GeoStream::new(Some(parcels_in)), None));
-            parcels.index(&conn);
-            println!("ok - imported parcels");
-        },
-        None => ()
+    if let Some(parcels_in) = args.parcels {
+        parcels.input(&conn, PolyStream::new(GeoStream::new(Some(parcels_in)), None));
+        parcels.index(&conn);
+        println!("ok - imported parcels");
     };
 
     conn.execute("

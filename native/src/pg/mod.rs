@@ -63,13 +63,10 @@ impl Cursor {
             })
         };
 
-        match trans.execute(format!(r#"
+        if let Err(err) = trans.execute(format!(r#"
             DECLARE next_cursor CURSOR FOR {}
         "#, &query).as_str(), &[]) {
-            Err(err) => {
-                return Err(err.to_string());
-            },
-            _ => ()
+            return Err(err.to_string());
         };
 
         Ok(Cursor {
