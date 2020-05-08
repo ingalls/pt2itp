@@ -148,9 +148,8 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     ", &[]).unwrap();
     println!("ok - calculated accuracy: point");
 
-    let modified = match is_hecate {
-        true => {
-            conn.execute(r#"
+    let modified = if is_hecate {
+        conn.execute(r#"
                 UPDATE address
                     SET
                         accuracy = NULL
@@ -158,7 +157,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                         accuracy = props->>'accuracy'
             "#, &[]).unwrap();
 
-            conn.execute(r#"
+        conn.execute(r#"
                 UPDATE address
                     SET
                         props = props::JSONB || JSON_Build_Object('accuracy', accuracy)::JSONB
@@ -166,9 +165,9 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                         accuracy IS NOT NULL
             "#, &[]).unwrap();
 
-            println!("ok - outputting hecate addresses");
+        println!("ok - outputting hecate addresses");
 
-            pg::Cursor::new(conn, r#"
+        pg::Cursor::new(conn, r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -183,17 +182,16 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 WHERE
                     accuracy IS NOT NULL
             "#.to_owned()).unwrap()
-        },
-        false => {
-            conn.execute(r#"
+    } else {
+        conn.execute(r#"
                 UPDATE address
                     SET
                         props = props::JSONB || JSON_Build_Object('accuracy', accuracy)::JSONB
             "#, &[]).unwrap();
 
-            println!("ok - outputting addresses");
+        println!("ok - outputting addresses");
 
-            pg::Cursor::new(conn, r#"
+        pg::Cursor::new(conn, r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -204,7 +202,6 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 FROM
                     address
             "#.to_owned()).unwrap()
-        }
     };
 
     for feat in modified {

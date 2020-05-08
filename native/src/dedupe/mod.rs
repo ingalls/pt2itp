@@ -138,10 +138,10 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
 fn output(is_hecate: bool, receive: crossbeam::Receiver<Address>, mut sink: impl Write) {
     for result in receive.iter() {
-
-        let result: String = match is_hecate {
-            true => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete, false)).to_string(),
-            false => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None, false)).to_string()
+        let result: String = if is_hecate {
+            geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete, false)).to_string()
+        } else {
+            geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None, false)).to_string()
         };
 
         if sink.write(format!("{}\n", result).as_bytes()).is_err() {

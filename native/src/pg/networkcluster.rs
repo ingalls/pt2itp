@@ -166,9 +166,10 @@ impl Table for NetworkCluster {
     }
 
     fn count(&self, conn: &Connection) -> i64 {
-        let table = match self.orphan {
-            true => String::from("network_orphan_cluster"),
-            false => String::from("network_cluster")
+        let table = if self.orphan {
+            String::from("network_orphan_cluster")
+        } else {
+            String::from("network_cluster")
         };
 
         match conn.query(format!("
@@ -183,9 +184,10 @@ impl Table for NetworkCluster {
     }
 
     fn index(&self, conn: &Connection) {
-        let table = match self.orphan {
-            true => String::from("network_orphan_cluster"),
-            false => String::from("network_cluster")
+        let table = if self.orphan {
+            String::from("network_orphan_cluster")
+        } else {
+            String::from("network_cluster")
         };
 
         conn.execute(format!("
