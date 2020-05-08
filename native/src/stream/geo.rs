@@ -64,9 +64,9 @@ impl Iterator for GeoStream {
 
         line.map(|mut line| {
             //Remove Ascii Record Separators at beginning or end of line
-            if line.ends_with("\u{001E}") {
+            if line.ends_with('\u{001E}') {
                 line.pop();
-            } else if line.starts_with("\u{001E}") {
+            } else if line.starts_with('\u{001E}') {
                 line.replace_range(0..1, "");
             }
             line.parse::<geojson::GeoJson>()

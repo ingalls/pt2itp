@@ -11,7 +11,7 @@ impl ReplaceAll for Regex {
         let mut input = text;
         let mut new = String::new();
 
-        if rep.contains("$") {
+        if rep.contains('$') {
             while !input.is_empty() {
                 // captures finds the left-most first match in a string
                 match self.captures(input)? {

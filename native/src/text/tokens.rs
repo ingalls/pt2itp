@@ -88,7 +88,7 @@ impl Tokens {
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
 
-        let tokens: Vec<String> = normalized.split(" ").map(|split| {
+        let tokens: Vec<String> = normalized.split(' ').map(|split| {
             String::from(split)
         }).filter(|token| {
             // Remove Empty Tokens (Double Space/Non Trimmed Input)

@@ -177,7 +177,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                     None => vec![],
                     Some(ref names) => match names {
                         serde_json::Value::String(string) => {
-                            string.split(",").map(|name| {
+                            string.split(',').map(|name| {
                                 String::from(name)  
                             }).collect()
                         },
