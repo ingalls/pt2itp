@@ -216,6 +216,7 @@ mod tests {
     use geocoder_abbreviations::TokenType;
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
         tokens.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));

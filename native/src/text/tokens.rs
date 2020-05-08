@@ -210,6 +210,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_tokenize() {
         let tokens = Tokens::new(HashMap::new());
 

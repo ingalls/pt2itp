@@ -101,6 +101,7 @@ mod tests {
     use crate::Tokens;
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_titlecase() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 

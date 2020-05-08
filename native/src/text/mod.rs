@@ -717,6 +717,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_syn_us_famous() {
         let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 

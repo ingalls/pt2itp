@@ -102,6 +102,7 @@ impl StatsAccuracy {
     }
 }
 
+#[allow(clippy::cognitive_complexity)] // TODO(#550)
 pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
     let args: StatsArgs = match cx.argument_opt(0) {
         None => StatsArgs::new(),
