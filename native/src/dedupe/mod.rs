@@ -196,7 +196,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
         max_id = max_id
     )) {
         Ok(cursor) => cursor,
-        Err(err) => panic!("ERR: {}", err.to_string())
+        Err(err) => panic!("ERR: {}", err)
     };
 
     for dup_feats in exact_dups {
@@ -207,7 +207,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
 
         let feat: Address = match Address::from_value(dup_feats.remove(&String::from("primary")).unwrap()) {
             Ok(feat) => feat,
-            Err(err) => panic!("Address Error: {}", err.to_string())
+            Err(err) => panic!("Address Error: {}", err)
         };
 
         let mut dup_feats: Vec<Address> = match dup_feats.remove(&String::from("proximal")).unwrap() {
@@ -217,7 +217,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
                 for feat in feats {
                     addrfeats.push(match Address::from_value(feat) {
                         Ok(feat) => feat,
-                        Err(err) => panic!("Vec<Address> Error: {}", err.to_string())
+                        Err(err) => panic!("Vec<Address> Error: {}", err)
                     });
                 }
 

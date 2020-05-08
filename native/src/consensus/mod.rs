@@ -121,7 +121,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     let threshold = args.threshold.unwrap_or(25);
     let mut agreement = agreement::Agreement::new(threshold);
 
-    for addr in AddrStream::new(GeoStream::new(Some(query_points)), context.clone(), args.error_query_points) {
+    for addr in AddrStream::new(GeoStream::new(Some(query_points)), context, args.error_query_points) {
         for source in &sources {
             // pull the addresses matching this address number within 1 km
             let rows = conn.query(&query, &[ &addr.number, &addr.geom[0], &addr.geom[1], &source ]).unwrap();
