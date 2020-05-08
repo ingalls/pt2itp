@@ -219,7 +219,7 @@ impl Address {
                 Some(id) => id.to_string()
             },
             version = self.version,
-            names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
+            names = serde_json::to_string(&self.names.names).unwrap_or_default(),
             output = self.output,
             number = self.number,
             source = self.source,

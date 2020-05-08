@@ -17,7 +17,7 @@ pub struct Context {
 
 impl From<InputContext> for Context {
     fn from(input: InputContext) -> Self {
-        let country = input.country.unwrap_or(String::from(""));
+        let country = input.country.unwrap_or_default();
         let region = input.region;
         let tokens = match input.languages {
             None => Tokens::new(HashMap::new()),

@@ -129,7 +129,7 @@ impl Network {
         }.to_hex_ewkb();
 
         format!("{names}\t{source}\t{props}\t{geom}\n",
-            names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
+            names = serde_json::to_string(&self.names.names).unwrap_or_default(),
             source = self.source,
             props = serde_json::value::Value::from(self.props),
             geom = geom

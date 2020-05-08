@@ -48,7 +48,7 @@ impl Agreement {
                 source_hit_count += 1;
                 labels.push(source);
                 coordinates.push(point);
-                self.results.entry(String::from(source)).or_insert(Results::new()).hit_count += 1;
+                self.results.entry(String::from(source)).or_insert_with(Results::new).hit_count += 1;
             }
         }
 
