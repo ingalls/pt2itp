@@ -1,5 +1,5 @@
 {
-  "name": "pt2itp",
+  "name": "@mapbox/pt2itp",
   "version": "28.2.0",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",

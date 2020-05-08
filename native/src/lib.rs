@@ -10,6 +10,7 @@ extern crate geojson;
 extern crate rstar;
 extern crate regex;
 extern crate geo;
+extern crate kodama;
 
 // Internal Helper Libraries
 pub mod util;
@@ -28,6 +29,7 @@ pub mod stats;
 pub mod dedupe;
 pub mod classify;
 pub mod conflate;
+pub mod consensus;
 
 pub use self::types::Address;
 pub use self::types::Network;
@@ -63,6 +65,7 @@ register_module!(mut m, {
 
     m.export_function("classify", classify::classify)?;
     m.export_function("conflate", conflate::conflate)?;
+    m.export_function("consensus", consensus::consensus)?;
     m.export_function("convert", convert::convert)?;
     m.export_function("stats", stats::stats)?;
     m.export_function("dedupe", dedupe::dedupe)?;
