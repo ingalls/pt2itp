@@ -133,23 +133,23 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         let feat = match geo {
             geojson::GeoJson::Feature(feat) => feat,
             _ => {
-                stats.invalid = stats.invalid + 1;
+                stats.invalid += 1;
                 continue;
             }
         };
 
         if feat.geometry.is_none() {
-            stats.invalid = stats.invalid + 1;
+            stats.invalid += 1;
             continue;
         }
 
         match feat.geometry.as_ref().unwrap().value {
             geojson::Value::MultiPoint(_)
             | geojson::Value::GeometryCollection(_) => {
-                stats.feats = stats.feats + 1;
+                stats.feats += 1;
             },
             _ => {
-                stats.invalid = stats.invalid + 1;
+                stats.invalid += 1;
                 continue;
             }
         };
@@ -158,17 +158,17 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         let intsec = count::intersections(&feat);
         let net = count::networks(&feat);
 
-        stats.addresses = stats.addresses + addr;
-        stats.intersections = stats.intersections + intsec;
+        stats.addresses += addr;
+        stats.intersections += intsec;
 
         if addr == 0 && net == 0 && intsec == 0 {
-            stats.invalid = stats.invalid + 1;
+            stats.invalid += 1;
         } else if addr > 0 && net > 0 {
-            stats.clusters = stats.clusters + 1;
+            stats.clusters += 1;
         } else if addr > 0 {
-            stats.address_orphans = stats.address_orphans + 1;
+            stats.address_orphans += 1;
         } else if net > 0 {
-            stats.network_orphans = stats.network_orphans + 1;
+            stats.network_orphans += 1;
         }
 
         if is_bounded {
@@ -192,7 +192,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                     if bound.geom.contains(&geo::Point::new(addr.geom[0], addr.geom[1])) {
                         let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
 
-                        bm_item.addresses = bm_item.addresses + 1;
+                        bm_item.addresses += 1;
 
                         if !names.is_empty() {
                             if !bm_item.names.contains(&names[0]) {
@@ -209,17 +209,17 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                         }
 
                         if addr.postcode.is_some() {
-                            bm_item.custom.postcodes = bm_item.custom.postcodes + 1;
+                            bm_item.custom.postcodes += 1;
                         }
 
                         match &addr.accuracy {
                             Some(accuracy) => {
                                 if accuracy == &String::from("rooftop") {
-                                    bm_item.custom.accuracy.rooftop = bm_item.custom.accuracy.rooftop + 1;
+                                    bm_item.custom.accuracy.rooftop += 1;
                                 } else if accuracy == &String::from("point") {
-                                    bm_item.custom.accuracy.point = bm_item.custom.accuracy.point + 1;
+                                    bm_item.custom.accuracy.point += 1;
                                 } else if accuracy == &String::from("parcel") {
-                                    bm_item.custom.accuracy.parcel = bm_item.custom.accuracy.parcel + 1;
+                                    bm_item.custom.accuracy.parcel += 1;
                                 } else {
                                     panic!("accuracy must be rooftop/parcel/point not {}", accuracy);
                                 }
@@ -234,8 +234,7 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                 for bound in tree.locate_all_at_point(&[intersection.geom[0], intersection.geom[1]]) {
                     if bound.geom.contains(&geo::Point::new(intersection.geom[0], intersection.geom[1])) {
                         let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
-
-                        bm_item.intersections = bm_item.intersections + 1;
+                        bm_item.intersections += 1;
                     }
                 };
             }

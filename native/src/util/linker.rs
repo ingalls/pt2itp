@@ -156,7 +156,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         match ntok_index {
                             Some(index) => {
                                 ntoks.remove(*index);
-                                a_match = a_match + 1;
+                                a_match += 1;
                             },
                             None => ()
                         };

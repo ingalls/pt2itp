@@ -19,7 +19,7 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     for mat in WORD_BOUNDARY.find_iter(&text[..]) {
         let word = &text[last_match..mat.start()];
         if !word.is_empty() {
-            word_count = word_count + 1;
+            word_count += 1;
             new.push_str(&capitalize(word, word_count, context));
         }
         new.push_str(&mat.as_str());
@@ -28,7 +28,7 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     // any last words?
     if last_match < text.len() {
         let word = &text[last_match..];
-        word_count = word_count + 1;
+        word_count += 1;
         new.push_str(&capitalize(word, word_count, context));
     }
 

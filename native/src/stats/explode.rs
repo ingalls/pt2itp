@@ -46,7 +46,7 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                         if arr.is_array() && !arr.as_array().unwrap().is_empty() {
                             break;
                         } else {
-                            ele = ele + 1;
+                            ele += 1;
                         }
                     }
 
@@ -168,7 +168,7 @@ pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
                     if arr.is_array() && !arr.as_array().unwrap().is_empty() {
                         break;
                     } else {
-                        ele = ele + 1;
+                        ele += 1;
                     }
                 }
 

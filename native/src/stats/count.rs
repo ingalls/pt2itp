@@ -16,11 +16,11 @@ pub fn addresses(feat: &geojson::Feature) -> i64 {
                         if ele.is_array() {
                             for elenest in ele.as_array().unwrap() {
                                 if elenest.is_number() || elenest.is_string() {
-                                    addr = addr + 1;
+                                    addr += 1;
                                 }
                             }
                         } else if ele.is_number() || ele.is_string() {
-                            addr = addr + 1;
+                            addr += 1;
                         }
                     }
 
@@ -49,11 +49,11 @@ pub fn intersections(feat: &geojson::Feature) -> i64 {
                         if ele.is_array() {
                             for elenest in ele.as_array().unwrap() {
                                 if elenest.is_number() || elenest.is_string() {
-                                    intsecs = intsecs + 1;
+                                    intsecs += 1;
                                 }
                             }
                         } else if ele.is_string() {
-                            intsecs = intsecs + 1;
+                            intsecs += 1;
                         }
                     }
 
