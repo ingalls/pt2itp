@@ -70,7 +70,7 @@ impl StatsBound {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct StatsCustom {
     pub postcodes: i64,
     pub accuracy: StatsAccuracy
@@ -85,7 +85,7 @@ impl StatsCustom {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct StatsAccuracy {
     pub rooftop: i64,
     pub parcel: i64,

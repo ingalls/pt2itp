@@ -2,6 +2,7 @@ use postgres::{Connection};
 use std::io::Read;
 use super::{Table, InputTable};
 
+#[derive(Default)]
 pub struct Address ();
 
 impl Address {
