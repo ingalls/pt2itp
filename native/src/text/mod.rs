@@ -33,6 +33,58 @@ pub fn distance<T>(a: &T, b: &T) -> usize
     if v1len == 0 { return v2len; }
     if v2len == 0 { return v1len; }
 
+    // we would need to split and go token by token
+    // break each into tokens
+    // if only one token is 
+    let a_str = a.to_string();
+    let b_str = b.to_string();
+    let v_a: Vec<&str> = a_str.split(' ').collect();
+    let v_b: Vec<&str> = b_str.split(' ').collect();
+    let va_ct = v_a.len();
+    let vb_ct = v_b.len();
+
+    // println!("Test: {:?} vs {:?}", a_str, b_str);
+    // check for abbreviations if the wordcound is the same
+    // @todo - restrict languages 
+    let mut abbreviated = false;
+    if(va_ct == vb_ct) {
+        let mut score = 0;
+        for i in 0..va_ct {
+            // println!("{:?}) {:?} vs {:?}", i, v_a[i], v_b[i]);
+            if(v_a[i] != v_b[i]) {
+                // println!("{:?} vs {:?}", v_a[i], v_b[i]);
+                // test if for abreviations
+                let va_len = v_a[i].chars().count();
+                let vb_len = v_b[i].chars().count();
+                // if successful, add half to the score
+                // reduce the penalty for an abbreviated word
+                if(v_a[i].starts_with(&v_b[i])) { 
+                    score += 1; //(va_len - vb_len) / 2; 
+                    println!("\nv_a match {:?} vs {:?}\n", v_a[i], v_b[i]);
+                    abbreviated = true;
+                } 
+                else if(v_b[i].starts_with(&v_a[i])) { 
+                    score += 1; //(vb_len - va_len) / 2; 
+                    println!("\nv_b match {:?} vs {:?}\n", v_a[i], v_b[i]);
+                    abbreviated = true;
+                } else {
+                    abbreviated = false;
+                    break; // if we don't get a match, bail
+                    // println!("not abbreviated {:?} vs {:?}", v_a[i], v_b[i]);
+                }    
+            } else {
+                // same word, no additioanl
+                // println!("same word {:?} and {:?}", v_a[i], v_b[i]);
+            }
+        }
+
+        if(abbreviated) {
+            // println!("*** abbreviated {:?} vs {:?}", a_str, b_str);
+            return score;
+        }
+    }
+
+
     fn min3<T: Ord>(v1: T, v2: T, v3: T) -> T{
         std::cmp::min(v1, std::cmp::min(v2, v3))
     }
