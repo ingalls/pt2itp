@@ -312,17 +312,16 @@ pub fn syn_ca_hwy(name: &Name, context: &Context) -> Vec<Name> {
         match NUM.captures(name.display.as_str()) {
             Some(capture) => {
                 let num = capture["num"].to_string();
-                let hwy_type: String;
-                if
+                let hwy_type = if
                     region == "NB"
                     || region == "NL"
                     || region == "PE"
                     || region == "QC"
                 {
-                    hwy_type = String::from("Highway");
+                    String::from("Highway")
                 } else {
-                    hwy_type = String::from("Route");
-                }
+                    String::from("Route")
+                };
 
                 let mut syns: Vec<Name> = Vec::new();
 
