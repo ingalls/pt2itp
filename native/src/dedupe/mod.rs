@@ -235,15 +235,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
             && dup_feat.names == feat.names
         }).collect();
 
-        dup_feats.sort_by(|a, b| {
-            if a.id.unwrap() < b.id.unwrap() {
-                std::cmp::Ordering::Less
-            } else if a.id.unwrap() > b.id.unwrap() {
-                std::cmp::Ordering::Greater
-            } else {
-                std::cmp::Ordering::Equal
-            }
-        });
+        dup_feats.sort_by(|a, b| { a.id.unwrap().cmp(&b.id.unwrap()) });
 
         //
         // Since this operation is performed in parallel - duplicates could be potentially
