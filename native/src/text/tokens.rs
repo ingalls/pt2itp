@@ -321,14 +321,14 @@ mod tests {
     #[test]
     fn test_type_us_st() {
         assert_eq!(
-            type_us_st(&vec![String::from("")],
+            type_us_st(&[String::from("")],
             vec![Tokenized::new(String::from(""), None)]),
             vec![Tokenized::new(String::from(""), None)]
         );
 
         // main st
         assert_eq!(
-            type_us_st(&vec![String::from("main"), String::from("st")],
+            type_us_st(&[String::from("main"), String::from("st")],
             vec![
                 Tokenized::new(String::from("main"), None),
                 Tokenized::new(String::from("st"), None)
@@ -338,7 +338,7 @@ mod tests {
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("main"), String::from("st")],
+            type_us_st(&[String::from("main"), String::from("st")],
             vec![
                 Tokenized::new(String::from("main"), None),
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
@@ -350,7 +350,7 @@ mod tests {
 
         // st peter st
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("st")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("st")],
             vec![
                 Tokenized::new(String::from("st"), None),
                 Tokenized::new(String::from("peter"), None),
@@ -362,7 +362,7 @@ mod tests {
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("st")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("st")],
             vec![
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("peter"), None),
@@ -376,7 +376,7 @@ mod tests {
 
         // st peter
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter")],
+            type_us_st(&[String::from("st"), String::from("peter")],
             vec![
                 Tokenized::new(String::from("st"), None),
                 Tokenized::new(String::from("peter"), None),
@@ -386,7 +386,7 @@ mod tests {
                 Tokenized::new(String::from("peter"), None),
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter")],
+            type_us_st(&[String::from("st"), String::from("peter")],
             vec![
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("peter"), None),
@@ -398,7 +398,7 @@ mod tests {
 
         // st peter av
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("av")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("av")],
             vec![
                 Tokenized::new(String::from("st"), None),
                 Tokenized::new(String::from("peter"), None),
@@ -410,7 +410,7 @@ mod tests {
                 Tokenized::new(String::from("av"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("av")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("av")],
             vec![
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("peter"), None),
@@ -424,7 +424,7 @@ mod tests {
 
         // rue st francois st
         assert_eq!(
-            type_us_st(&vec![String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
+            type_us_st(&[String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
             vec![
                 Tokenized::new(String::from("rue"), None),
                 Tokenized::new(String::from("st"), None),
@@ -438,7 +438,7 @@ mod tests {
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
+            type_us_st(&[String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
             vec![
                 Tokenized::new(String::from("rue"), None),
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),
