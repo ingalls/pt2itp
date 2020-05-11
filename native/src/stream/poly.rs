@@ -56,9 +56,7 @@ impl std::io::Read for PolyStream {
             self.buffer = Some(write.split_off(buf_len));
         }
 
-        for it in 0..write.len() {
-            buf[it] = write[it];
-        }
+        buf[..write.len()].clone_from_slice(&write[..]);
 
         Ok(write.len())
     }
