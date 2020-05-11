@@ -105,7 +105,7 @@ pub fn is_routish(name: &Name) -> Option<String> {
 ///
 /// Detects if the name looks like a driveway
 ///
-pub fn is_drivethrough(text: &String, context: &Context) -> bool {
+pub fn is_drivethrough(text: &str, context: &Context) -> bool {
     lazy_static! {
         static ref DE: Regex = Regex::new(r"(?i) einfahrt$").unwrap();
         static ref EN: Regex = Regex::new(r"(?i)drive.?(in|through|thru)$").unwrap();
@@ -118,13 +118,13 @@ pub fn is_drivethrough(text: &String, context: &Context) -> bool {
         || context.country == "DE"
         || context.country == "CH"
         || context.country == "AT"
-    ) && EN.is_match(text.as_str()) {
+    ) && EN.is_match(text) {
         return true;
     }
 
     if (
         context.country == "DE"
-    ) && DE.is_match(text.as_str()) {
+    ) && DE.is_match(text) {
         return true;
     }
 
@@ -135,7 +135,7 @@ pub fn is_drivethrough(text: &String, context: &Context) -> bool {
 /// Detects less desireable feature names
 /// e.g. US Hwy 125 Ext 1
 ///
-pub fn is_undesireable(tokenized: &Vec<Tokenized>) -> bool {
+pub fn is_undesireable(tokenized: &[Tokenized]) -> bool {
     let tokens: Vec<String> = tokenized
         .iter()
         .map(|x| x.token.to_owned())
@@ -161,14 +161,14 @@ pub fn is_undesireable(tokenized: &Vec<Tokenized>) -> bool {
 ///
 /// Removes the octothorpe from names like "HWY #35" to get "HWY 35"
 ///
-pub fn str_remove_octo(text: &String) -> String {
+pub fn str_remove_octo(text: &str) -> String {
     lazy_static! {
         static ref OCTO: Regex = Regex::new(r"(?i)^(?P<type>HWY |HIGHWAY |RTE |ROUTE |US )(#)(?P<post>\d+\s?.*)$").unwrap();
     }
 
-    match OCTO.captures(text.as_str()) {
+    match OCTO.captures(text) {
         Some(capture) => format!("{}{}", &capture["type"], &capture["post"]),
-        _ => text.clone()
+        _ => text.to_string()
     }
 }
 

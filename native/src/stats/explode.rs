@@ -123,7 +123,7 @@ fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: String) -> Option<
     }
 }
 
-fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String, ele: String) -> Option<serde_json::Value> {
+fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &str, ele: String) -> Option<serde_json::Value> {
     match props.get(&String::from("carmen:addressprops")) {
         None => None,
         Some(ref props) => match props.get(&key) {

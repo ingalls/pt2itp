@@ -6,7 +6,7 @@ use regex::Regex;
 ///
 /// Ported from: https://github.com/andrewrk/node-diacritics
 ///
-pub fn diacritics(text: &String) -> String {
+pub fn diacritics(text: &str) -> String {
     lazy_static! {
         static ref HAS_DIACRITICS: Regex = Regex::new(r"[^\u0000-\u007e]").unwrap();
 
@@ -876,7 +876,7 @@ pub fn diacritics(text: &String) -> String {
 
         no_dia
     } else {
-        text.clone()
+        text.to_string()
     }
 }
 

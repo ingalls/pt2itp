@@ -37,7 +37,7 @@ impl Tokens {
         }
     }
 
-    pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
+    pub fn process(&self, text: &str, country: &str) -> Vec<Tokenized> {
         let tokens = self.tokenize(&text);
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
@@ -63,7 +63,7 @@ impl Tokens {
     /// Remove all diacritics, punctuation non-space whitespace
     /// returning a vector of component tokens
     ///
-    fn tokenize(&self, text: &String) -> Vec<String> {
+    fn tokenize(&self, text: &str) -> Vec<String> {
         let text = text.trim();
 
         lazy_static! {
@@ -134,7 +134,7 @@ impl Tokenized {
 ///
 /// Change 'st' token_type to TokenType::Way ('Street')  or None ('Saint')
 ///
-pub fn type_us_st(tokens: &Vec<String>, mut tokenized: Vec<Tokenized>) -> Vec<Tokenized> {
+pub fn type_us_st(tokens: &[String], mut tokenized: Vec<Tokenized>) -> Vec<Tokenized> {
     // check if original name contained "st"
     // don't modify if "street" or "saint" has already been tokenized
     if tokens.contains(&String::from("st")) {

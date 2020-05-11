@@ -6,7 +6,7 @@ use crate::Context;
 /// Titlecase input strings
 ///
 
-pub fn titlecase(text: &String, context: &Context) -> String {
+pub fn titlecase(text: &str, context: &Context) -> String {
     lazy_static! {
         static ref WORD_BOUNDARY: Regex = Regex::new(r#"[\s\u2000-\u206F\u2E00-\u2E7F\\!#$%&()"*+,\-./:;<=>?@\[\]\^_{\|}~]+"#).unwrap();
     }
