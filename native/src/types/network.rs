@@ -101,6 +101,7 @@ impl Network {
     /// Return a PG Copyable String of the feature
     /// names, source, props, geom
     ///
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_tsv(self) -> String {
         let mut twkb = postgis::twkb::MultiLineString {
             lines: Vec::with_capacity(self.geom.len()),

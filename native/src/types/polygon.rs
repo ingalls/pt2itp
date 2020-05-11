@@ -50,6 +50,7 @@ impl Polygon {
     /// Return a PG Copyable String of the feature
     /// props, geom
     ///
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_tsv(self) -> String {
         let mut twkb = postgis::twkb::MultiPolygon {
             polygons: Vec::with_capacity(self.geom.len()),

@@ -210,6 +210,7 @@ impl Address {
     ///
     ///name, number, source, props, geom
     ///
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_tsv(self) -> String {
         let geom = postgis::ewkb::Point::new(self.geom[0], self.geom[1], Some(4326)).as_ewkb().to_hex_ewkb();
 
@@ -281,6 +282,7 @@ impl Address {
     /// action: Hecate action to conditionally attach to output geojson feature
     /// generated: Should generated synonyms be output
     ///
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_geojson(mut self, action: hecate::Action, generated: bool) -> geojson::Feature {
         let mut members: serde_json::map::Map<String, serde_json::Value> = serde_json::map::Map::new();
 
