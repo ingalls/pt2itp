@@ -109,7 +109,7 @@ fn find_cap_ref<T: ?Sized + AsRef<[u8]>>(
     }
     i += 1;
     let mut cap_end = i;
-    while rep.get(cap_end).map_or(false, is_valid_cap) {
+    while rep.get(cap_end).map_or(false, |b| { is_valid_cap(*b) }) {
         cap_end += 1;
     }
     if cap_end == i {
@@ -134,8 +134,8 @@ fn find_cap_ref<T: ?Sized + AsRef<[u8]>>(
 
 /// Returns true if and only if the given byte is allowed in a capture name.
 /// Modified to only support numbered capture groups
-fn is_valid_cap(b: &u8) -> bool {
-    match *b {
+fn is_valid_cap(b: u8) -> bool {
+    match b {
         b'0' ..= b'9' => true,
         _ => false,
     }
