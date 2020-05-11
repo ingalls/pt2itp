@@ -183,9 +183,9 @@ pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
                     None => panic!("geometry required")
                 };
 
-                for ele in 0..coords.len() {
+                for coord in coords {
                     let stat = StatIntersection {
-                        geom: coords[ele].clone()
+                        geom: coord.clone()
                     };
 
                     ints.push(stat);

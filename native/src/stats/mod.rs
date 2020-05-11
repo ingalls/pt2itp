@@ -200,9 +200,9 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                             }
 
                             if names.len() > 1 {
-                                for ele in 1..names.len() {
-                                    if !bm_item.synonyms.contains(&names[ele]) {
-                                        bm_item.synonyms.push(names[ele].clone());
+                                for name in names.iter().skip(1) {
+                                    if !bm_item.synonyms.contains(&name) {
+                                        bm_item.synonyms.push(name.clone());
                                     }
                                 }
                             }
