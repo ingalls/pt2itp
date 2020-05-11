@@ -356,7 +356,7 @@ fn get_number(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<St
     match map.get(&String::from("number")) {
         Some(number) => match number.clone() {
             serde_json::value::Value::Number(num) => {
-                Ok(String::from(num.to_string()))
+                Ok(num.to_string())
             },
             serde_json::value::Value::String(num) => {
                 Ok(num)

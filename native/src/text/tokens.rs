@@ -184,7 +184,7 @@ mod tests {
     fn tokenized_string(tokenized: Vec<Tokenized>) -> String {
         let tokens: Vec<String> = tokenized
             .into_iter()
-            .map(|x| String::from(x.token))
+            .map(|x| x.token)
             .collect();
         String::from(tokens.join(" ").trim())
     }
