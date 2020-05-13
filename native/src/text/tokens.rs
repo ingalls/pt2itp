@@ -11,9 +11,7 @@ pub struct Tokens {
 
 impl Tokens {
     pub fn new(tokens: HashMap<String, ParsedToken>) -> Self {
-        Tokens {
-            tokens: tokens
-        }
+        Tokens { tokens }
     }
 
     pub fn generate(languages: Vec<String>) -> Self {
@@ -39,7 +37,7 @@ impl Tokens {
         }
     }
 
-    pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
+    pub fn process(&self, text: &str, country: &str) -> Vec<Tokenized> {
         let tokens = self.tokenize(&text);
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
@@ -54,7 +52,7 @@ impl Tokens {
                 }
             };
         }
-        if country == &String::from("US") {
+        if country == "US" {
             tokenized = type_us_st(&tokens, tokenized);
         }
 
@@ -65,7 +63,7 @@ impl Tokens {
     /// Remove all diacritics, punctuation non-space whitespace
     /// returning a vector of component tokens
     ///
-    fn tokenize(&self, text: &String) -> Vec<String> {
+    fn tokenize(&self, text: &str) -> Vec<String> {
         let text = text.trim();
 
         lazy_static! {
@@ -90,15 +88,11 @@ impl Tokens {
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
 
-        let tokens: Vec<String> = normalized.split(" ").map(|split| {
+        let tokens: Vec<String> = normalized.split(' ').map(|split| {
             String::from(split)
         }).filter(|token| {
             // Remove Empty Tokens (Double Space/Non Trimmed Input)
-            if token.len() == 0 {
-                false
-            } else {
-                true
-            }
+            !token.is_empty()
         }).collect();
 
         tokens
@@ -140,7 +134,7 @@ impl Tokenized {
 ///
 /// Change 'st' token_type to TokenType::Way ('Street')  or None ('Saint')
 ///
-pub fn type_us_st(tokens: &Vec<String>, mut tokenized: Vec<Tokenized>) -> Vec<Tokenized> {
+pub fn type_us_st(tokens: &[String], mut tokenized: Vec<Tokenized>) -> Vec<Tokenized> {
     // check if original name contained "st"
     // don't modify if "street" or "saint" has already been tokenized
     if tokens.contains(&String::from("st")) {
@@ -148,7 +142,7 @@ pub fn type_us_st(tokens: &Vec<String>, mut tokenized: Vec<Tokenized>) -> Vec<To
         let mut st_index = Vec::new();
         let mut way_tokens = false;
         for (i, tk) in tokenized.iter().enumerate() {
-            if tk.token == String::from("st") {
+            if tk.token == "st" {
                 st_index.push(i);
             }
             // if there are non-st ways
@@ -190,10 +184,9 @@ mod tests {
     fn tokenized_string(tokenized: Vec<Tokenized>) -> String {
         let tokens: Vec<String> = tokenized
             .into_iter()
-            .map(|x| String::from(x.token))
+            .map(|x| x.token)
             .collect();
-        let token_string = String::from(tokens.join(" ").trim());
-        token_string
+        String::from(tokens.join(" ").trim())
     }
 
     #[test]
@@ -217,6 +210,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_tokenize() {
         let tokens = Tokens::new(HashMap::new());
 
@@ -327,14 +321,14 @@ mod tests {
     #[test]
     fn test_type_us_st() {
         assert_eq!(
-            type_us_st(&vec![String::from("")],
+            type_us_st(&[String::from("")],
             vec![Tokenized::new(String::from(""), None)]),
             vec![Tokenized::new(String::from(""), None)]
         );
 
         // main st
         assert_eq!(
-            type_us_st(&vec![String::from("main"), String::from("st")],
+            type_us_st(&[String::from("main"), String::from("st")],
             vec![
                 Tokenized::new(String::from("main"), None),
                 Tokenized::new(String::from("st"), None)
@@ -344,7 +338,7 @@ mod tests {
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("main"), String::from("st")],
+            type_us_st(&[String::from("main"), String::from("st")],
             vec![
                 Tokenized::new(String::from("main"), None),
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
@@ -356,7 +350,7 @@ mod tests {
 
         // st peter st
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("st")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("st")],
             vec![
                 Tokenized::new(String::from("st"), None),
                 Tokenized::new(String::from("peter"), None),
@@ -368,7 +362,7 @@ mod tests {
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("st")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("st")],
             vec![
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("peter"), None),
@@ -382,7 +376,7 @@ mod tests {
 
         // st peter
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter")],
+            type_us_st(&[String::from("st"), String::from("peter")],
             vec![
                 Tokenized::new(String::from("st"), None),
                 Tokenized::new(String::from("peter"), None),
@@ -392,7 +386,7 @@ mod tests {
                 Tokenized::new(String::from("peter"), None),
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter")],
+            type_us_st(&[String::from("st"), String::from("peter")],
             vec![
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("peter"), None),
@@ -404,7 +398,7 @@ mod tests {
 
         // st peter av
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("av")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("av")],
             vec![
                 Tokenized::new(String::from("st"), None),
                 Tokenized::new(String::from("peter"), None),
@@ -416,7 +410,7 @@ mod tests {
                 Tokenized::new(String::from("av"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("st"), String::from("peter"), String::from("av")],
+            type_us_st(&[String::from("st"), String::from("peter"), String::from("av")],
             vec![
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),
                 Tokenized::new(String::from("peter"), None),
@@ -430,7 +424,7 @@ mod tests {
 
         // rue st francois st
         assert_eq!(
-            type_us_st(&vec![String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
+            type_us_st(&[String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
             vec![
                 Tokenized::new(String::from("rue"), None),
                 Tokenized::new(String::from("st"), None),
@@ -444,7 +438,7 @@ mod tests {
                 Tokenized::new(String::from("st"), Some(TokenType::Way))
             ]);
         assert_eq!(
-            type_us_st(&vec![String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
+            type_us_st(&[String::from("rue"), String::from("st"), String::from("francois"), String::from("st")],
             vec![
                 Tokenized::new(String::from("rue"), None),
                 Tokenized::new(String::from("st"), Some(TokenType::Way)),

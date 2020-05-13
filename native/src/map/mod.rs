@@ -262,18 +262,15 @@ pub fn link_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     }
 
     for strand in web {
-        match strand.join() {
-            Err(err) => {
-                if let Some(string) = err.downcast_ref::<String>() {
-                    println!("Thread Error: {}", string);
-                    panic!("Thread Error: {}", string);
-                } else {
-                    println!("Thread Error: {:?}", err);
-                    panic!("Thread Error: {:?}", err);
-                }
-            },
-            _ => ()
-        };
+        if let Err(err) = strand.join() {
+            if let Some(string) = err.downcast_ref::<String>() {
+                println!("Thread Error: {}", string);
+                panic!("Thread Error: {}", string);
+            } else {
+                println!("Thread Error: {:?}", err);
+                panic!("Thread Error: {:?}", err);
+            }
+        }
     }
 
     Ok(cx.boolean(true))
@@ -332,9 +329,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     Ok(names) => names
                 };
 
-                let names = Names {
-                    names: names
-                };
+                let names = Names { names };
 
                 let dbpotentials: serde_json::Value = result.get(2);
 
@@ -361,28 +356,18 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     linker::Link::new(potential.id, &potential.names)
                 }).collect();
 
-                match linker::linker(primary, potentials, false) {
-                    Some(link_match) => {
-                        match trans.execute(&*"
-                            UPDATE address SET netid = $1 WHERE id = $2;
-                        ", &[&link_match.id, &id]) {
-                            Err(err) => {
-                                println!("Transaction Statement Error: {}", err.to_string());
-                                panic!("Transaction Statement Error: {}", err.to_string());
-                            },
-                            Ok(trans) => trans
-                        };
-                    },
-                    None => ()
+                if let Some(link_match) = linker::linker(primary, potentials, false) {
+                    let update = "UPDATE address SET netid = $1 WHERE id = $2;";
+                    if let Err(err) = trans.execute(&*update, &[&link_match.id, &id]) {
+                        println!("Transaction Statement Error: {}", err.to_string());
+                        panic!("Transaction Statement Error: {}", err.to_string());
+                    };
                 };
             }
 
-            match trans.commit() {
-                Err(err) => {
-                    println!("Transaction Commit Error: {}", err.to_string());
-                    panic!("Transaction Commit Error: {}", err.to_string());
-                },
-                _ => ()
+            if let Err(err) = trans.commit() {
+                println!("Transaction Commit Error: {}", err.to_string());
+                panic!("Transaction Commit Error: {}", err.to_string());
             };
         },
         Err(err) => {
@@ -458,13 +443,10 @@ pub fn dedupe_syn(mut cx: FunctionContext) -> JsResult<JsArray> {
         }
     };
 
-    if names.len() == 0 { return Ok(cx.empty_array()); }
+    if names.is_empty() { return Ok(cx.empty_array()); }
 
     // don't use Names::new() so we're not generating synonyms again
-    let mut names = Names {
-        names: names
-    };
-
+    let mut names = Names { names };
     names.empty();
     names.sort();
     names.dedupe();

@@ -73,14 +73,11 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     address.index(&conn);
 
-    match args.buildings {
-        Some(buildings) => {
-            let polygon = pg::Polygon::new(String::from("buildings"));
-            polygon.create(&conn);
-            polygon.input(&conn, PolyStream::new(GeoStream::new(Some(buildings)), None));
-            polygon.index(&conn);
-        },
-        None => ()
+    if let Some(buildings) = args.buildings {
+        let polygon = pg::Polygon::new(String::from("buildings"));
+        polygon.create(&conn);
+        polygon.input(&conn, PolyStream::new(GeoStream::new(Some(buildings)), None));
+        polygon.index(&conn);
     };
 
     let count = address.count(&conn);
@@ -141,10 +138,10 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
 fn output(is_hecate: bool, receive: crossbeam::Receiver<Address>, mut sink: impl Write) {
     for result in receive.iter() {
-
-        let result: String = match is_hecate {
-            true => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete, false)).to_string(),
-            false => geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None, false)).to_string()
+        let result: String = if is_hecate {
+            geojson::GeoJson::Feature(result.to_geojson(hecate::Action::Delete, false)).to_string()
+        } else {
+            geojson::GeoJson::Feature(result.to_geojson(hecate::Action::None, false)).to_string()
         };
 
         if sink.write(format!("{}\n", result).as_bytes()).is_err() {
@@ -199,7 +196,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
         max_id = max_id
     )) {
         Ok(cursor) => cursor,
-        Err(err) => panic!("ERR: {}", err.to_string())
+        Err(err) => panic!("ERR: {}", err)
     };
 
     for dup_feats in exact_dups {
@@ -210,7 +207,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
 
         let feat: Address = match Address::from_value(dup_feats.remove(&String::from("primary")).unwrap()) {
             Ok(feat) => feat,
-            Err(err) => panic!("Address Error: {}", err.to_string())
+            Err(err) => panic!("Address Error: {}", err)
         };
 
         let mut dup_feats: Vec<Address> = match dup_feats.remove(&String::from("proximal")).unwrap() {
@@ -220,7 +217,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
                 for feat in feats {
                     addrfeats.push(match Address::from_value(feat) {
                         Ok(feat) => feat,
-                        Err(err) => panic!("Vec<Address> Error: {}", err.to_string())
+                        Err(err) => panic!("Vec<Address> Error: {}", err)
                     });
                 }
 
@@ -238,15 +235,7 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
             && dup_feat.names == feat.names
         }).collect();
 
-        dup_feats.sort_by(|a, b| {
-            if a.id.unwrap() < b.id.unwrap() {
-                std::cmp::Ordering::Less
-            } else if a.id.unwrap() > b.id.unwrap() {
-                std::cmp::Ordering::Greater
-            } else {
-                std::cmp::Ordering::Equal
-            }
-        });
+        dup_feats.sort_by(|a, b| { a.id.unwrap().cmp(&b.id.unwrap()) });
 
         //
         // Since this operation is performed in parallel - duplicates could be potentially

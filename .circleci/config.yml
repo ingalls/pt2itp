@@ -26,6 +26,10 @@ jobs:
                   && echo "export PATH=$HOME/.cargo/bin:$PATH" >> $BASH_ENV
 
             - run:
+                name: "Install Clippy"
+                command: "rustup component add clippy"
+
+            - run:
                 name: "Install NodeJS"
                 command: |
                   curl 'https://nodejs.org/dist/v10.15.3/node-v10.15.3-linux-x64.tar.gz' | tar -xzv \
@@ -44,6 +48,9 @@ jobs:
             - run:
                 name: "Cargo Test"
                 command: cd native/ && cargo test --release
+            - run:
+                name: "Cargo Clippy"
+                command: cd native/ && cargo clippy --all-targets --all-features -- -D warnings
             - run:
                 name: "Yarn Lint"
                 command: "yarn run lint"

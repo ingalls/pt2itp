@@ -17,7 +17,7 @@ pub struct Context {
 
 impl From<InputContext> for Context {
     fn from(input: InputContext) -> Self {
-        let country = input.country.unwrap_or(String::from(""));
+        let country = input.country.unwrap_or_default();
         let region = input.region;
         let tokens = match input.languages {
             None => Tokens::new(HashMap::new()),
@@ -37,7 +37,7 @@ impl Context {
                 None => None,
                 Some(region) => Some(region.to_uppercase())
             },
-            tokens: tokens
+            tokens
         }
     }
 
@@ -129,13 +129,9 @@ impl Context {
             };
         }
 
-        match self.region_code() {
-            None => None,
-            Some(ref code) => match REGIONS.get(code) {
-                None => None,
-                Some(name) => Some(format!("{}", name))
-            }
-        }
+        self.region_code()
+            .and_then(|ref code| REGIONS.get(code))
+            .map(|&name| name.to_string())
     }
 }
 

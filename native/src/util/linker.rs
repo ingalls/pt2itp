@@ -17,9 +17,9 @@ pub struct Link<'a> {
 impl<'a> Link<'a> {
     pub fn new(id: i64, names: &'a Names) -> Self {
         Link {
-            id: id,
+            id,
             maxscore: 0.0,
-            names: names
+            names
         }
     }
 }
@@ -32,10 +32,7 @@ pub struct LinkResult {
 
 impl LinkResult {
     pub fn new(id: i64, score: f64) -> Self {
-        LinkResult {
-            id: id,
-            score: score
-        }
+        LinkResult { id, score }
     }
 }
 
@@ -113,7 +110,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
-                if potential_tokenless.len() > 0 && tokenless.len() > 0 && potential_tokenless.get(0..1) != tokenless.get(0..1) {
+                if !potential_tokenless.is_empty() && !tokenless.is_empty() && potential_tokenless.get(0..1) != tokenless.get(0..1) {
                     continue;
                 }
 
@@ -131,9 +128,9 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Use a weighted average w/ the tokenless dist score if possible
                 let mut lev_score: Option<f64> = None;
 
-                if tokenless.len() > 0 && potential_tokenless.len() > 0 {
+                if !tokenless.is_empty() && !potential_tokenless.is_empty() {
                     lev_score = Some((0.25 * distance(&tokenized, &potential_tokenized) as f64) + (0.75 * distance(&tokenless, &potential_tokenless) as f64));
-                } else if (tokenless.len() > 0 && potential_tokenless.len() == 0) || (tokenless.len() == 0 && potential_tokenless.len() > 0) {
+                } else if (!tokenless.is_empty() && potential_tokenless.is_empty()) || (tokenless.is_empty() && !potential_tokenless.is_empty()) {
                     lev_score = Some(distance(&tokenized, &potential_tokenized) as f64);
                 } else {
 
@@ -159,7 +156,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         match ntok_index {
                             Some(index) => {
                                 ntoks.remove(*index);
-                                a_match = a_match + 1;
+                                a_match += 1;
                             },
                             None => ()
                         };
@@ -219,6 +216,7 @@ mod tests {
     use geocoder_abbreviations::TokenType;
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
         tokens.insert(String::from("saint"), ParsedToken::new(String::from("st"), None));

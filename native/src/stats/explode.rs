@@ -32,7 +32,7 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
 
                 let array = array.as_array().unwrap();
 
-                if array.len() == 0 {
+                if array.is_empty() {
                     return addrs;
                 }
 
@@ -43,10 +43,10 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                     // Feature is a GeometryCollection
                     let mut ele = 0;
                     for arr in array {
-                        if arr.is_array() && arr.as_array().unwrap().len() > 0 {
+                        if arr.is_array() && !arr.as_array().unwrap().is_empty() {
                             break;
                         } else {
-                            ele = ele + 1;
+                            ele += 1;
                         }
                     }
 
@@ -123,7 +123,7 @@ fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: String) -> Option<
     }
 }
 
-fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String, ele: String) -> Option<serde_json::Value> {
+fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &str, ele: String) -> Option<serde_json::Value> {
     match props.get(&String::from("carmen:addressprops")) {
         None => None,
         Some(ref props) => match props.get(&key) {
@@ -159,16 +159,16 @@ pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
 
                 let array = array.as_array().unwrap();
 
-                if array.len() == 0 {
+                if array.is_empty() {
                     return ints;
                 }
 
                 let mut ele = 0;
                 for arr in array {
-                    if arr.is_array() && arr.as_array().unwrap().len() > 0 {
+                    if arr.is_array() && !arr.as_array().unwrap().is_empty() {
                         break;
                     } else {
-                        ele = ele + 1;
+                        ele += 1;
                     }
                 }
 
@@ -183,9 +183,9 @@ pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
                     None => panic!("geometry required")
                 };
 
-                for ele in 0..coords.len() {
+                for coord in coords {
                     let stat = StatIntersection {
-                        geom: coords[ele].clone()
+                        geom: coord.clone()
                     };
 
                     ints.push(stat);

@@ -88,7 +88,7 @@ impl Address {
 
         let names = Names::from_value(street, Some(Source::Address), &context)?;
 
-        if names.names.len() == 0 {
+        if names.names.is_empty() {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
 
@@ -97,14 +97,14 @@ impl Address {
                 Some(geojson::feature::Id::Number(id)) => id.as_i64(),
                 _ => None
             },
-            number: number,
-            version: version,
-            names: names,
-            output: output,
-            source: source,
-            interpolate: interpolate,
-            props: props,
-            geom: geom
+            number,
+            version,
+            names,
+            output,
+            source,
+            interpolate,
+            props,
+            geom
         };
 
         addr.std()?;
@@ -130,9 +130,7 @@ impl Address {
                     Err(err) => { return Err(format!("Names Conversion Error: {}", err.to_string())); }
                 };
 
-                Names {
-                    names: names
-                }
+                Names { names }
             },
             None => { return Err(String::from("names key/value is required")); }
         };
@@ -166,12 +164,12 @@ impl Address {
             id: get_id(&mut value)?,
             number: get_number(&mut value)?,
             version: get_version(&mut value)?,
-            names: names,
+            names,
             output: get_output(&mut value)?,
             source: get_source(&mut value)?,
             interpolate: get_interpolate(&mut value)?,
-            props: props,
-            geom: geom
+            props,
+            geom
         })
     }
 
@@ -212,6 +210,7 @@ impl Address {
     ///
     ///name, number, source, props, geom
     ///
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_tsv(self) -> String {
         let geom = postgis::ewkb::Point::new(self.geom[0], self.geom[1], Some(4326)).as_ewkb().to_hex_ewkb();
 
@@ -221,7 +220,7 @@ impl Address {
                 Some(id) => id.to_string()
             },
             version = self.version,
-            names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
+            names = serde_json::to_string(&self.names.names).unwrap_or_default(),
             output = self.output,
             number = self.number,
             source = self.source,
@@ -283,6 +282,7 @@ impl Address {
     /// action: Hecate action to conditionally attach to output geojson feature
     /// generated: Should generated synonyms be output
     ///
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_geojson(mut self, action: hecate::Action, generated: bool) -> geojson::Feature {
         let mut members: serde_json::map::Map<String, serde_json::Value> = serde_json::map::Map::new();
 
@@ -319,7 +319,7 @@ impl Address {
 
         self.props.insert(String::from("street"), serde_json::to_value(names).unwrap());
 
-        if self.source != String::from("") {
+        if !self.source.is_empty() {
             self.props.insert(String::from("source"), serde_json::value::Value::String(self.source));
         }
 
@@ -356,7 +356,7 @@ fn get_number(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<St
     match map.get(&String::from("number")) {
         Some(number) => match number.clone() {
             serde_json::value::Value::Number(num) => {
-                Ok(String::from(num.to_string()))
+                Ok(num.to_string())
             },
             serde_json::value::Value::String(num) => {
                 Ok(num)
@@ -407,6 +407,7 @@ fn get_interpolate(map: &mut serde_json::Map<String, serde_json::Value>) -> Resu
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::Tokens;

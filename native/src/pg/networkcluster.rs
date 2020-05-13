@@ -7,9 +7,7 @@ pub struct NetworkCluster {
 
 impl NetworkCluster {
     pub fn new(orphan: bool) -> Self {
-        NetworkCluster {
-            orphan: orphan
-        }
+        NetworkCluster { orphan }
     }
 
     ///
@@ -168,9 +166,10 @@ impl Table for NetworkCluster {
     }
 
     fn count(&self, conn: &Connection) -> i64 {
-        let table = match self.orphan {
-            true => String::from("network_orphan_cluster"),
-            false => String::from("network_cluster")
+        let table = if self.orphan {
+            String::from("network_orphan_cluster")
+        } else {
+            String::from("network_cluster")
         };
 
         match conn.query(format!("
@@ -185,9 +184,10 @@ impl Table for NetworkCluster {
     }
 
     fn index(&self, conn: &Connection) {
-        let table = match self.orphan {
-            true => String::from("network_orphan_cluster"),
-            false => String::from("network_cluster")
+        let table = if self.orphan {
+            String::from("network_orphan_cluster")
+        } else {
+            String::from("network_cluster")
         };
 
         conn.execute(format!("
@@ -199,9 +199,8 @@ impl Table for NetworkCluster {
         ", table = table).as_str(), &[]).unwrap();
 
         if !self.orphan {
-            conn.execute(format!("
-                CREATE INDEX network_cluster_source_ids_idx ON network_cluster USING GIN (source_ids);
-            ").as_str(), &[]).unwrap();
+            let query = "CREATE INDEX network_cluster_source_ids_idx ON network_cluster USING GIN (source_ids);";
+            conn.execute(query, &[]).unwrap();
         }
 
         conn.execute(format!("

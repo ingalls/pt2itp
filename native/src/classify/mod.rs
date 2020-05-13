@@ -86,24 +86,18 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let buildings = pg::Polygon::new(String::from("buildings"));
     buildings.create(&conn);
-    match args.buildings {
-        Some(buildings_in) => {
-            buildings.input(&conn, PolyStream::new(GeoStream::new(Some(buildings_in)), None));
-            buildings.index(&conn);
-            println!("ok - imported buildings");
-        },
-        None => ()
+    if let Some(buildings_in) = args.buildings {
+        buildings.input(&conn, PolyStream::new(GeoStream::new(Some(buildings_in)), None));
+        buildings.index(&conn);
+        println!("ok - imported buildings");
     };
 
     let parcels = pg::Polygon::new(String::from("parcels"));
     parcels.create(&conn);
-    match args.parcels {
-        Some(parcels_in) => {
-            parcels.input(&conn, PolyStream::new(GeoStream::new(Some(parcels_in)), None));
-            parcels.index(&conn);
-            println!("ok - imported parcels");
-        },
-        None => ()
+    if let Some(parcels_in) = args.parcels {
+        parcels.input(&conn, PolyStream::new(GeoStream::new(Some(parcels_in)), None));
+        parcels.index(&conn);
+        println!("ok - imported parcels");
     };
 
     conn.execute("
@@ -154,9 +148,8 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
     ", &[]).unwrap();
     println!("ok - calculated accuracy: point");
 
-    let modified = match is_hecate {
-        true => {
-            conn.execute(r#"
+    let modified = if is_hecate {
+        conn.execute(r#"
                 UPDATE address
                     SET
                         accuracy = NULL
@@ -164,7 +157,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                         accuracy = props->>'accuracy'
             "#, &[]).unwrap();
 
-            conn.execute(r#"
+        conn.execute(r#"
                 UPDATE address
                     SET
                         props = props::JSONB || JSON_Build_Object('accuracy', accuracy)::JSONB
@@ -172,9 +165,9 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                         accuracy IS NOT NULL
             "#, &[]).unwrap();
 
-            println!("ok - outputting hecate addresses");
+        println!("ok - outputting hecate addresses");
 
-            pg::Cursor::new(conn, format!(r#"
+        pg::Cursor::new(conn, r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -188,18 +181,17 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                     address
                 WHERE
                     accuracy IS NOT NULL
-            "#)).unwrap()
-        },
-        false => {
-            conn.execute(r#"
+            "#.to_owned()).unwrap()
+    } else {
+        conn.execute(r#"
                 UPDATE address
                     SET
                         props = props::JSONB || JSON_Build_Object('accuracy', accuracy)::JSONB
             "#, &[]).unwrap();
 
-            println!("ok - outputting addresses");
+        println!("ok - outputting addresses");
 
-            pg::Cursor::new(conn, format!(r#"
+        pg::Cursor::new(conn, r#"
                 SELECT
                     JSON_Build_Object(
                         'id', id,
@@ -209,8 +201,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                     )
                 FROM
                     address
-            "#)).unwrap()
-        }
+            "#.to_owned()).unwrap()
     };
 
     for feat in modified {

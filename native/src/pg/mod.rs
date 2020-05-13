@@ -63,20 +63,17 @@ impl Cursor {
             })
         };
 
-        match trans.execute(format!(r#"
+        if let Err(err) = trans.execute(format!(r#"
             DECLARE next_cursor CURSOR FOR {}
         "#, &query).as_str(), &[]) {
-            Err(err) => {
-                return Err(err.to_string());
-            },
-            _ => ()
+            return Err(err.to_string());
         };
 
         Ok(Cursor {
-            fetch: fetch,
+            fetch,
             conn: pg_conn,
-            trans: trans,
-            query: query,
+            trans,
+            query,
             cache: Vec::with_capacity(fetch as usize)
         })
     }
@@ -99,14 +96,14 @@ impl Iterator for Cursor {
 
         // Cursor is finished
         if rows.is_empty() {
-            return None;
+            None
         } else {
             self.cache = rows.iter().map(|row| {
                 let json: Value = row.get(0);
                 json
             }).collect();
 
-            return self.cache.pop();
+            self.cache.pop()
         }
     }
 }

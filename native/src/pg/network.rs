@@ -2,6 +2,7 @@ use postgres::{Connection};
 use std::io::Read;
 use super::{Table, InputTable};
 
+#[derive(Default)]
 pub struct Network ();
 
 impl Network {
@@ -72,7 +73,7 @@ impl Table for Network {
 
 impl InputTable for Network {
     fn input(&self, conn: &Connection, mut data: impl Read) {
-        let stmt = conn.prepare(format!(r#"
+        let stmt = conn.prepare(r#"
             COPY network (
                 names,
                 source,
@@ -86,7 +87,7 @@ impl InputTable for Network {
                 DELIMITER E'\t',
                 QUOTE E'\b'
             )
-        "#).as_str()).unwrap();
+        "#).unwrap();
 
         stmt.copy_in(&[], &mut data).unwrap();
     }

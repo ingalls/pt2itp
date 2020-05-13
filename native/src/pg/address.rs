@@ -2,6 +2,7 @@ use postgres::{Connection};
 use std::io::Read;
 use super::{Table, InputTable};
 
+#[derive(Default)]
 pub struct Address ();
 
 impl Address {
@@ -87,7 +88,7 @@ impl Table for Address {
 
 impl InputTable for Address {
     fn input(&self, conn: &Connection, mut data: impl Read) {
-        let stmt = conn.prepare(format!(r#"
+        let stmt = conn.prepare(r#"
             COPY address (
                 id,
                 version,
@@ -105,7 +106,7 @@ impl InputTable for Address {
                 DELIMITER E'\t',
                 QUOTE E'\b'
             )
-        "#).as_str()).unwrap();
+        "#).unwrap();
 
         stmt.copy_in(&[], &mut data).unwrap();
     }

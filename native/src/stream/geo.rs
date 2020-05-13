@@ -14,7 +14,7 @@ pub enum Input {
 
 impl GeoStream {
     pub fn new(input: Option<String>) -> Self {
-        let stream = match input {
+        match input {
             Some(inpath) => match File::open(inpath) {
                 Ok(file) => GeoStream {
                     input: Input::File(BufReader::new(file).lines())
@@ -26,9 +26,7 @@ impl GeoStream {
                     input: Input::StdIn(Box::leak(Box::new(io::stdin())).lock().lines())
                 }
             }
-        };
-
-        stream
+        }
     }
 
     fn line(input: &mut Input) -> Option<String> {
@@ -57,32 +55,22 @@ impl Iterator for GeoStream {
     fn next(&mut self) -> Option<Self::Item> {
         let mut line = Some(String::from(""));
 
-        while line.is_some() && line.as_ref().unwrap().trim().len() == 0 {
+        while line.is_some() && line.as_ref().unwrap().trim().is_empty() {
             line = match GeoStream::line(&mut self.input) {
                 None => None,
                 Some(line) => Some(line)
             };
         }
 
-        match line {
-            None => {
-                return None;
-            },
-            Some(mut line) => {
-                //Remove Ascii Record Separators at beginning or end of line
-                if line.ends_with("\u{001E}") {
-                    line.pop();
-                } else if line.starts_with("\u{001E}") {
-                    line.replace_range(0..1, "");
-                }
-
-                match line.parse::<geojson::GeoJson>() {
-                    Ok(geojson) => Some(geojson),
-                    Err(err) => {
-                        panic!("Invalid GeoJSON ({:?}): {}", err, line);
-                    }
-                }
+        line.map(|mut line| {
+            //Remove Ascii Record Separators at beginning or end of line
+            if line.ends_with('\u{001E}') {
+                line.pop();
+            } else if line.starts_with('\u{001E}') {
+                line.replace_range(0..1, "");
             }
-        }
+            line.parse::<geojson::GeoJson>()
+                .unwrap_or_else(|err| panic!("Invalid GeoJSON ({:?}): {}", err, line))
+        })
     }
 }

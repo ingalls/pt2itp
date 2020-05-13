@@ -14,7 +14,7 @@ pub struct PolyStream {
 impl PolyStream {
     pub fn new(input: GeoStream, errors: Option<String>) -> Self {
         PolyStream {
-            input: input,
+            input,
             buffer: None,
             errors: match errors {
                 None => None,
@@ -40,13 +40,13 @@ impl std::io::Read for PolyStream {
                 };
 
                 let mut bytes = feat.into_bytes();
-                if bytes.len() == 0 {
+                if bytes.is_empty() {
                     end = true;
                 } else {
                     write.append(&mut bytes);
                 }
 
-                if write.len() == 0 {
+                if write.is_empty() {
                     return Ok(0);
                 }
             }
@@ -56,9 +56,7 @@ impl std::io::Read for PolyStream {
             self.buffer = Some(write.split_off(buf_len));
         }
 
-        for it in 0..write.len() {
-            buf[it] = write[it];
-        }
+        buf[..write.len()].clone_from_slice(&write[..]);
 
         Ok(write.len())
     }
@@ -77,7 +75,7 @@ impl Iterator for PolyStream {
                     Err(err) => match self.errors {
                         None => Err(err),
                         Some(ref mut file) => {
-                            file.write(format!("{}\n", err).as_bytes()).unwrap();
+                            file.write_all(format!("{}\n", err).as_bytes()).unwrap();
 
                             Err(err)
                         }

@@ -1,6 +1,7 @@
 use postgres::Connection;
 use super::Table;
 
+#[derive(Default)]
 pub struct Intersections ();
 
 impl Intersections {

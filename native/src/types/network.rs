@@ -67,7 +67,7 @@ impl Network {
 
         let names = Names::from_value(street, Some(Source::Network), &context)?;
 
-        if names.names.len() == 0 {
+        if names.names.is_empty() {
             return Err(String::from("Feature has no valid non-whitespace name"));
         }
 
@@ -76,10 +76,10 @@ impl Network {
                 Some(geojson::feature::Id::Number(id)) => id.as_i64(),
                 _ => None
             },
-            names: names,
-            source: source,
-            props: props,
-            geom: geom
+            names,
+            source,
+            props,
+            geom
         };
 
         net.std(&context)?;
@@ -101,6 +101,7 @@ impl Network {
     /// Return a PG Copyable String of the feature
     /// names, source, props, geom
     ///
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_tsv(self) -> String {
         let mut twkb = postgis::twkb::MultiLineString {
             lines: Vec::with_capacity(self.geom.len()),
@@ -129,7 +130,7 @@ impl Network {
         }.to_hex_ewkb();
 
         format!("{names}\t{source}\t{props}\t{geom}\n",
-            names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
+            names = serde_json::to_string(&self.names.names).unwrap_or_default(),
             source = self.source,
             props = serde_json::value::Value::from(self.props),
             geom = geom

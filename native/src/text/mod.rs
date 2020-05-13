@@ -71,11 +71,8 @@ pub fn is_numbered(name: &Name) -> Option<String> {
     }
 
     for token in tokens {
-        match NUMBERED.captures(&token) {
-            Some(capture) => {
-                return Some(capture["num"].to_string());
-            }
-            None => ()
+        if let Some(capture) =  NUMBERED.captures(&token) {
+            return Some(capture["num"].to_string());
         };
     }
 
@@ -97,11 +94,8 @@ pub fn is_routish(name: &Name) -> Option<String> {
     }
 
     for token in tokens {
-        match ROUTISH.captures(&token) {
-            Some(capture) => {
-                return Some(capture["num"].to_string());
-            }
-            None => ()
+        if let Some(capture) =  ROUTISH.captures(&token) {
+            return Some(capture["num"].to_string());
         };
     }
 
@@ -111,26 +105,26 @@ pub fn is_routish(name: &Name) -> Option<String> {
 ///
 /// Detects if the name looks like a driveway
 ///
-pub fn is_drivethrough(text: &String, context: &Context) -> bool {
+pub fn is_drivethrough(text: &str, context: &Context) -> bool {
     lazy_static! {
         static ref DE: Regex = Regex::new(r"(?i) einfahrt$").unwrap();
         static ref EN: Regex = Regex::new(r"(?i)drive.?(in|through|thru)$").unwrap();
     }
 
     if (
-        context.country == String::from("US")
-        || context.country == String::from("CA")
-        || context.country == String::from("GB")
-        || context.country == String::from("DE")
-        || context.country == String::from("CH")
-        || context.country == String::from("AT")
-    ) && EN.is_match(text.as_str()) {
+        context.country == "US"
+        || context.country == "CA"
+        || context.country == "GB"
+        || context.country == "DE"
+        || context.country == "CH"
+        || context.country == "AT"
+    ) && EN.is_match(text) {
         return true;
     }
 
     if (
-        context.country == String::from("DE")
-    ) && DE.is_match(text.as_str()) {
+        context.country == "DE"
+    ) && DE.is_match(text) {
         return true;
     }
 
@@ -141,7 +135,7 @@ pub fn is_drivethrough(text: &String, context: &Context) -> bool {
 /// Detects less desireable feature names
 /// e.g. US Hwy 125 Ext 1
 ///
-pub fn is_undesireable(tokenized: &Vec<Tokenized>) -> bool {
+pub fn is_undesireable(tokenized: &[Tokenized]) -> bool {
     let tokens: Vec<String> = tokenized
         .iter()
         .map(|x| x.token.to_owned())
@@ -167,14 +161,14 @@ pub fn is_undesireable(tokenized: &Vec<Tokenized>) -> bool {
 ///
 /// Removes the octothorpe from names like "HWY #35" to get "HWY 35"
 ///
-pub fn str_remove_octo(text: &String) -> String {
+pub fn str_remove_octo(text: &str) -> String {
     lazy_static! {
         static ref OCTO: Regex = Regex::new(r"(?i)^(?P<type>HWY |HIGHWAY |RTE |ROUTE |US )(#)(?P<post>\d+\s?.*)$").unwrap();
     }
 
-    match OCTO.captures(text.as_str()) {
+    match OCTO.captures(text) {
         Some(capture) => format!("{}{}", &capture["type"], &capture["post"]),
-        _ => text.clone()
+        _ => text.to_string()
     }
 }
 
@@ -312,23 +306,22 @@ pub fn syn_ca_hwy(name: &Name, context: &Context) -> Vec<Name> {
     }
 
     // Trans Canada shouldn't be provincial highway
-    if name.display == String::from("1") {
+    if name.display == "1" {
         Vec::new()
     } else if HIGHWAY.is_match(name.display.as_str()) {
         match NUM.captures(name.display.as_str()) {
             Some(capture) => {
                 let num = capture["num"].to_string();
-                let hwy_type: String;
-                if
-                    region == &String::from("NB")
-                    || region == &String::from("NL")
-                    || region == &String::from("PE")
-                    || region == &String::from("QC")
+                let hwy_type = if
+                    region == "NB"
+                    || region == "NL"
+                    || region == "PE"
+                    || region == "QC"
                 {
-                    hwy_type = String::from("Highway");
+                    String::from("Highway")
                 } else {
-                    hwy_type = String::from("Route");
-                }
+                    String::from("Route")
+                };
 
                 let mut syns: Vec<Name> = Vec::new();
 
@@ -723,6 +716,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_syn_us_famous() {
         let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 

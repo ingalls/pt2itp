@@ -33,17 +33,15 @@ pub struct Names {
 
 impl Names {
     pub fn new(names: Vec<Name>, context: &Context) -> Self {
-        let mut names = Names {
-            names: names
-        };
+        let mut names = Names { names };
 
-        if names.names.len() == 0 {
+        if names.names.is_empty() {
             return names;
         }
 
         let mut synonyms: Vec<Name> = Vec::new();
 
-        if context.country == String::from("US") {
+        if context.country == "US" {
             for name in names.names.iter_mut() {
                 if name.source == Some(Source::Network) {
                     synonyms.append(&mut text::syn_number_suffix(&name, &context));
@@ -58,7 +56,7 @@ impl Names {
                     }
                 }
             }
-        } else if context.country == String::from("CA") {
+        } else if context.country == "CA" {
             for name in names.names.iter_mut() {
                 if name.source == Some(Source::Network) {
                     synonyms.append(&mut text::syn_ca_hwy(&name, &context));
@@ -103,10 +101,8 @@ impl Names {
                     }
                 };
                 // network features must have a name with a higher priority than alternative names
-                if source == Some(Source::Network) && names.len() > 1 {
-                    if names[0].priority == names[1].priority {
-                        panic!("1 network synonym must have greater priority: {:?}", names);
-                    }
+                if source == Some(Source::Network) && names.len() > 1 && names[0].priority == names[1].priority {
+                    panic!("1 network synonym must have greater priority: {:?}", names);
                 }
 
                 // lower the priority of names on address features
@@ -216,14 +212,12 @@ impl Names {
                 std::cmp::Ordering::Less
             } else if a.priority < b.priority {
                 std::cmp::Ordering::Greater
+            } else if a.freq > b.freq {
+                std::cmp::Ordering::Less
+            } else if a.freq < b.freq {
+                std::cmp::Ordering::Greater
             } else {
-                if a.freq > b.freq {
-                    std::cmp::Ordering::Less
-                } else if a.freq < b.freq {
-                    std::cmp::Ordering::Greater
-                } else {
-                    std::cmp::Ordering::Equal
-                }
+                std::cmp::Ordering::Equal
             }
         });
     }
@@ -244,7 +238,7 @@ impl Names {
     /// Remove all Name instances where display is whitespace
     ///
     pub fn empty(&mut self) {
-        self.names.retain(|name| name.display.trim() != String::from(""));
+        self.names.retain(|name| !name.display.trim().is_empty())
     }
 }
 
@@ -295,7 +289,7 @@ impl Name {
 
         let tokenized = context.tokens.process(&display, &context.country);
 
-        if context.country == String::from("US") || context.country == String::from("CA") {
+        if context.country == "US" || context.country == "CA" {
             display = text::str_remove_octo(&display);
             // penalize less desireable street names
             if text::is_undesireable(&tokenized) {
@@ -304,10 +298,10 @@ impl Name {
         }
 
         Name {
-            display: display,
-            priority: priority,
-            source: source,
-            tokenized: tokenized,
+            display,
+            priority,
+            source,
+            tokenized,
             freq: 1
         }
     }
@@ -346,10 +340,7 @@ impl Name {
             .iter()
             .map(|x| x.token.to_owned())
             .collect();
-
-        let tokenized = String::from(tokens.join(" ").trim());
-
-        tokenized
+       String::from(tokens.join(" ").trim())
     }
 
     ///
@@ -365,9 +356,7 @@ impl Name {
             .filter(|x| x.token_type.is_none())
             .map(|x| x.token.to_owned())
             .collect();
-        let tokenless = String::from(tokens.join(" ").trim());
-
-        tokenless
+        String::from(tokens.join(" ").trim())
     }
 
     ///
@@ -394,7 +383,7 @@ impl Name {
             .filter(|x| x.token_type == token_type)
             .collect();
 
-        tokens.len() > 0
+        !tokens.is_empty()
     }
 
 }

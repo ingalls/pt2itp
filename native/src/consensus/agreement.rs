@@ -48,7 +48,7 @@ impl Agreement {
                 source_hit_count += 1;
                 labels.push(source);
                 coordinates.push(point);
-                self.results.entry(String::from(source)).or_insert(Results::new()).hit_count += 1;
+                self.results.entry(String::from(source)).or_insert_with(Results::new).hit_count += 1;
             }
         }
 
@@ -111,6 +111,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[allow(clippy::unreadable_literal)]
     fn test_agreement_bad_source() {
         let mut agreement = Agreement::new(25);
 
@@ -133,6 +134,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::unreadable_literal)]
     fn test_agreement_no_agreement() {
         let mut agreement = Agreement::new(25);
 
@@ -155,6 +157,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::unreadable_literal)]
     fn test_agreement_misses() {
         let mut agreement = Agreement::new(25);
 
@@ -182,6 +185,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::unreadable_literal)]
     fn test_agreement_towns() {
         // example lifted from https://docs.rs/kodama/0.2.2/kodama/#example
         let mut agreement = Agreement::new(16093); // 10 miles

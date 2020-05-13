@@ -6,7 +6,7 @@ use crate::Context;
 /// Titlecase input strings
 ///
 
-pub fn titlecase(text: &String, context: &Context) -> String {
+pub fn titlecase(text: &str, context: &Context) -> String {
     lazy_static! {
         static ref WORD_BOUNDARY: Regex = Regex::new(r#"[\s\u2000-\u206F\u2E00-\u2E7F\\!#$%&()"*+,\-./:;<=>?@\[\]\^_{\|}~]+"#).unwrap();
     }
@@ -18,8 +18,8 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     let mut last_match = 0;
     for mat in WORD_BOUNDARY.find_iter(&text[..]) {
         let word = &text[last_match..mat.start()];
-        if word.len() > 0 {
-            word_count = word_count + 1;
+        if !word.is_empty() {
+            word_count += 1;
             new.push_str(&capitalize(word, word_count, context));
         }
         new.push_str(&mat.as_str());
@@ -28,12 +28,12 @@ pub fn titlecase(text: &String, context: &Context) -> String {
     // any last words?
     if last_match < text.len() {
         let word = &text[last_match..];
-        word_count = word_count + 1;
+        word_count += 1;
         new.push_str(&capitalize(word, word_count, context));
     }
 
-    if context.country == String::from("US")
-    || context.country == String::from("CA") {
+    if context.country == "US"
+    || context.country == "CA" {
         new = normalize_cardinals(&new)
     }
 
@@ -51,19 +51,19 @@ pub fn capitalize(word: &str, word_count: usize, context: &Context) -> String {
 
     const MINOR_DE: [&str; 1] = ["du"];
 
-    if (context.country == String::from("US")
-        || context.country == String::from("CA"))
+    if (context.country == "US"
+        || context.country == "CA")
         && MAJOR_EN.contains(&word) {
         return String::from(word).to_uppercase();
     }
     // don't apply lower casing to the first word in the string
     if word_count > 1 {
-        if (context.country == String::from("US")
-            || context.country == String::from("CA"))
+        if (context.country == "US"
+            || context.country == "CA")
             && MINOR_EN.contains(&word) {
             return String::from(word);
-        } else if context.country == String::from("DE")
-            && MINOR_DE.contains(&word) {
+        }
+        if context.country == "DE" && MINOR_DE.contains(&word) {
             return String::from(word);
         }
     }
@@ -80,7 +80,7 @@ pub fn normalize_cardinals(text: &str) -> String {
     lazy_static! {
         static ref CARDINAL: Regex = Regex::new(r"(?i)(^|\s)(?P<cardinal>(n\.w\.|nw|n\.e\.|ne|s\.w\.|sw|s\.e\.|se))(\s|$)").unwrap();
     }
-    let output = match CARDINAL.captures(text) {
+    match CARDINAL.captures(text) {
         Some(capture) => {
             match capture.name("cardinal") {
                 Some(mat) => {
@@ -91,8 +91,7 @@ pub fn normalize_cardinals(text: &str) -> String {
             }
         },
         None => text.to_string()
-    };
-    output
+    }
 }
 
 #[cfg(test)]
@@ -102,6 +101,7 @@ mod tests {
     use crate::Tokens;
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn test_titlecase() {
         let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
 
