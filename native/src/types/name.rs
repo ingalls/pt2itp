@@ -887,7 +887,7 @@ mod tests {
                 display: String::from("Hauptstr"),
                 priority: 0,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("hbf"), None)],
+                tokenized: vec![Tokenized::new(String::from("haupt str"), None)],
                 freq: 1
             }
         );
@@ -898,7 +898,7 @@ mod tests {
                 display: String::from("Kuferstr."),
                 priority: 0,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("kuferstraße"), None)],
+                tokenized: vec![Tokenized::new(String::from("kufer str"), None)],
                 freq: 1
             }
         );
@@ -909,7 +909,7 @@ mod tests {
                 display: String::from("Fresenbergstr"),
                 priority: -1,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("fresenbergstraße"), None)],
+                tokenized: vec![Tokenized::new(String::from("fresenberg str"), None)],
                 freq: 1
             }
         );

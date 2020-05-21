@@ -58,21 +58,20 @@ impl Tokens {
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
         for token in &tokens {
-            // for right now let's only apply regexes to Germany. English has a negative lookahead query that rust doesn't support
+            // for right now let's only apply regexes to Germany. English has a negative lookahead query that rust doesn't support.
             if country == &String::from("DE") {
                 match self.tokens.get(token) {
                     None => {
                         // apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
-                        // loop through regexes to apply any rcanonical value eplacements that match
+                        // loop through regexes to apply any canonical replacements that match
                         let mut no_token_match = Tokenized::new(token.to_owned(), None);
                         for (regex_string, v) in self.regex_tokens.iter() {
                             let re = Regex::new(&format!(r"{}", regex_string));
                             if re.unwrap().is_match(token) {
                                 let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
+                                let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
                                 let regexed_token = re
-                                    .replace_all(&token, |_c: &regex::Captures| {
-                                        v.canonical.to_owned()
-                                    })
+                                    .replace_all(&token, canonical)
                                     .to_string();
                                 no_token_match =
                                     Tokenized::new(regexed_token, v.token_type.to_owned());
@@ -333,7 +332,7 @@ mod tests {
         let tokens = Tokens::generate(vec![String::from("de")]);
         assert_eq!(tokens.process(&String::from("Fresenbergstr"), &String::from("DE")),
         vec![
-            Tokenized::new(String::from("fresenbergstraße"), None),
+            Tokenized::new(String::from("fresenberg str"), None),
         ]);
     }
 
