@@ -79,7 +79,7 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
 
     let context = match args.context {
         Some(context) => crate::Context::from(context),
-        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new()))
+        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new(), HashMap::new()))
     };
 
     let pgaddress = pg::Address::new();
