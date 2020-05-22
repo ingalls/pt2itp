@@ -29,6 +29,7 @@ fancy-regex = "0.1.0"
 memchr = "2.0.2"
 geocoder-abbreviations = { git = "https://github.com/mapbox/geocoder-abbreviations", rev = "26f7329a0d92f721b1090a373796d6d08970707f" }
 unicode-segmentation = "1.3.0"
+kodama = "0.1"
 
 [dependencies.geojson]
 version = "0.16.0"

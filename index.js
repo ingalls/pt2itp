@@ -127,6 +127,38 @@ if (require.main === module) {
 
             break;
         }
+        case ('consensus'): {
+            const consensus_arg = require('minimist')(process.argv, Context.args({
+                string: ['query_points', 'languages', 'db', 'error_sources', 'error_query_points'],
+                alias: {
+                    database: 'db'
+                }
+            }));
+
+            const { query_points, threshold, db, error_sources, error_query_points } = consensus_arg;
+            const sources = consensus_arg._.slice(3);
+            if (!query_points) {
+                console.error('--query-points=<FILE> argument required');
+                process.exit(1);
+            } else if (sources.length < 1) {
+                console.error('no source <FILE> arguments provided');
+                process.exit(1);
+            }
+
+            const args = {
+                sources,
+                query_points,
+                context: new Context(consensus_arg).as_json(),
+                threshold,
+                db,
+                error_sources,
+                error_query_points
+            };
+
+            require('./native/index.node').consensus(args);
+
+            break;
+        }
         case ('dedupe'): {
             const dedupe_arg = require('minimist')(process.argv, {
                 string: ['buildings', 'input', 'output', 'languages', 'db', 'country', 'region'],
@@ -196,6 +228,7 @@ if (require.main === module) {
     module.exports = {
         classify: require('./native/index.node').classify,
         conflate: require('./native/index.node').conflate,
+        consensus: require('./native/index.node').consensus,
         dedupe: require('./native/index.node').dedupe,
         stat: require('./native/index.node').stats,
         convert: require('./native/index.node').convert,

@@ -1,0 +1,1 @@
+{ "id": 1501, "type": "Feature", "properties": { "source": "source-5", "number": 1944, "street": [ { "display": "Bladensburg Road Northeast", "priority": 0 } ] }, "geometry": { "type": "Point", "coordinates": [ -76.97359174489975, 38.91632467210445 ] } }
