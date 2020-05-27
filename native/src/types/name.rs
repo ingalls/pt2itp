@@ -887,7 +887,7 @@ mod tests {
                 display: String::from("Hauptstr"),
                 priority: 0,
                 source: None,
-                tokenized: vec![Tokenized::new(String::from("hbf"), None)],
+                tokenized: vec![Tokenized::new(String::from("haupt str"), None)],
                 freq: 1
             }
         );
