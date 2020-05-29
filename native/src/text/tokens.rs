@@ -222,7 +222,6 @@ pub fn tokenize_name(mut cx: FunctionContext) -> JsResult<JsValue> {
     let context = cx.argument::<JsValue>(1)?;
     let context: crate::types::InputContext = neon_serde::from_value(&mut cx, context)?;
     let context = crate::Context::from(context);
-
     let tokenized = context.tokens.process(&name, &context.country);
 
     Ok(neon_serde::to_value(&mut cx, &tokenized)?)
