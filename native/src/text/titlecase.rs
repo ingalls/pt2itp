@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn test_titlecase() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(titlecase(&String::from("Väike-Sõjamäe"), &context), String::from("Väike-Sõjamäe"));
         assert_eq!(titlecase(&String::from("Väike-sõjamäe"), &context), String::from("Väike-Sõjamäe"));
@@ -139,7 +139,7 @@ mod tests {
         assert_eq!(titlecase(&String::from(" *$&#()__ "), &context), String::from("*$&#()__"));
         assert_eq!(titlecase(&String::from("BrandywiNE Street Northwest"), &context), String::from("Brandywine Street Northwest"));
 
-        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new(), HashMap::new()));
         assert_eq!(titlecase(&String::from(" hast Du recht"), &context), String::from("Hast du Recht"));
         assert_eq!(titlecase(&String::from("a 9, 80939 münchen, germany"), &context), String::from("A 9, 80939 München, Germany"));
     }

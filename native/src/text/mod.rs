@@ -669,7 +669,7 @@ mod tests {
 
     #[test]
     fn test_is_drivethrough() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(is_drivethrough(
             &String::from("Main St NE"),
@@ -681,7 +681,7 @@ mod tests {
             &context
         ), false);
 
-        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("de"), None, Tokens::new(HashMap::new(), HashMap::new()));
         assert_eq!(is_drivethrough(
             &String::from("McDonalds einfahrt"),
             &context
@@ -724,7 +724,7 @@ mod tests {
 
     #[test]
     fn test_syn_us_famous() {
-        let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let mut context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(syn_us_famous(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
@@ -935,7 +935,7 @@ mod tests {
 
     #[test]
     fn test_syn_us_cr() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(syn_us_cr(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
@@ -964,7 +964,7 @@ mod tests {
 
     #[test]
     fn test_syn_ca_french() {
-        let context = Context::new(String::from("ca"), Some(String::from("qc")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("ca"), Some(String::from("qc")), Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(syn_ca_french(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
@@ -982,7 +982,7 @@ mod tests {
 
     #[test]
     fn test_syn_ny_beach() {
-        let context = Context::new(String::from("us"), Some(String::from("ny")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), Some(String::from("ny")), Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(syn_ny_beach(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
@@ -1014,7 +1014,7 @@ mod tests {
     #[test]
     fn test_syn_ca_hwy() {
         // Route preferencing proveninces
-        let context = Context::new(String::from("ca"), Some(String::from("on")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("ca"), Some(String::from("on")), Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(syn_ca_hwy(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
         // handle Trans Canada highways
@@ -1035,7 +1035,7 @@ mod tests {
         assert_eq!(syn_ca_hwy(&Name::new(String::from("Ontario Highway 101"), 0, None, &context), &context), results);
 
         // Highway preferencing proveninces
-        let context = Context::new(String::from("ca"), Some(String::from("nb")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("ca"), Some(String::from("nb")), Tokens::new(HashMap::new(), HashMap::new()));
         let results = vec![
             Name::new(String::from("New Brunswick Highway 101"), 1, Some(Source::Generated), &context),
             Name::new(String::from("Highway 101"), -1, Some(Source::Generated), &context),
@@ -1070,7 +1070,7 @@ mod tests {
 
     #[test]
     fn test_syn_us_hwy() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(syn_us_hwy(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
@@ -1121,7 +1121,7 @@ mod tests {
 
     #[test]
     fn test_syn_state_hwy() {
-        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(syn_state_hwy(&Name::new(String::from(""), 0, None, &context), &context), vec![]);
 
@@ -1174,7 +1174,7 @@ mod tests {
 
     #[test]
     fn test_syn_number_suffix() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(
             syn_number_suffix(&Name::new(String::from("1st Avenue"), 0, None, &context), &context),
@@ -1214,7 +1214,7 @@ mod tests {
 
     #[test]
     fn test_syn_written_numeric() {
-        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(
             syn_written_numeric(&Name::new(String::from("Twenty-third Avenue NW"), 0, None, &context), &context),
@@ -1247,7 +1247,7 @@ mod tests {
 
     #[test]
     fn test_is_numbered() {
-        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(
             is_numbered(&Name::new(String::from("main st"), 0, None, &context)),
@@ -1312,7 +1312,7 @@ mod tests {
 
     #[test]
     fn test_is_routish() {
-        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new()));
+        let context = Context::new(String::from("us"), Some(String::from("PA")), Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(
             is_routish(&Name::new(String::from("main st"), 0, None, &context)),

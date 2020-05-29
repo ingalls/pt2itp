@@ -20,7 +20,7 @@ impl From<InputContext> for Context {
         let country = input.country.unwrap_or(String::from(""));
         let region = input.region;
         let tokens = match input.languages {
-            None => Tokens::new(HashMap::new()),
+            None => Tokens::new(HashMap::new(), HashMap::new()),
             Some(languages) => Tokens::generate(languages)
         };
 
@@ -145,19 +145,19 @@ mod tests {
 
     #[test]
     fn context_test() {
-        assert_eq!(Context::new(String::from("us"), None, Tokens::new(HashMap::new())), Context {
+        assert_eq!(Context::new(String::from("us"), None, Tokens::new(HashMap::new(), HashMap::new())), Context {
             country: String::from("US"),
             region: None,
-            tokens: Tokens::new(HashMap::new())
+            tokens: Tokens::new(HashMap::new(), HashMap::new())
         });
 
-        assert_eq!(Context::new(String::from("uS"), Some(String::from("wv")), Tokens::new(HashMap::new())), Context {
+        assert_eq!(Context::new(String::from("uS"), Some(String::from("wv")), Tokens::new(HashMap::new(), HashMap::new())), Context {
             country: String::from("US"),
             region: Some(String::from("WV")),
-            tokens: Tokens::new(HashMap::new())
+            tokens: Tokens::new(HashMap::new(), HashMap::new())
         });
 
-        let cntx = Context::new(String::from("uS"), Some(String::from("wv")), Tokens::new(HashMap::new()));
+        let cntx = Context::new(String::from("uS"), Some(String::from("wv")), Tokens::new(HashMap::new(), HashMap::new()));
 
         assert_eq!(cntx.region_code(), Some(String::from("US-WV")));
 
