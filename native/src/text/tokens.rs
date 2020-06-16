@@ -30,10 +30,10 @@ impl Tokens {
                         map.insert(
                             diacritics(&tk.to_lowercase()),
                             ParsedToken::new(diacritics(&group.canonical.to_lowercase()), group.token_type.to_owned())
-                            );
-                        }
+                        );
                     }
-                if group.regex {
+                }
+                else {
                     for tk in &group.tokens {
                         regex_map.insert(
                             tk.to_lowercase(),
@@ -54,7 +54,7 @@ impl Tokens {
     }
 
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
-        let tokens = self.tokenize(&text, &country);
+        let tokens = self.tokenize(&text);
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
         for token in &tokens {
@@ -66,8 +66,8 @@ impl Tokens {
                         // loop through regexes to apply any canonical replacements that match
                         let mut no_token_match = Tokenized::new(token.to_owned(), None);
                         for (regex_string, v) in self.regex_tokens.iter() {
-                            let re = Regex::new(&format!(r"{}", regex_string));
-                            if re.unwrap().is_match(token) {
+                            let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
+                            if re.is_match(token) {
                                 let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
                                 let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
                                 let regexed_token = re
@@ -111,7 +111,7 @@ impl Tokens {
     /// Remove all diacritics, punctuation non-space whitespace
     /// returning a vector of component tokens
     ///
-    fn tokenize(&self, text: &String, country: &String) -> Vec<String> {
+    fn tokenize(&self, text: &String) -> Vec<String> {
         let text = text.trim();
 
         lazy_static! {
