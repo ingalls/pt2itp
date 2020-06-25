@@ -179,7 +179,21 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             },
             // no match in persistent addresses, write new address to output
             None => {
-                output.write(format!("{}\n", GeoJson::Feature(addr.to_geojson(hecate::Action::Create, false)).to_string()).as_bytes()).unwrap();
+                let rows = conn.query("
+                    SELECT
+                        number
+                    FROM
+                        address
+                    WHERE
+                        number = $1
+                        AND ST_DWithin(ST_SetSRID(ST_Point($2, $3), 4326), geom, 0.0005);
+                ", &[ &addr.number, &addr.geom[0], &addr.geom[1] ]).unwrap();
+        
+                if rows.len() > 0 {
+                    continue;
+                } else {
+                    output.write(format!("{}\n", GeoJson::Feature(addr.to_geojson(hecate::Action::Create, false)).to_string()).as_bytes()).unwrap();
+                }
             }
         };
     }
