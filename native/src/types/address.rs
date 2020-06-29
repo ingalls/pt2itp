@@ -197,7 +197,7 @@ impl Address {
         self.number = UNIT.replace(self.number.as_str(), "$num$unit").to_string();
 
         if !SUPPORTED.is_match(self.number.as_str()) {
-            return Err(String::from("Number is not a supported address/unit type"));
+            return Err(format!("Number is not a supported address/unit type: {}", self.number));
         }
 
         if self.number.len() > 10 {
