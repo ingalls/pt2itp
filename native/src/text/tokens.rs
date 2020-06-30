@@ -64,6 +64,8 @@ impl Tokens {
                     None => {
                         // apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
                         // loop through regexes to apply any canonical replacements that match
+                        // TODO #1 add in ability to evaluate multiple regex tokens https://github.com/mapbox/pt2itp/issues/554
+                        // TODO #2 bring in `skipDiacriticStripping` flag from geocoder-abbreviations for if there's any case where we'll want to strip diacritics for a regex pattern https://github.com/mapbox/pt2itp/issues/554
                         let mut no_token_match = Tokenized::new(token.to_owned(), None);
                         for (regex_string, v) in self.regex_tokens.iter() {
                             let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
