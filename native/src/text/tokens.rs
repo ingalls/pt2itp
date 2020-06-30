@@ -68,7 +68,6 @@ impl Tokens {
                         for (regex_string, v) in self.regex_tokens.iter() {
                             let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
                             if re.is_match(token) {
-                                let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
                                 let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
                                 let regexed_token = re
                                     .replace_all(&token, canonical)
