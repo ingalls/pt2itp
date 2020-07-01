@@ -69,7 +69,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         &conn,
         AddrStream::new(
             GeoStream::new(args.input),
-            crate::Context::new(String::from("xx"), None, Tokens::new(HashMap::new())),
+            crate::Context::new(String::from("xx"), None, Tokens::new(HashMap::new(), HashMap::new())),
             None
         )
     );

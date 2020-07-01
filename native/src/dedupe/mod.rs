@@ -58,7 +58,7 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let context = match args.context {
         Some(context) => crate::Context::from(context),
-        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new()))
+        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new(), HashMap::new()))
     };
 
     let address = pg::Address::new();

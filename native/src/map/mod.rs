@@ -126,7 +126,7 @@ pub fn import_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let context = match args.context {
         Some(context) => CrateContext::from(context),
-        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
+        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new(), HashMap::new()))
     };
 
     let address = pg::Address::new();
@@ -163,7 +163,7 @@ pub fn import_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     let context = match args.context {
         Some(context) => CrateContext::from(context),
-        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new()))
+        None => CrateContext::new(String::from(""), None, Tokens::new(HashMap::new(), HashMap::new()))
     };
 
     let network = pg::Network::new();
