@@ -73,6 +73,13 @@ pub fn dedupe(mut cx: FunctionContext) -> JsResult<JsBoolean> {
 
     address.index(&conn);
 
+    // The exact duplicate code uses address_clusters as a processing unit
+    // for duplicate addresses
+    let cluster = pg::AddressCluster::new(true);
+    cluster.create(&conn);
+    cluster.generate(&conn);
+    cluster.index(&conn);
+
     match args.buildings {
         Some(buildings) => {
             let polygon = pg::Polygon::new(String::from("buildings"));
@@ -161,36 +168,11 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
     let exact_dups = match pg::Cursor::new(conn, format!(r#"
         SELECT
             JSON_Build_Object(
-                'primary', JSON_Build_Object(
-                    'id', a.id,
-                    'version', a.version,
-                    'names', a.names,
-                    'number', a.number,
-                    'source', a.source,
-                    'output', a.output,
-                    'props', a.props,
-                    'geom', ST_AsGeoJSON(ST_Force2D(a.geom))::TEXT
-                ),
-                'proximal', (
-                    SELECT
-                        JSON_AGG(JSON_Build_Object(
-                            'id', id,
-                            'version', version,
-                            'names', names,
-                            'number', number,
-                            'source', source,
-                            'output', output,
-                            'props', props,
-                            'geom', ST_AsGeoJSON(ST_Force2D(geom))::TEXT
-                        ))
-                    FROM
-                        address
-                    WHERE
-                        ST_DWithin(a.geom, geom, 0.00001)
-                )
+                'id', id,
+                'geom', ST_AsGeoJSON(geom)
             )
         FROM
-            address a
+            address_orphan_cluster a
         WHERE
             a.id >= {min_id}
             AND a.id <= {max_id}
@@ -208,56 +190,20 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
             _ => panic!("result must be JSON Object")
         };
 
-        let feat: Address = match Address::from_value(dup_feats.remove(&String::from("primary")).unwrap()) {
-            Ok(feat) => feat,
-            Err(err) => panic!("Address Error: {}", err.to_string())
+        let id: i64 = match dup_feats.remove(&String::from("id")) {
+            Some(id) => id.as_i64().unwrap(),
+            None => panic!("Address Error: No ID")
         };
 
-        let mut dup_feats: Vec<Address> = match dup_feats.remove(&String::from("proximal")).unwrap() {
-            serde_json::value::Value::Array(feats) => {
-                let mut addrfeats = Vec::with_capacity(feats.len());
-
-                for feat in feats {
-                    addrfeats.push(match Address::from_value(feat) {
-                        Ok(feat) => feat,
-                        Err(err) => panic!("Vec<Address> Error: {}", err.to_string())
-                    });
-                }
-
-                addrfeats
+        let geom: geojson::GeoJson = match dup_feats.remove(&String::from("geom")) {
+            Some(geom_str) => match geom_str.as_str().unwrap().parse() {
+                Ok(geojson) => geojson,
+                Err(err) => panic!("Address Error: {}", err.to_string())
             },
-            _ => panic!("Duplicate Features should be Vec<Value>")
+            None => panic!("Address Error: No Geom")
         };
 
-        //
-        // For now the dup logic is rather simple & strict
-        // - Number must be the same - apt numbers included
-        // - Text synonyms must match
-        dup_feats = dup_feats.into_iter().filter(|dup_feat| {
-            dup_feat.number == feat.number
-            && dup_feat.names == feat.names
-        }).collect();
-
-        dup_feats.sort_by(|a, b| {
-            if a.id.unwrap() < b.id.unwrap() {
-                std::cmp::Ordering::Less
-            } else if a.id.unwrap() > b.id.unwrap() {
-                std::cmp::Ordering::Greater
-            } else {
-                std::cmp::Ordering::Equal
-            }
-        });
-
-        //
-        // Since this operation is performed in parallel - duplicates could be potentially
-        // processed by multiple threads - resulting in duplicate output. To avoid this
-        // the dup_feat will only be processed if the lowest ID in the match falls within
-        // the min_id/max_id that the given thread is processing
-        //
-        if dup_feats[0].id.unwrap() < feat.id.unwrap() || dup_feats[0].id.unwrap() < min_id || dup_feats[0].id.unwrap() > max_id {
-            continue;
-        }
-
+        /*
         if is_hecate {
             // If it is hecate output - delete all features
             // but the desired feature
@@ -272,5 +218,6 @@ fn exact_batch(is_hecate: bool, min_id: i64, max_id: i64, conn: postgres::Connec
 
             tx.send(feat).unwrap();
         }
+        */
     }
 }
