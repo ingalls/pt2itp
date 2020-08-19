@@ -56,7 +56,7 @@ impl Tokens {
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
         let tokens = self.tokenize(&text);
 
-        let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
+        let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len()); 
         for token in &tokens {
             // for right now let's only apply regexes to Germany. English has a negative lookahead query that rust doesn't support.
             if country == &String::from("DE") {
@@ -90,7 +90,33 @@ impl Tokens {
             } else {
                 match self.tokens.get(token) {
                     None => {
-                        tokenized.push(Tokenized::new(token.to_owned(), None));
+                        // and as we loop through &tokens, if there's not a word-for-word match we run through the master list of tokens to check if there is 
+                        // 1) a hit on a multi-word token and 
+                        // 2) if the other words in the master-token list are also in the &tokens array
+                        // example: full street name is "gran via de les corts catalanes"
+                        // "gran" didn't match as it's a part of the "gran via" token
+                        // if "gran via" is part of the full street name we will apply the Tokenized version
+                        let mut partial_key_match = false;
+                        for key in self.tokens.keys() {
+                            if key.contains(token) && text.to_lowercase().contains(key) {
+                                match self.tokens.get(key) {
+                                    Some(t) => {
+                                        tokenized.push(Tokenized::new(
+                                            t.canonical.to_owned(),
+                                            t.token_type.to_owned(),
+                                        ));
+                                        partial_key_match = true;
+                                    },
+                                    None => {
+                                        tokenized.push(Tokenized::new(token.to_owned(), None));
+                                        partial_key_match = true;
+                                    }
+                                }
+                            }
+                        }
+                        if !partial_key_match {
+                            tokenized.push(Tokenized::new(token.to_owned(), None));
+                        }
                     }
                     Some(t) => {
                         tokenized.push(Tokenized::new(
@@ -101,10 +127,10 @@ impl Tokens {
                 }
             }
         }
+        tokenized.dedup(); // dedup
         if country == &String::from("US") {
             tokenized = type_us_st(&tokens, tokenized);
         }
-
         tokenized
     }
 
@@ -335,6 +361,18 @@ mod tests {
             Tokenized::new(String::from("fresenberg str"), None),
         ]);
     }
+    
+    // #[test]
+    // fn test_multi_word_tokens() {
+    //     let tokens = Tokens::generate(vec![String::from("es")]);
+    //     assert_eq!(tokens.process(&String::from("Gran Via De Les Corts Catalanes"), &String::from("ES")),
+    //     vec![
+    //         Tokenized::new(String::from("gv"), Some(TokenType::Way)),
+    //         Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+    //         Tokenized::new(String::from("corts"), None),
+    //         Tokenized::new(String::from("catalanes"), Some(TokenType::Cardinal))
+    //     ]);
+    // }
 
     #[test]
     fn test_generate_tokens() {
