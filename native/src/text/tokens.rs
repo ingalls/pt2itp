@@ -144,8 +144,10 @@ impl Tokens {
         lazy_static! {
             static ref UP: Regex = Regex::new(r"[\^]+").unwrap();
 
-            // collapse apostraphes, periods
-            static ref PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07'\.]").unwrap();
+            // collapse apostrophes, periods
+            static ref PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07\.]").unwrap();
+
+            static ref APOSTROPHEPUNC: Regex = Regex::new(r"[']").unwrap();
 
             // all other ascii and unicode punctuation except '-' per
             // http://stackoverflow.com/questions/4328500 split terms
@@ -160,6 +162,7 @@ impl Tokens {
 
         normalized = UP.replace_all(normalized.as_str(), "").to_string();
         normalized = PUNC.replace_all(normalized.as_str(), "").to_string();
+        normalized = APOSTROPHEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
 
@@ -310,13 +313,13 @@ mod tests {
         assert_eq!(tokenized_string(tokens.process(&String::from("foo(bar"), &String::from(""))), String::from("foo bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("foo)bar"), &String::from(""))), String::from("foo bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("foo b.a.r"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo's bar"), &String::from(""))), String::from("foos bar"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("foo's bar"), &String::from(""))), String::from("foo s bar"));
 
         assert_eq!(tokenized_string(tokens.process(&String::from("San José"), &String::from(""))), String::from("san jose"));
         assert_eq!(tokenized_string(tokens.process(&String::from("A Coruña"), &String::from(""))), String::from("a coruna"));
         assert_eq!(tokenized_string(tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))), String::from("chamonix mont blanc"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("Rue d'Argout"), &String::from(""))), String::from("rue dargout"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))), String::from("haleiwa road"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("Rue d'Argout"), &String::from(""))), String::from("rue d argout"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))), String::from("haleiwa road")); // \u2019
         assert_eq!(tokenized_string(tokens.process(&String::from("москва"), &String::from(""))), String::from("москва"));
         assert_eq!(tokenized_string(tokens.process(&String::from("京都市"), &String::from(""))), String::from("京都市"));
     }
@@ -362,17 +365,23 @@ mod tests {
         ]);
     }
     
-    // #[test]
-    // fn test_multi_word_tokens() {
-    //     let tokens = Tokens::generate(vec![String::from("es")]);
-    //     assert_eq!(tokens.process(&String::from("Gran Via De Les Corts Catalanes"), &String::from("ES")),
-    //     vec![
-    //         Tokenized::new(String::from("gv"), Some(TokenType::Way)),
-    //         Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
-    //         Tokenized::new(String::from("corts"), None),
-    //         Tokenized::new(String::from("catalanes"), Some(TokenType::Cardinal))
-    //     ]);
-    // }
+    #[test]
+    fn test_multi_word_tokens() {
+        let tokens = Tokens::generate(vec![String::from("es")]);
+        assert_eq!(tokens.process(&String::from("Gran Via De Les Corts Catalanes"), &String::from("ES")),
+        vec![
+            Tokenized::new(String::from("gv"), Some(TokenType::Way)),
+            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("corts"), None),
+            Tokenized::new(String::from("catalanes"), Some(TokenType::Cardinal))
+        ]);
+        assert_eq!(tokens.process(&String::from("Carrer D'auger"), &String::from("ES")),
+        vec![
+            Tokenized::new(String::from("carrer"), Some(TokenType::Way)),
+            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("auger"), None),
+        ]);
+    }
 
     #[test]
     fn test_generate_tokens() {
