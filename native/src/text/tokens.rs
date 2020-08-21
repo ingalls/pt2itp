@@ -56,7 +56,7 @@ impl Tokens {
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
         let tokens = self.tokenize(&text);
 
-        let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len()); 
+        let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
         for token in &tokens {
             // for right now let's only apply regexes to Germany. English has a negative lookahead query that rust doesn't support.
             if country == &String::from("DE") {
@@ -351,9 +351,8 @@ mod tests {
 
         assert_eq!(tokens.process(&String::from("foo barter"), &String::from("")),
             vec![
-                Tokenized::new(String::from("foo"), None),
-                Tokenized::new(String::from("foo"), None)
-            ]);
+                Tokenized::new(String::from("foo"), None) // two words -> one word due to deduping of tokens
+                ]);
     }
 
     #[test]
@@ -372,12 +371,13 @@ mod tests {
         vec![
             Tokenized::new(String::from("gv"), Some(TokenType::Way)),
             Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("les"), Some(TokenType::Determiner)),
             Tokenized::new(String::from("corts"), None),
-            Tokenized::new(String::from("catalanes"), Some(TokenType::Cardinal))
+            Tokenized::new(String::from("catalanes"), None)
         ]);
         assert_eq!(tokens.process(&String::from("Carrer D'auger"), &String::from("ES")),
         vec![
-            Tokenized::new(String::from("carrer"), Some(TokenType::Way)),
+            Tokenized::new(String::from("cl"), Some(TokenType::Way)),
             Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
             Tokenized::new(String::from("auger"), None),
         ]);
