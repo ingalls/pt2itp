@@ -55,6 +55,7 @@ impl Tokens {
 
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
         let tokens = self.tokenize(&text);
+        let normalized_full_text = diacritics(&text.to_lowercase());
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
         for token in &tokens {
@@ -98,7 +99,7 @@ impl Tokens {
                         // if "gran via" is part of the full street name we will apply the Tokenized version
                         let mut partial_key_match = false;
                         for key in self.tokens.keys() {
-                            if key.contains(token) && text.to_lowercase().contains(key) {
+                            if key.contains(token) && normalized_full_text.contains(key) {
                                 match self.tokens.get(key) {
                                     Some(t) => {
                                         tokenized.push(Tokenized::new(
@@ -374,6 +375,13 @@ mod tests {
             Tokenized::new(String::from("les"), Some(TokenType::Determiner)),
             Tokenized::new(String::from("corts"), None),
             Tokenized::new(String::from("catalanes"), None)
+        ]);
+        assert_eq!(tokens.process(&String::from("Calle Gran Vía de Colón"), &String::from("ES")),
+        vec![
+            Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+            Tokenized::new(String::from("gv"), Some(TokenType::Way)),
+            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("colon"), None)
         ]);
         assert_eq!(tokens.process(&String::from("Carrer D'auger"), &String::from("ES")),
         vec![
