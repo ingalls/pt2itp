@@ -46,7 +46,8 @@ impl AddressCluster {
                         FROM
                             address
                         WHERE
-                            netid IS NOT NULL
+                            netid IS NOT NULL AND
+                            (props->'orphan' is NULL OR props->'orphan' <> 'true')
                         GROUP BY
                             netid,
                             names
