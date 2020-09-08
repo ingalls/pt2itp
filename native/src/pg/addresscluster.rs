@@ -1,15 +1,13 @@
-use postgres::{Connection};
 use super::Table;
+use postgres::Connection;
 
 pub struct AddressCluster {
-    orphan: bool
+    orphan: bool,
 }
 
 impl AddressCluster {
     pub fn new(orphan: bool) -> Self {
-        AddressCluster {
-            orphan: orphan
-        }
+        AddressCluster { orphan: orphan }
     }
 
     ///
@@ -17,7 +15,8 @@ impl AddressCluster {
     ///
     pub fn generate(&self, conn: &postgres::Connection) {
         if self.orphan {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 INSERT INTO address_orphan_cluster (names, geom)
                     SELECT
                         addr.names,
@@ -30,7 +29,10 @@ impl AddressCluster {
                         WHERE netid IS NULL
                         GROUP BY names
                     ) addr;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
         } else {
             conn.execute(r#"
                 INSERT INTO address_cluster (names, geom, netid)
@@ -55,41 +57,62 @@ impl AddressCluster {
                         netid;
             "#, &[]).unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 UPDATE network_cluster n
                     SET address = a.id
                     FROM address_cluster a
                     WHERE n.id = a.netid;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
         }
     }
 }
 
 impl Table for AddressCluster {
     fn create(&self, conn: &Connection) {
-        conn.execute(r#"
+        conn.execute(
+            r#"
              CREATE EXTENSION IF NOT EXISTS POSTGIS
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
         if self.orphan {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 DROP TABLE IF EXISTS address_orphan_cluster;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 CREATE UNLOGGED TABLE address_orphan_cluster (
                     ID SERIAL,
                     names JSONB,
                     geom GEOMETRY(MULTIPOINTZ, 4326),
                     props JSONB
                 )
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
         } else {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 DROP TABLE IF EXISTS address_cluster;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 CREATE UNLOGGED TABLE address_cluster (
                     ID SERIAL,
                     netid BIGINT,
@@ -97,48 +120,89 @@ impl Table for AddressCluster {
                     geom GEOMETRY(MULTIPOINTZ, 4326),
                     props JSONB
                 )
-            "#, &[]).unwrap();
-
+            "#,
+                &[],
+            )
+            .unwrap();
         }
     }
 
     fn count(&self, conn: &Connection) -> i64 {
         let table = match self.orphan {
             true => String::from("address_orphan_cluster"),
-            false => String::from("address_cluster")
+            false => String::from("address_cluster"),
         };
 
-        match conn.query(format!("
+        match conn.query(
+            format!(
+                "
             SELECT count(*) FROM {}
-        ", table).as_str(), &[]) {
+        ",
+                table
+            )
+            .as_str(),
+            &[],
+        ) {
             Ok(res) => {
                 let cnt: i64 = res.get(0).get(0);
                 cnt
-            },
-            _ => 0
+            }
+            _ => 0,
         }
     }
 
     fn index(&self, conn: &Connection) {
         let table = match self.orphan {
             true => String::from("address_orphan_cluster"),
-            false => String::from("address_cluster")
+            false => String::from("address_cluster"),
         };
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             CREATE INDEX IF NOT EXISTS {table}_idx ON {table} (id);
-        ", table = &table).as_str(), &[]).unwrap();
+        ",
+                table = &table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             CREATE INDEX IF NOT EXISTS {table}_gix ON {table} USING GIST (geom);
-        ", table = table).as_str(), &[]).unwrap();
+        ",
+                table = table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             CLUSTER {table} USING {table}_gix;
-        ", table = table).as_str(), &[]).unwrap();
+        ",
+                table = table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             ANALYZE {table};
-        ", table = table).as_str(), &[]).unwrap();
+        ",
+                table = table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
     }
 }

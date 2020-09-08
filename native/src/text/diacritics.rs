@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use regex::Regex;
+use std::collections::HashMap;
 
 ///
 /// Remove all diacritics from the given string
@@ -9,7 +9,6 @@ use regex::Regex;
 pub fn diacritics(text: &String) -> String {
     lazy_static! {
         static ref HAS_DIACRITICS: Regex = Regex::new(r"[^\u0000-\u007e]").unwrap();
-
         static ref DIACRITICS: HashMap<char, &'static str> = {
             let mut m = HashMap::new();
             m.insert('\u{00a0}', " ");
@@ -868,10 +867,10 @@ pub fn diacritics(text: &String) -> String {
         let mut no_dia = String::new();
 
         for text_char in text.chars() {
-             match DIACRITICS.get(&text_char) {
-                 Some(replacement) => no_dia.push_str(replacement),
-                 None => no_dia.push(text_char)
-             }
+            match DIACRITICS.get(&text_char) {
+                Some(replacement) => no_dia.push_str(replacement),
+                None => no_dia.push(text_char),
+            }
         }
 
         no_dia
@@ -886,18 +885,30 @@ mod tests {
 
     #[test]
     fn remove_diacritics() {
-        assert_eq!(diacritics(&String::from("Iлｔèｒｎåｔïｏｎɑｌíƶａｔï߀ԉ")), String::from("Internationalizati0n"));
+        assert_eq!(
+            diacritics(&String::from("Iлｔèｒｎåｔïｏｎɑｌíƶａｔï߀ԉ")),
+            String::from("Internationalizati0n")
+        );
 
         assert_eq!(diacritics(&String::from("Båｃòл íｐѕùｍ ðｏɭ߀ｒ ѕïｔ ａϻèｔ âùþê ａԉᏧ߀üïｌɭê ƃëéｆ ｃｕｌρá ｆïｌèｔ ϻｉǥｎòｎ ｃｕρｉᏧａｔａｔ ｕｔ êлｉｍ ｔòлɢùê.")), String::from("Bacon ipѕum dhol0r ѕit aMet authe and0uille beef culpa filet Mignon cupidatat ut enim tonGue."));
 
         assert_eq!(diacritics(&String::from("ᴎᴑᴅᴇȷʂ")), String::from("NoDEJs"));
 
-        assert_eq!(diacritics(&String::from("hambúrguer")), String::from("hamburguer"));
+        assert_eq!(
+            diacritics(&String::from("hambúrguer")),
+            String::from("hamburguer")
+        );
 
         assert_eq!(diacritics(&String::from("hŒllœ")), String::from("hOElloe"));
 
-        assert_eq!(diacritics(&String::from("Fußball")), String::from("Fussball"));
+        assert_eq!(
+            diacritics(&String::from("Fußball")),
+            String::from("Fussball")
+        );
 
-        assert_eq!(diacritics(&String::from("ABCDEFGHIJKLMNOPQRSTUVWXYZé")), String::from("ABCDEFGHIJKLMNOPQRSTUVWXYZe"));
+        assert_eq!(
+            diacritics(&String::from("ABCDEFGHIJKLMNOPQRSTUVWXYZé")),
+            String::from("ABCDEFGHIJKLMNOPQRSTUVWXYZe")
+        );
     }
 }

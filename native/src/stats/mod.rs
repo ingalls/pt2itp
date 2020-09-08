@@ -1,37 +1,37 @@
-use neon::prelude::*;
 use super::stream::GeoStream;
-use std::collections::HashMap;
 use geo::algorithm::contains::Contains;
+use neon::prelude::*;
+use std::collections::HashMap;
 
-mod explode;
 mod count;
+mod explode;
 mod tree;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct StatsArgs {
     input: Option<String>,
-    bounds: Option<String>
+    bounds: Option<String>,
 }
 
 impl StatsArgs {
     pub fn new() -> Self {
         StatsArgs {
             input: None,
-            bounds: None
+            bounds: None,
         }
     }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Stats {
-    pub feats: i64, // Total number of features
-    pub clusters: i64, // Total number of addr/network clusters
-    pub invalid: i64, // Total number of unrecognized features (not counted in feats)
-    pub addresses: i64, // Total number of address points in clusters/orphans
-    pub intersections: i64, // Total number of address features
+    pub feats: i64,           // Total number of features
+    pub clusters: i64,        // Total number of addr/network clusters
+    pub invalid: i64,         // Total number of unrecognized features (not counted in feats)
+    pub addresses: i64,       // Total number of address points in clusters/orphans
+    pub intersections: i64,   // Total number of address features
     pub address_orphans: i64, // Total number of address orphans
     pub network_orphans: i64, // Total number of network orphans
-    pub bounds: HashMap<String, StatsBound>
+    pub bounds: HashMap<String, StatsBound>,
 }
 
 impl Stats {
@@ -44,7 +44,7 @@ impl Stats {
             intersections: 0,
             address_orphans: 0,
             network_orphans: 0,
-            bounds: HashMap::new()
+            bounds: HashMap::new(),
         }
     }
 }
@@ -55,7 +55,7 @@ pub struct StatsBound {
     pub synonyms: Vec<String>,
     pub addresses: i64,
     pub intersections: i64,
-    pub custom: StatsCustom
+    pub custom: StatsCustom,
 }
 
 impl StatsBound {
@@ -65,7 +65,7 @@ impl StatsBound {
             synonyms: Vec::new(),
             addresses: 0,
             intersections: 0,
-            custom: StatsCustom::new()
+            custom: StatsCustom::new(),
         }
     }
 }
@@ -73,14 +73,14 @@ impl StatsBound {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatsCustom {
     pub postcodes: i64,
-    pub accuracy: StatsAccuracy
+    pub accuracy: StatsAccuracy,
 }
 
 impl StatsCustom {
     pub fn new() -> Self {
         StatsCustom {
             postcodes: 0,
-            accuracy: StatsAccuracy::new()
+            accuracy: StatsAccuracy::new(),
         }
     }
 }
@@ -89,7 +89,7 @@ impl StatsCustom {
 pub struct StatsAccuracy {
     pub rooftop: i64,
     pub parcel: i64,
-    pub point: i64
+    pub point: i64,
 }
 
 impl StatsAccuracy {
@@ -97,7 +97,7 @@ impl StatsAccuracy {
         StatsAccuracy {
             rooftop: 0,
             parcel: 0,
-            point: 0
+            point: 0,
         }
     }
 }
@@ -123,8 +123,8 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         true => {
             println!("ok - loading bounds");
             tree::create(args.bounds, &mut boundmap)
-        },
-        false => rstar::RTree::bulk_load(vec![])
+        }
+        false => rstar::RTree::bulk_load(vec![]),
     };
 
     let mut stats = Stats::new();
@@ -144,10 +144,9 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
         }
 
         match feat.geometry.as_ref().unwrap().value {
-            geojson::Value::MultiPoint(_)
-            | geojson::Value::GeometryCollection(_) => {
+            geojson::Value::MultiPoint(_) | geojson::Value::GeometryCollection(_) => {
                 stats.feats = stats.feats + 1;
-            },
+            }
             _ => {
                 stats.invalid = stats.invalid + 1;
                 continue;
@@ -178,18 +177,19 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                     None => vec![],
                     Some(ref names) => match names {
                         serde_json::Value::String(string) => {
-                            string.split(",").map(|name| {
-                                String::from(name)  
-                            }).collect()
-                        },
-                        _ => vec![]
-                    }
-                }
+                            string.split(",").map(|name| String::from(name)).collect()
+                        }
+                        _ => vec![],
+                    },
+                },
             };
 
             for addr in explode::addresses(&feat) {
                 for bound in tree.locate_all_at_point(&[addr.geom[0], addr.geom[1]]) {
-                    if bound.geom.contains(&geo::Point::new(addr.geom[0], addr.geom[1])) {
+                    if bound
+                        .geom
+                        .contains(&geo::Point::new(addr.geom[0], addr.geom[1]))
+                    {
                         let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
 
                         bm_item.addresses = bm_item.addresses + 1;
@@ -215,29 +215,39 @@ pub fn stats(mut cx: FunctionContext) -> JsResult<JsValue> {
                         match &addr.accuracy {
                             Some(accuracy) => {
                                 if accuracy == &String::from("rooftop") {
-                                    bm_item.custom.accuracy.rooftop = bm_item.custom.accuracy.rooftop + 1;
+                                    bm_item.custom.accuracy.rooftop =
+                                        bm_item.custom.accuracy.rooftop + 1;
                                 } else if accuracy == &String::from("point") {
-                                    bm_item.custom.accuracy.point = bm_item.custom.accuracy.point + 1;
+                                    bm_item.custom.accuracy.point =
+                                        bm_item.custom.accuracy.point + 1;
                                 } else if accuracy == &String::from("parcel") {
-                                    bm_item.custom.accuracy.parcel = bm_item.custom.accuracy.parcel + 1;
+                                    bm_item.custom.accuracy.parcel =
+                                        bm_item.custom.accuracy.parcel + 1;
                                 } else {
-                                    panic!("accuracy must be rooftop/parcel/point not {}", accuracy);
+                                    panic!(
+                                        "accuracy must be rooftop/parcel/point not {}",
+                                        accuracy
+                                    );
                                 }
-                            },
-                            None => ()
+                            }
+                            None => (),
                         };
                     }
-                };
+                }
             }
 
             for intersection in explode::intersections(&feat) {
-                for bound in tree.locate_all_at_point(&[intersection.geom[0], intersection.geom[1]]) {
-                    if bound.geom.contains(&geo::Point::new(intersection.geom[0], intersection.geom[1])) {
+                for bound in tree.locate_all_at_point(&[intersection.geom[0], intersection.geom[1]])
+                {
+                    if bound
+                        .geom
+                        .contains(&geo::Point::new(intersection.geom[0], intersection.geom[1]))
+                    {
                         let mut bm_item = boundmap.get_mut(&bound.name).unwrap();
 
                         bm_item.intersections = bm_item.intersections + 1;
                     }
-                };
+                }
             }
         }
     }

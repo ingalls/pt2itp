@@ -1,19 +1,19 @@
-use std::convert::From;
 use postgres::{Connection, TlsMode};
 use std::collections::HashMap;
+use std::convert::From;
 
 mod agreement;
 
 use neon::prelude::*;
 
 use crate::{
-    Address,
+    stream::{AddrStream, GeoStream},
     util::linker,
-    stream::{GeoStream, AddrStream}
+    Address,
 };
 
 use super::pg;
-use super::pg::{Table, InputTable};
+use super::pg::{InputTable, Table};
 
 const SEARCH_RADIUS: f64 = 0.01;
 const WGS84: i32 = 4326;
@@ -26,7 +26,7 @@ struct ConsensusArgs {
     sources: Vec<String>,
     query_points: String,
     error_sources: Option<String>,
-    error_query_points: Option<String>
+    error_query_points: Option<String>,
 }
 
 impl ConsensusArgs {
@@ -38,7 +38,7 @@ impl ConsensusArgs {
             sources: vec![String::from("")],
             query_points: String::from(""),
             error_sources: None,
-            error_query_points: None
+            error_query_points: None,
         }
     }
 }
@@ -75,28 +75,46 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
     let sources = args.sources;
     let query_points = args.query_points;
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
+    let conn = Connection::connect(
+        format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(),
+        TlsMode::None,
+    )
+    .unwrap();
 
     let context = match args.context {
         Some(context) => crate::Context::from(context),
-        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new(), HashMap::new()))
+        None => crate::Context::new(
+            String::from(""),
+            None,
+            crate::Tokens::new(HashMap::new(), HashMap::new()),
+        ),
     };
 
     let pgaddress = pg::Address::new();
     pgaddress.create(&conn);
     for source in sources {
-        pgaddress.input(&conn, AddrStream::new(GeoStream::new(Some(source)), context.clone(), args.error_sources.clone()));
+        pgaddress.input(
+            &conn,
+            AddrStream::new(
+                GeoStream::new(Some(source)),
+                context.clone(),
+                args.error_sources.clone(),
+            ),
+        );
     }
     pgaddress.index(&conn);
 
     let mut source_map: HashMap<String, Option<(f64, f64)>> = HashMap::new();
-    let rows = conn.query("SELECT source FROM address GROUP BY source", &[]).unwrap();
+    let rows = conn
+        .query("SELECT source FROM address GROUP BY source", &[])
+        .unwrap();
     for row in rows.iter() {
         let source: String = row.get(0);
         source_map.insert(source, None);
     }
 
-    let query = format!("
+    let query = format!(
+        "
         SELECT
             ST_Distance(ST_SetSRID(ST_Point($2, $3), {0}), p.geom),
             json_build_object(
@@ -115,16 +133,27 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
             p.number = $1
             AND p.source = $4
             AND ST_DWithin(ST_SetSRID(ST_Point($2, $3), {0}), p.geom, {1});
-    ", WGS84, SEARCH_RADIUS);
+    ",
+        WGS84, SEARCH_RADIUS
+    );
 
     let sources: Vec<String> = source_map.keys().cloned().collect();
     let threshold = args.threshold.unwrap_or(25);
     let mut agreement = agreement::Agreement::new(threshold);
 
-    for addr in AddrStream::new(GeoStream::new(Some(query_points)), context.clone(), args.error_query_points) {
+    for addr in AddrStream::new(
+        GeoStream::new(Some(query_points)),
+        context.clone(),
+        args.error_query_points,
+    ) {
         for source in &sources {
             // pull the addresses matching this address number within 1 km
-            let rows = conn.query(&query, &[ &addr.number, &addr.geom[0], &addr.geom[1], &source ]).unwrap();
+            let rows = conn
+                .query(
+                    &query,
+                    &[&addr.number, &addr.geom[0], &addr.geom[1], &source],
+                )
+                .unwrap();
 
             // populate potential_matches with db response
             let mut potential_matches: Vec<Address> = Vec::with_capacity(rows.len());
@@ -137,9 +166,10 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
             // find a match using linker
             match compare(&addr, &mut potential_matches) {
                 Some(link_id) => {
-                    let mut pmatches: Vec<Address> = potential_matches.into_iter().filter(|potential| {
-                        link_id == potential.id.unwrap()
-                    }).collect();
+                    let mut pmatches: Vec<Address> = potential_matches
+                        .into_iter()
+                        .filter(|potential| link_id == potential.id.unwrap())
+                        .collect();
 
                     match pmatches.len() {
                         0 => continue,
@@ -147,12 +177,17 @@ pub fn consensus(mut cx: FunctionContext) -> JsResult<JsValue> {
                             let paddr = pmatches.pop();
                             let coords = paddr.map(|p| (p.geom[0], p.geom[1]));
                             // update source_map with current match for source
-                            source_map.entry(source.to_string()).and_modify(|e| *e = coords);
-                        },
-                        _ => panic!("{} is a duplicate ID - this is not allowed in input data", link_id)
+                            source_map
+                                .entry(source.to_string())
+                                .and_modify(|e| *e = coords);
+                        }
+                        _ => panic!(
+                            "{} is a duplicate ID - this is not allowed in input data",
+                            link_id
+                        ),
                     }
-                },
-                None => ()
+                }
+                None => (),
             };
         }
 
@@ -177,9 +212,10 @@ pub fn compare(addr: &Address, potentials: &mut Vec<Address>) -> Option<i64> {
         return None;
     }
     let addr_link = linker::Link::new(0, &addr.names);
-    let potential_links: Vec<linker::Link> = potentials.iter().map(|potential| {
-        linker::Link::new(potential.id.unwrap(), &potential.names)
-    }).collect();
+    let potential_links: Vec<linker::Link> = potentials
+        .iter()
+        .map(|potential| linker::Link::new(potential.id.unwrap(), &potential.names))
+        .collect();
 
     linker::linker(addr_link, potential_links, true).map(|link| link.id)
 }

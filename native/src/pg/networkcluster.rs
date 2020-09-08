@@ -1,15 +1,13 @@
-use postgres::{Connection};
 use super::Table;
+use postgres::Connection;
 
 pub struct NetworkCluster {
-    orphan: bool
+    orphan: bool,
 }
 
 impl NetworkCluster {
     pub fn new(orphan: bool) -> Self {
-        NetworkCluster {
-            orphan: orphan
-        }
+        NetworkCluster { orphan: orphan }
     }
 
     ///
@@ -17,9 +15,13 @@ impl NetworkCluster {
     ///
     pub fn generate(&self, conn: &postgres::Connection) {
         if self.orphan {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 // TODO
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
         } else {
             conn.execute(r#"
                 INSERT INTO network_cluster(geom)
@@ -47,7 +49,8 @@ impl NetworkCluster {
                     GROUP BY geom;
             "#, &[]).unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 -- extracts distinct Z coordinates from a multilinestring
                 CREATE OR REPLACE FUNCTION get_source_ids(geometry(MultiLineStringZ))
                 RETURNS BIGINT[]
@@ -73,14 +76,22 @@ impl NetworkCluster {
                 LANGUAGE plpgsql
                    STABLE
                 RETURNS NULL ON NULL INPUT;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 UPDATE network_cluster
                     SET source_ids = get_source_ids(geom);
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
             UPDATE network_cluster
                 SET names = final.names
                 FROM (
@@ -106,56 +117,92 @@ impl NetworkCluster {
                 ) final
                 WHERE
                     final.id = network_cluster.id;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 ALTER TABLE network_cluster
                     ADD COLUMN geom_flat geometry(geometry, 4326);
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 UPDATE network_cluster
                     SET geom_flat = ST_SetSRID(ST_Force2D(geom), 4326);
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 ALTER TABLE network_cluster
                     DROP COLUMN geom;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 ALTER TABLE network_cluster
                     RENAME geom_flat TO geom;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
         }
     }
 }
 
 impl Table for NetworkCluster {
     fn create(&self, conn: &Connection) {
-        conn.execute(r#"
+        conn.execute(
+            r#"
              CREATE EXTENSION IF NOT EXISTS POSTGIS
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
         if self.orphan {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 DROP TABLE IF EXISTS network_orphan_cluster;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 CREATE UNLOGGED TABLE network_orphan_cluster (
                     ID SERIAL,
                     names JSONB,
                     geom GEOMETRY(MULTILINESTRINGZ, 4326),
                     props JSONB
                 )
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
         } else {
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 DROP TABLE IF EXISTS network_cluster;
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
 
-            conn.execute(r#"
+            conn.execute(
+                r#"
                 CREATE UNLOGGED TABLE network_cluster (
                     id SERIAL,
                     names JSONB,
@@ -163,40 +210,66 @@ impl Table for NetworkCluster {
                     address BIGINT,
                     source_ids BIGINT[]
                 )
-            "#, &[]).unwrap();
+            "#,
+                &[],
+            )
+            .unwrap();
         }
     }
 
     fn count(&self, conn: &Connection) -> i64 {
         let table = match self.orphan {
             true => String::from("network_orphan_cluster"),
-            false => String::from("network_cluster")
+            false => String::from("network_cluster"),
         };
 
-        match conn.query(format!("
+        match conn.query(
+            format!(
+                "
             SELECT count(*) FROM {}
-        ", table).as_str(), &[]) {
+        ",
+                table
+            )
+            .as_str(),
+            &[],
+        ) {
             Ok(res) => {
                 let cnt: i64 = res.get(0).get(0);
                 cnt
-            },
-            _ => 0
+            }
+            _ => 0,
         }
     }
 
     fn index(&self, conn: &Connection) {
         let table = match self.orphan {
             true => String::from("network_orphan_cluster"),
-            false => String::from("network_cluster")
+            false => String::from("network_cluster"),
         };
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             CREATE INDEX IF NOT EXISTS {table}_idx ON {table} (id);
-        ", table = &table).as_str(), &[]).unwrap();
+        ",
+                table = &table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             CREATE INDEX IF NOT EXISTS {table}_gix ON {table} USING GIST (geom);
-        ", table = table).as_str(), &[]).unwrap();
+        ",
+                table = table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
 
         if !self.orphan {
             conn.execute(format!("
@@ -204,12 +277,28 @@ impl Table for NetworkCluster {
             ").as_str(), &[]).unwrap();
         }
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             CLUSTER {table} USING {table}_gix;
-        ", table = table).as_str(), &[]).unwrap();
+        ",
+                table = table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(format!("
+        conn.execute(
+            format!(
+                "
             ANALYZE {table};
-        ", table = table).as_str(), &[]).unwrap();
+        ",
+                table = table
+            )
+            .as_str(),
+            &[],
+        )
+        .unwrap();
     }
 }
