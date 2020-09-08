@@ -444,7 +444,7 @@ mod tests {
 
             let addr = Address::new(feat, &context).unwrap();
 
-            assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\ttrue\n{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
+            assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\ttrue\t{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
         }
     }
 }
