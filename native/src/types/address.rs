@@ -259,7 +259,7 @@ impl Address {
                 $6,
                 $7,
                 $8,
-                ST_SetSRID(ST_MakePoint($8, $9), 4326)
+                ST_SetSRID(ST_MakePoint($9, $10), 4326)
             )
         ",
             table = table.to_string()
