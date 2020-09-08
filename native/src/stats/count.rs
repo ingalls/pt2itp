@@ -26,8 +26,8 @@ pub fn addresses(feat: &geojson::Feature) -> i64 {
 
                     addr
                 }
-            }
-        }
+            },
+        },
     }
 }
 
@@ -59,8 +59,8 @@ pub fn intersections(feat: &geojson::Feature) -> i64 {
 
                     intsecs
                 }
-            }
-        }
+            },
+        },
     }
 }
 

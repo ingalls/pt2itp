@@ -1,6 +1,6 @@
-use std::fs::File;
-use std::io::{self, Write, BufWriter};
 use std::convert::From;
+use std::fs::File;
+use std::io::{self, BufWriter, Write};
 
 use neon::prelude::*;
 
@@ -16,7 +16,7 @@ impl ConvertArgs {
     pub fn new() -> Self {
         ConvertArgs {
             input: None,
-            output: None
+            output: None,
         }
     }
 }
@@ -40,32 +40,38 @@ pub fn convert(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         Some(outpath) => {
             let outfile = match File::create(outpath) {
                 Ok(outfile) => outfile,
-                Err(err) => { panic!("Unable to write to output file: {}", err); }
+                Err(err) => {
+                    panic!("Unable to write to output file: {}", err);
+                }
             };
 
             convert_stream(stream, BufWriter::new(outfile))
-        },
-        None => convert_stream(stream, io::stdout().lock())
+        }
+        None => convert_stream(stream, io::stdout().lock()),
     }
 
     Ok(cx.boolean(true))
 }
 
 fn convert_stream(stream: GeoStream, mut sink: impl Write) {
-    if sink.write(String::from("{ \"type\": \"FeatureCollection\", \"features\": [\n").as_bytes()).is_err() { panic!("Failed to write to output stream"); };
+    if sink
+        .write(String::from("{ \"type\": \"FeatureCollection\", \"features\": [\n").as_bytes())
+        .is_err()
+    {
+        panic!("Failed to write to output stream");
+    };
     let mut first = true;
 
     for geo in stream {
         let line = match geo {
-            geojson::GeoJson::Geometry(geom) => {
-                geojson::GeoJson::from(geojson::Feature {
-                    id: None,
-                    bbox: None,
-                    geometry: Some(geom),
-                    properties: None,
-                    foreign_members: None
-                }).to_string()
-            },
+            geojson::GeoJson::Geometry(geom) => geojson::GeoJson::from(geojson::Feature {
+                id: None,
+                bbox: None,
+                geometry: Some(geom),
+                properties: None,
+                foreign_members: None,
+            })
+            .to_string(),
             geojson::GeoJson::Feature(_) => geo.to_string(),
             geojson::GeoJson::FeatureCollection(fc) => {
                 let mut line = String::new();
@@ -84,14 +90,22 @@ fn convert_stream(stream: GeoStream, mut sink: impl Write) {
         };
 
         if first {
-            if sink.write(format!("{}", line).as_bytes()).is_err() { panic!("Failed to write to output stream"); };
+            if sink.write(format!("{}", line).as_bytes()).is_err() {
+                panic!("Failed to write to output stream");
+            };
             first = false;
         } else {
-            if sink.write(format!("\n,{}", line).as_bytes()).is_err() { panic!("Failed to write to output stream"); };
+            if sink.write(format!("\n,{}", line).as_bytes()).is_err() {
+                panic!("Failed to write to output stream");
+            };
         }
     }
 
-    if sink.write(String::from("\n]}\n").as_bytes()).is_err() { panic!("Failed to write to output stream"); };
+    if sink.write(String::from("\n]}\n").as_bytes()).is_err() {
+        panic!("Failed to write to output stream");
+    };
 
-    if sink.flush().is_err() { panic!("Failed to flush output stream"); }
+    if sink.flush().is_err() {
+        panic!("Failed to flush output stream");
+    }
 }

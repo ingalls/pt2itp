@@ -1,47 +1,50 @@
-#[macro_use] extern crate neon;
-#[macro_use] extern crate serde_derive;
-#[macro_use] extern crate lazy_static;
-extern crate serde_json;
-extern crate neon_serde;
+#[macro_use]
+extern crate neon;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate lazy_static;
 extern crate crossbeam;
+extern crate geo;
+extern crate geojson;
+extern crate kodama;
+extern crate neon_serde;
 extern crate num_cpus;
 extern crate postgres;
-extern crate geojson;
-extern crate rstar;
 extern crate regex;
-extern crate geo;
-extern crate kodama;
+extern crate rstar;
+extern crate serde_json;
 
 // Internal Helper Libraries
-pub mod util;
 pub mod stream;
 pub mod text;
+pub mod util;
 
-pub mod types;
 pub mod pg;
+pub mod types;
 
 // Helper to current node fn
 pub mod map;
 
 // External PT2ITP Modes
-pub mod convert;
-pub mod stats;
-pub mod dedupe;
 pub mod classify;
 pub mod conflate;
 pub mod consensus;
+pub mod convert;
+pub mod dedupe;
+pub mod stats;
 
 pub use self::types::Address;
 pub use self::types::Network;
 pub use self::types::Polygon;
 
+pub use self::text::Tokenized;
+pub use self::text::Tokens;
 pub use self::types::hecate;
 pub use self::types::Context;
-pub use self::text::Tokens;
-pub use self::text::Tokenized;
 
-pub use self::types::Names;
 pub use self::types::Name;
+pub use self::types::Names;
 pub use self::types::Source;
 
 // Functions registered here will be made avaliable to be called from NodeJS

@@ -1,15 +1,15 @@
-use std::iter::Iterator;
-use postgres::{Connection};
-use std::io::Read;
-use std::mem;
+use postgres::Connection;
 use serde_json::Value;
+use std::io::Read;
+use std::iter::Iterator;
+use std::mem;
 
 pub mod address;
 pub mod addresscluster;
+pub mod intersections;
 pub mod network;
 pub mod networkcluster;
 pub mod polygon;
-pub mod intersections;
 
 pub use self::address::Address;
 pub use self::addresscluster::AddressCluster;
@@ -17,8 +17,8 @@ pub use self::addresscluster::AddressCluster;
 pub use self::network::Network;
 pub use self::networkcluster::NetworkCluster;
 
-pub use self::polygon::Polygon;
 pub use self::intersections::Intersections;
+pub use self::polygon::Polygon;
 
 pub trait Table {
     fn create(&self, conn: &Connection);
@@ -45,7 +45,7 @@ pub struct Cursor {
     trans: postgres::transaction::Transaction<'static>,
     #[allow(dead_code)]
     conn: Box<postgres::Connection>,
-    cache: Vec<Value>
+    cache: Vec<Value>,
 }
 
 impl Cursor {
@@ -63,13 +63,20 @@ impl Cursor {
             })
         };
 
-        match trans.execute(format!(r#"
+        match trans.execute(
+            format!(
+                r#"
             DECLARE next_cursor CURSOR FOR {}
-        "#, &query).as_str(), &[]) {
+        "#,
+                &query
+            )
+            .as_str(),
+            &[],
+        ) {
             Err(err) => {
                 return Err(err.to_string());
-            },
-            _ => ()
+            }
+            _ => (),
         };
 
         Ok(Cursor {
@@ -77,7 +84,7 @@ impl Cursor {
             conn: pg_conn,
             trans: trans,
             query: query,
-            cache: Vec::with_capacity(fetch as usize)
+            cache: Vec::with_capacity(fetch as usize),
         })
     }
 }
@@ -87,27 +94,36 @@ impl Iterator for Cursor {
 
     fn next(&mut self) -> Option<Self::Item> {
         if !self.cache.is_empty() {
-            return self.cache.pop()
+            return self.cache.pop();
         }
 
-        let rows = match self.trans.query(format!(r#"
+        let rows = match self.trans.query(
+            format!(
+                r#"
             FETCH {} FROM next_cursor
-        "#, &self.fetch).as_str(), &[]) {
+        "#,
+                &self.fetch
+            )
+            .as_str(),
+            &[],
+        ) {
             Ok(rows) => rows,
-            Err(err) => panic!("Fetch Error: {}", err.to_string())
+            Err(err) => panic!("Fetch Error: {}", err.to_string()),
         };
 
         // Cursor is finished
         if rows.is_empty() {
             return None;
         } else {
-            self.cache = rows.iter().map(|row| {
-                let json: Value = row.get(0);
-                json
-            }).collect();
+            self.cache = rows
+                .iter()
+                .map(|row| {
+                    let json: Value = row.get(0);
+                    json
+                })
+                .collect();
 
             return self.cache.pop();
         }
     }
 }
-

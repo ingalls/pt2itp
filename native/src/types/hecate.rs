@@ -4,5 +4,5 @@ pub enum Action {
     Create,
     Modify,
     Delete,
-    Restore
+    Restore,
 }
