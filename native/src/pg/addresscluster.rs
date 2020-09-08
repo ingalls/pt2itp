@@ -46,8 +46,7 @@ impl AddressCluster {
                         FROM
                             address
                         WHERE
-                            netid IS NOT NULL AND
-                            interpolate = true
+                            netid IS NOT NULL
                         GROUP BY
                             netid,
                             names
