@@ -215,7 +215,7 @@ impl Address {
     pub fn to_tsv(self) -> String {
         let geom = postgis::ewkb::Point::new(self.geom[0], self.geom[1], Some(4326)).as_ewkb().to_hex_ewkb();
 
-        format!("{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{props}\t{geom}\n",
+        format!("{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{interpolate}\t{props}\t{geom}\n",
             id = match self.id {
                 None => String::from(""),
                 Some(id) => id.to_string()
@@ -223,6 +223,7 @@ impl Address {
             version = self.version,
             names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
             output = self.output,
+            interpolate = self.interpolate,
             number = self.number,
             source = self.source,
             props = serde_json::value::Value::from(self.props),
@@ -246,6 +247,7 @@ impl Address {
                 number,
                 source,
                 output,
+                interpolate,
                 props,
                 geom
             ) VALUES (
@@ -256,6 +258,7 @@ impl Address {
                 $5,
                 $6,
                 $7,
+                $8,
                 ST_SetSRID(ST_MakePoint($8, $9), 4326)
             )
         ",
@@ -267,6 +270,7 @@ impl Address {
             &self.number,
             &self.source,
             &self.output,
+            &self.interpolate,
             &serde_json::value::Value::from(self.props.clone()),
             &self.geom[0],
             &self.geom[1]

@@ -47,7 +47,7 @@ impl AddressCluster {
                             address
                         WHERE
                             netid IS NOT NULL AND
-                            (props->'orphan' is NULL OR props->'orphan' <> 'true')
+                            interpolate = true
                         GROUP BY
                             netid,
                             names
