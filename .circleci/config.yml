@@ -45,6 +45,9 @@ jobs:
                 name: "Cargo Test"
                 command: cd native/ && cargo test --release
             - run:
+                name: "Cargo Format"
+                command: rustup component add rustfmt && cd native/ && cargo fmt -- --check
+            - run:
                 name: "Yarn Lint"
                 command: "yarn run lint"
             - run:

@@ -2,7 +2,7 @@ use postgis::ewkb::AsEwkbPoint;
 use postgis::ewkb::EwkbWrite;
 use regex::{Regex, RegexSet};
 
-use crate::{Context, Names, Name, Source, hecate, types::name::InputName};
+use crate::{hecate, types::name::InputName, Context, Name, Names, Source};
 
 /// A representation of a single Address
 #[derive(Debug)]
@@ -31,26 +31,30 @@ pub struct Address {
     pub props: serde_json::Map<String, serde_json::Value>,
 
     /// Simple representation of Lng/Lat geometry
-    pub geom: geojson::PointType
+    pub geom: geojson::PointType,
 }
 
 impl Address {
     pub fn new(feat: geojson::GeoJson, context: &Context) -> Result<Self, String> {
         let feat = match feat {
             geojson::GeoJson::Feature(feat) => feat,
-            _ => { return Err(String::from("Not a GeoJSON Feature")); }
+            _ => {
+                return Err(String::from("Not a GeoJSON Feature"));
+            }
         };
 
         let mut props = match feat.properties {
             Some(props) => props,
-            None => { return Err(String::from("Feature has no properties")); }
+            None => {
+                return Err(String::from("Feature has no properties"));
+            }
         };
 
         let number = get_number(&mut props)?;
 
         let version = match feat.foreign_members {
             Some(mut props) => get_version(&mut props)?,
-            None => 0
+            None => 0,
         };
 
         let source = get_source(&mut props)?;
@@ -71,10 +75,14 @@ impl Address {
                     }
 
                     pt
-                },
-                _ => { return Err(String::from("Addresses must have Point geometry")); }
+                }
+                _ => {
+                    return Err(String::from("Addresses must have Point geometry"));
+                }
             },
-            None => { return Err(String::from("Addresses must have geometry")); }
+            None => {
+                return Err(String::from("Addresses must have geometry"));
+            }
         };
 
         let street = match props.remove(&String::from("street")) {
@@ -82,8 +90,8 @@ impl Address {
                 props.insert(String::from("street"), street.clone());
 
                 Some(street)
-            },
-            None => None
+            }
+            None => None,
         };
 
         let names = Names::from_value(street, Some(Source::Address), &context)?;
@@ -95,7 +103,7 @@ impl Address {
         let mut addr = Address {
             id: match feat.id {
                 Some(geojson::feature::Id::Number(id)) => id.as_i64(),
-                _ => None
+                _ => None,
             },
             number: number,
             version: version,
@@ -104,7 +112,7 @@ impl Address {
             source: source,
             interpolate: interpolate,
             props: props,
-            geom: geom
+            geom: geom,
         };
 
         addr.std()?;
@@ -118,7 +126,11 @@ impl Address {
     pub fn from_value(value: serde_json::Value) -> Result<Self, String> {
         let mut value = match value {
             serde_json::Value::Object(obj) => obj,
-            _ => { return Err(String::from("Address::from_value value must be JSON Object")); }
+            _ => {
+                return Err(String::from(
+                    "Address::from_value value must be JSON Object",
+                ));
+            }
         };
 
         let names: Names = match value.get(&String::from("names")) {
@@ -127,39 +139,57 @@ impl Address {
 
                 let names: Vec<Name> = match serde_json::from_value(names) {
                     Ok(names) => names,
-                    Err(err) => { return Err(format!("Names Conversion Error: {}", err.to_string())); }
+                    Err(err) => {
+                        return Err(format!("Names Conversion Error: {}", err.to_string()));
+                    }
                 };
 
-                Names {
-                    names: names
-                }
-            },
-            None => { return Err(String::from("names key/value is required")); }
+                Names { names: names }
+            }
+            None => {
+                return Err(String::from("names key/value is required"));
+            }
         };
 
         let props = match value.remove(&String::from("props")) {
             Some(props) => match props {
                 serde_json::Value::Object(obj) => obj,
-                _ => { return Err(String::from("Address::from_value value must be JSON Object")); }
+                _ => {
+                    return Err(String::from(
+                        "Address::from_value value must be JSON Object",
+                    ));
+                }
             },
-            None => { return Err(String::from("props key/value is required")); }
+            None => {
+                return Err(String::from("props key/value is required"));
+            }
         };
 
         let geom = match value.remove(&String::from("geom")) {
             Some(geom) => match geom {
                 serde_json::value::Value::String(geom) => match geom.parse::<geojson::GeoJson>() {
-                    Ok (geom) => match geom {
+                    Ok(geom) => match geom {
                         geojson::GeoJson::Geometry(geom) => match geom.value {
                             geojson::Value::Point(pt) => pt,
-                            _ => { return Err(String::from("Geometry must be point type")); }
+                            _ => {
+                                return Err(String::from("Geometry must be point type"));
+                            }
                         },
-                        _ => { return Err(String::from("Geometry must be point type")); }
+                        _ => {
+                            return Err(String::from("Geometry must be point type"));
+                        }
                     },
-                    Err(err) => { return Err(format!("geom parse error: {}", err.to_string())); }
+                    Err(err) => {
+                        return Err(format!("geom parse error: {}", err.to_string()));
+                    }
                 },
-                _ => { return Err(String::from("geom only supports TEXT type")); }
+                _ => {
+                    return Err(String::from("geom only supports TEXT type"));
+                }
             },
-            None => { return Err(String::from("geom key/value is required")); }
+            None => {
+                return Err(String::from("geom key/value is required"));
+            }
         };
 
         Ok(Address {
@@ -171,7 +201,7 @@ impl Address {
             source: get_source(&mut value)?,
             interpolate: get_interpolate(&mut value)?,
             props: props,
-            geom: geom
+            geom: geom,
         })
     }
 
@@ -188,7 +218,8 @@ impl Address {
                 r"^(\d+)([nsew])(\d+)[a-z]?$",
                 r"^([nesw])(\d+)([nesw]\d+)?$",
                 r"^\d+(к\d+)?(с\d+)?$"
-            ]).unwrap();
+            ])
+            .unwrap();
         }
 
         self.number = HALF.replace(self.number.as_str(), "").to_string();
@@ -213,12 +244,15 @@ impl Address {
     ///name, number, source, props, geom
     ///
     pub fn to_tsv(self) -> String {
-        let geom = postgis::ewkb::Point::new(self.geom[0], self.geom[1], Some(4326)).as_ewkb().to_hex_ewkb();
+        let geom = postgis::ewkb::Point::new(self.geom[0], self.geom[1], Some(4326))
+            .as_ewkb()
+            .to_hex_ewkb();
 
-        format!("{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{interpolate}\t{props}\t{geom}\n",
+        format!(
+            "{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{interpolate}\t{props}\t{geom}\n",
             id = match self.id {
                 None => String::from(""),
-                Some(id) => id.to_string()
+                Some(id) => id.to_string(),
             },
             version = self.version,
             names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
@@ -238,8 +272,14 @@ impl Address {
     ///features or if they are being infrequently written.
     ///to_tsv with a copy stream is far more efficient
     ///
-    pub fn to_db(&self, conn: &impl postgres::GenericConnection, table: impl ToString) -> Result<(), postgres::error::Error> {
-        conn.execute(format!("
+    pub fn to_db(
+        &self,
+        conn: &impl postgres::GenericConnection,
+        table: impl ToString,
+    ) -> Result<(), postgres::error::Error> {
+        conn.execute(
+            format!(
+                "
             INSERT INTO {table} (
                 id,
                 version,
@@ -260,22 +300,24 @@ impl Address {
                 ST_SetSRID(ST_MakePoint($8, $9), 4326)
             )
         ",
-            table = table.to_string()
-        ).as_str(), &[
-            &self.id,
-            &self.version,
-            &serde_json::to_value(&self.names.names).unwrap(),
-            &self.number,
-            &self.source,
-            &self.output,
-            &serde_json::value::Value::from(self.props.clone()),
-            &self.geom[0],
-            &self.geom[1]
-        ])?;
+                table = table.to_string()
+            )
+            .as_str(),
+            &[
+                &self.id,
+                &self.version,
+                &serde_json::to_value(&self.names.names).unwrap(),
+                &self.number,
+                &self.source,
+                &self.output,
+                &serde_json::value::Value::from(self.props.clone()),
+                &self.geom[0],
+                &self.geom[1],
+            ],
+        )?;
 
         Ok(())
     }
-
 
     ///
     /// Outputs Hecate Compatible GeoJSON feature,
@@ -285,60 +327,87 @@ impl Address {
     /// generated: Should generated synonyms be output
     ///
     pub fn to_geojson(mut self, action: hecate::Action, generated: bool) -> geojson::Feature {
-        let mut members: serde_json::map::Map<String, serde_json::Value> = serde_json::map::Map::new();
+        let mut members: serde_json::map::Map<String, serde_json::Value> =
+            serde_json::map::Map::new();
 
         if action != hecate::Action::None {
-            members.insert(String::from("version"), serde_json::value::Value::Number(serde_json::Number::from(self.version)));
+            members.insert(
+                String::from("version"),
+                serde_json::value::Value::Number(serde_json::Number::from(self.version)),
+            );
         }
 
         match action {
             hecate::Action::Create => {
-                members.insert(String::from("action"), serde_json::value::Value::String("create".to_string()));
+                members.insert(
+                    String::from("action"),
+                    serde_json::value::Value::String("create".to_string()),
+                );
                 members.remove(&String::from("version"));
-            },
+            }
             hecate::Action::Modify => {
-                members.insert(String::from("action"), serde_json::value::Value::String("modify".to_string()));
-            },
+                members.insert(
+                    String::from("action"),
+                    serde_json::value::Value::String("modify".to_string()),
+                );
+            }
             hecate::Action::Delete => {
-                members.insert(String::from("action"), serde_json::value::Value::String("delete".to_string()));
-            },
+                members.insert(
+                    String::from("action"),
+                    serde_json::value::Value::String("delete".to_string()),
+                );
+            }
             hecate::Action::Restore => {
-                members.insert(String::from("action"), serde_json::value::Value::String("restore".to_string()));
-            },
-            _ => ()
+                members.insert(
+                    String::from("action"),
+                    serde_json::value::Value::String("restore".to_string()),
+                );
+            }
+            _ => (),
         };
 
-        let names: Vec<InputName> = self.names.names.into_iter().filter(|name| {
-            if !generated {
-                name.source != Some(Source::Generated)
-            } else {
-                true
-            }
-        }).map(|name| {
-            InputName::from(name)
-        }).collect();
+        let names: Vec<InputName> = self
+            .names
+            .names
+            .into_iter()
+            .filter(|name| {
+                if !generated {
+                    name.source != Some(Source::Generated)
+                } else {
+                    true
+                }
+            })
+            .map(|name| InputName::from(name))
+            .collect();
 
-        self.props.insert(String::from("street"), serde_json::to_value(names).unwrap());
+        self.props
+            .insert(String::from("street"), serde_json::to_value(names).unwrap());
 
         if self.source != String::from("") {
-            self.props.insert(String::from("source"), serde_json::value::Value::String(self.source));
+            self.props.insert(
+                String::from("source"),
+                serde_json::value::Value::String(self.source),
+            );
         }
 
-        self.props.insert(String::from("number"), serde_json::value::Value::String(self.number));
+        self.props.insert(
+            String::from("number"),
+            serde_json::value::Value::String(self.number),
+        );
 
         geojson::Feature {
             id: match self.id {
                 None => None,
-                Some(id) => Some(geojson::feature::Id::Number(serde_json::Number::from(id)))
+                Some(id) => Some(geojson::feature::Id::Number(serde_json::Number::from(id))),
             },
             bbox: None,
             geometry: Some(geojson::Geometry {
                 bbox: None,
                 value: geojson::Value::Point(self.geom),
-                foreign_members: None
+                foreign_members: None,
             }),
             properties: Some(self.props),
-            foreign_members: Some(members)
+            foreign_members: Some(members),
         }
     }
 }
@@ -347,24 +416,20 @@ fn get_id(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<Option
     match map.remove(&String::from("id")) {
         Some(id) => match id.as_i64() {
             Some(id) => Ok(Some(id)),
-            None => Err(String::from("ID must be numeric"))
+            None => Err(String::from("ID must be numeric")),
         },
-        None => Ok(None)
+        None => Ok(None),
     }
 }
 
 fn get_number(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<String, String> {
     match map.get(&String::from("number")) {
         Some(number) => match number.clone() {
-            serde_json::value::Value::Number(num) => {
-                Ok(String::from(num.to_string()))
-            },
-            serde_json::value::Value::String(num) => {
-                Ok(num)
-            },
-            _ => Err(String::from("Number property must be String or Numeric"))
+            serde_json::value::Value::Number(num) => Ok(String::from(num.to_string())),
+            serde_json::value::Value::String(num) => Ok(num),
+            _ => Err(String::from("Number property must be String or Numeric")),
         },
-        None => Err(String::from("Number property required"))
+        None => Err(String::from("Number property required")),
     }
 }
 
@@ -372,9 +437,9 @@ fn get_version(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<i
     match map.remove(&String::from("version")) {
         Some(version) => match version.as_i64() {
             Some(version) => Ok(version),
-            _ => Err(String::from("Version must be numeric"))
+            _ => Err(String::from("Version must be numeric")),
         },
-        None => Ok(0)
+        None => Ok(0),
     }
 }
 
@@ -382,9 +447,9 @@ fn get_source(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<St
     match map.get(&String::from("source")) {
         Some(source) => match source.clone() {
             serde_json::value::Value::String(source) => Ok(source),
-            _ => Ok(String::from(""))
+            _ => Ok(String::from("")),
         },
-        None => Ok(String::from(""))
+        None => Ok(String::from("")),
     }
 }
 
@@ -392,9 +457,9 @@ fn get_output(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<bo
     match map.remove(&String::from("output")) {
         Some(output) => match output.as_bool() {
             None => Ok(true),
-            Some(output) => Ok(output)
+            Some(output) => Ok(output),
         },
-        None => Ok(true)
+        None => Ok(true),
     }
 }
 
@@ -402,9 +467,9 @@ fn get_interpolate(map: &mut serde_json::Map<String, serde_json::Value>) -> Resu
     match map.remove(&String::from("interpolate")) {
         Some(itp) => match itp.as_bool() {
             None => Ok(true),
-            Some(itp) => Ok(itp)
+            Some(itp) => Ok(itp),
         },
-        None => Ok(true)
+        None => Ok(true),
     }
 }
 
@@ -421,7 +486,7 @@ mod tests {
             let context = Context::new(
                 String::from("us"),
                 Some(String::from("mn")),
-                Tokens::generate(vec![String::from("en")])
+                Tokens::generate(vec![String::from("en")]),
             );
 
             let addr = Address::new(feat, &context).unwrap();
@@ -436,7 +501,7 @@ mod tests {
             let context = Context::new(
                 String::from("us"),
                 Some(String::from("mn")),
-                Tokens::generate(vec![String::from("en")])
+                Tokens::generate(vec![String::from("en")]),
             );
 
             let addr = Address::new(feat, &context).unwrap();

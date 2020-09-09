@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v28.4.0
+
+- :rocket: Cargo fmt all rust code.
+- :rocket: Normalize straße/strasse when parsing German addresses.
+
 ### v28.3.0
 
 - :tada: Add `consensus` mode agreement metrics for sets of address data.

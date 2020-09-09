@@ -3,12 +3,12 @@ pub struct StatAddress {
     pub geom: Vec<f64>,
     pub number: String,
     pub accuracy: Option<String>,
-    pub postcode: Option<String>
+    pub postcode: Option<String>,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct StatIntersection {
-    pub geom: Vec<f64>
+    pub geom: Vec<f64>,
 }
 
 ///
@@ -20,11 +20,11 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
     let (numbers, ele) = match feat.properties {
         None => {
             return addrs;
-        },
+        }
         Some(ref props) => match props.get(&String::from("carmen:addressnumber")) {
             None => {
                 return addrs;
-            },
+            }
             Some(ref array) => {
                 if !array.is_array() {
                     return addrs;
@@ -53,7 +53,7 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
                     (array[ele].as_array().unwrap(), ele)
                 }
             }
-        }
+        },
     };
 
     let coords = match &feat.geometry {
@@ -61,11 +61,11 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
             geojson::Value::MultiPoint(mp) => mp,
             geojson::Value::GeometryCollection(gc) => match &gc[ele].value {
                 geojson::Value::MultiPoint(mp) => mp,
-                _ => panic!("Expected MultiPoint geometry")
-            }
-            _ => panic!("Only MultiPoint & GeometryCollections are supported")
+                _ => panic!("Expected MultiPoint geometry"),
+            },
+            _ => panic!("Only MultiPoint & GeometryCollections are supported"),
         },
-        None => panic!("geometry required")
+        None => panic!("geometry required"),
     };
 
     if coords.len() != numbers.len() {
@@ -78,20 +78,19 @@ pub fn addresses(feat: &geojson::Feature) -> Vec<StatAddress> {
             number: match &numbers[ele] {
                 serde_json::Value::String(string) => string.to_string(),
                 serde_json::Value::Number(num) => num.to_string(),
-                _ => panic!("Address numbers must be a string/numeric")
+                _ => panic!("Address numbers must be a string/numeric"),
             },
             accuracy: match get_prop(&feat, "accuracy", ele.to_string()) {
                 None => None,
                 Some(serde_json::Value::String(string)) => Some(string),
-                _ => panic!("accuracy property should be string")
+                _ => panic!("accuracy property should be string"),
             },
             postcode: match get_prop(&feat, "override:postcode", ele.to_string()) {
                 None => None,
                 Some(serde_json::Value::String(string)) => Some(string),
                 Some(serde_json::Value::Number(num)) => Some(num.to_string()),
-                _ => panic!("postcode property should be string/number")
-
-            }
+                _ => panic!("postcode property should be string/number"),
+            },
         };
 
         addrs.push(stat);
@@ -112,18 +111,22 @@ fn get_prop(feat: &geojson::Feature, key: impl ToString, ele: String) -> Option<
                     } else {
                         Some(prop.clone())
                     }
-                },
-                Some(override_prop) => Some(override_prop)
+                }
+                Some(override_prop) => Some(override_prop),
             },
             None => match get_override(props, &key, ele) {
                 None => None,
-                Some(override_prop) => Some(override_prop)
-            }
-        }
+                Some(override_prop) => Some(override_prop),
+            },
+        },
     }
 }
 
-fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String, ele: String) -> Option<serde_json::Value> {
+fn get_override(
+    props: &serde_json::Map<String, serde_json::Value>,
+    key: &String,
+    ele: String,
+) -> Option<serde_json::Value> {
     match props.get(&String::from("carmen:addressprops")) {
         None => None,
         Some(ref props) => match props.get(&key) {
@@ -137,8 +140,8 @@ fn get_override(props: &serde_json::Map<String, serde_json::Value>, key: &String
                         Some(prop_value.clone())
                     }
                 }
-            }
-        }
+            },
+        },
     }
 }
 
@@ -176,16 +179,16 @@ pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
                     Some(geom) => match &geom.value {
                         geojson::Value::GeometryCollection(gc) => match &gc[ele].value {
                             geojson::Value::MultiPoint(mp) => mp,
-                            _ => panic!("Expected MultiPoint geometry")
-                        }
-                        _ => panic!("Only GeometryCollections are supported for intersections")
+                            _ => panic!("Expected MultiPoint geometry"),
+                        },
+                        _ => panic!("Only GeometryCollections are supported for intersections"),
                     },
-                    None => panic!("geometry required")
+                    None => panic!("geometry required"),
                 };
 
                 for ele in 0..coords.len() {
                     let stat = StatIntersection {
-                        geom: coords[ele].clone()
+                        geom: coords[ele].clone(),
                     };
 
                     ints.push(stat);
@@ -193,6 +196,6 @@ pub fn intersections(feat: &geojson::Feature) -> Vec<StatIntersection> {
 
                 ints
             }
-        }
+        },
     }
 }
