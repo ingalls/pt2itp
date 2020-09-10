@@ -89,9 +89,8 @@ test('Match', (t) => {
                     display: 'Main Street',
                     tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }]
                 }],
-                number: 100,
-                interpolate: false,
-                netid: null
+                netid: null,
+                interpolate: false
             });
 
             return done();
