@@ -65,7 +65,7 @@ test('Match', (t) => {
                     display: 'Main Street',
                     tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }]
                 }],
-                interpolate: 'true',
+                interpolate: true,
                 netid: '1'
             });
 
@@ -77,7 +77,7 @@ test('Match', (t) => {
                     display: 'Fake Avenue',
                     tokenized: [{ token: 'fake', token_type: null }, { token: 'av', token_type: 'Way' }]
                 }],
-                interpolate: 'true',
+                interpolate: true,
                 netid: null
             });
 
