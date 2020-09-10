@@ -48,6 +48,7 @@ Addresses can have any number of name synonyms of equal or differing priority.
 | `street` | `String` or `Array` The name of the street - preferably non-abbreviated. If it's an array, it must contain an object for each street name synonym with the properties `display` for the street name and `priority` for the numeric ranking. |
 | `source` | `String` The source name of the data so a single input file can have a combination of multiple sources |
 | `output` | `Boolean` A boolean allowing pts to be used to calculate the ITP segment but not output in the final cluster |
+| `interpolate` | `Boolean` A boolean, when set to false, keeps the address as an orphan address by skipping its inclusion in the ITP process |
 
 ##### Example
 
