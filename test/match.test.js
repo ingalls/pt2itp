@@ -53,7 +53,7 @@ test('Match', (t) => {
 
     popQ.defer((done) => {
         pool.query(`
-            SELECT id, names, netid FROM address ORDER BY id;
+            SELECT id, names, netid, interpolate FROM address ORDER BY id;
         `, (err, res) => {
             t.error(err);
 
@@ -65,6 +65,7 @@ test('Match', (t) => {
                     display: 'Main Street',
                     tokenized: [{ token: 'main', token_type: null }, { token: 'st', token_type: 'Way' }]
                 }],
+                interpolate: 'true',
                 netid: '1'
             });
 
@@ -76,6 +77,7 @@ test('Match', (t) => {
                     display: 'Fake Avenue',
                     tokenized: [{ token: 'fake', token_type: null }, { token: 'av', token_type: 'Way' }]
                 }],
+                interpolate: 'true',
                 netid: null
             });
 
