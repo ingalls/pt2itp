@@ -103,6 +103,14 @@ impl Table for Address {
 
         conn.execute(
             r#"
+            CREATE INDEX address_number_idx ON address (number);
+        "#,
+            &[],
+        )
+        .unwrap();
+
+        conn.execute(
+            r#"
             CLUSTER address USING address_idx;
         "#,
             &[],
