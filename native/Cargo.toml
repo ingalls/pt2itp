@@ -1,3 +1,6 @@
+[workspace]
+members = ["pt2itp-lib"]
+
 [package]
 name = "pt2itp"
 version = "0.1.0"
@@ -15,7 +18,6 @@ neon-build = "0.4"
 [dependencies]
 crossbeam = "0.7"
 num_cpus = "1.10"
-lazy_static = "1.3.0"
 regex = "1.1"
 rstar = "0.4"
 postgis = "0.6.0"
@@ -30,6 +32,7 @@ memchr = "2.0.2"
 geocoder-abbreviations = { git = "https://github.com/mapbox/geocoder-abbreviations", rev = "master" }
 unicode-segmentation = "1.3.0"
 kodama = "0.1"
+pt2itp-lib = { path = "./pt2itp-lib" }
 
 [dependencies.geojson]
 version = "0.16.0"

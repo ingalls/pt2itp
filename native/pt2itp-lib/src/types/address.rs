@@ -472,6 +472,7 @@ fn get_interpolate(map: &mut serde_json::Map<String, serde_json::Value>) -> Resu
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::Tokens;
