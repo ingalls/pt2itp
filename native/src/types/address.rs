@@ -287,6 +287,7 @@ impl Address {
                 number,
                 source,
                 output,
+                intrpolate,
                 props,
                 geom
             ) VALUES (
@@ -297,7 +298,8 @@ impl Address {
                 $5,
                 $6,
                 $7,
-                ST_SetSRID(ST_MakePoint($8, $9), 4326)
+                $8,
+                ST_SetSRID(ST_MakePoint($9, $10), 4326)
             )
         ",
                 table = table.to_string()
@@ -310,6 +312,7 @@ impl Address {
                 &self.number,
                 &self.source,
                 &self.output,
+                &self.interpolate,
                 &serde_json::value::Value::from(self.props.clone()),
                 &self.geom[0],
                 &self.geom[1],
