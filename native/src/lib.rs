@@ -2,8 +2,6 @@
 extern crate neon;
 #[macro_use]
 extern crate serde_derive;
-#[macro_use]
-extern crate lazy_static;
 extern crate crossbeam;
 extern crate geo;
 extern crate geojson;
@@ -15,13 +13,14 @@ extern crate regex;
 extern crate rstar;
 extern crate serde_json;
 
+extern crate pt2itp_lib;
+
 // Internal Helper Libraries
 pub mod stream;
-pub mod text;
+pub use pt2itp_lib::text;
 pub mod util;
-
-pub mod pg;
-pub mod types;
+pub use pt2itp_lib::pg;
+pub use pt2itp_lib::types;
 
 // Helper to current node fn
 pub mod map;
@@ -34,18 +33,30 @@ pub mod convert;
 pub mod dedupe;
 pub mod stats;
 
-pub use self::types::Address;
-pub use self::types::Network;
-pub use self::types::Polygon;
+pub use pt2itp_lib::types::Address;
+pub use pt2itp_lib::types::Network;
+pub use pt2itp_lib::types::Polygon;
 
-pub use self::text::Tokenized;
-pub use self::text::Tokens;
-pub use self::types::hecate;
-pub use self::types::Context;
+pub use pt2itp_lib::text::Tokenized;
+pub use pt2itp_lib::text::Tokens;
+pub use pt2itp_lib::types::hecate;
+pub use pt2itp_lib::types::Context;
 
-pub use self::types::Name;
-pub use self::types::Names;
-pub use self::types::Source;
+pub use pt2itp_lib::types::Name;
+pub use pt2itp_lib::types::Names;
+pub use pt2itp_lib::types::Source;
+
+use neon::prelude::*;
+
+pub fn tokenize_name(mut cx: FunctionContext) -> JsResult<JsValue> {
+    let name = cx.argument::<JsString>(0)?.value();
+    let context = cx.argument::<JsValue>(1)?;
+    let context: crate::types::InputContext = neon_serde::from_value(&mut cx, context)?;
+    let context = crate::Context::from(context);
+    let tokenized = context.tokens.process(&name, &context.country);
+
+    Ok(neon_serde::to_value(&mut cx, &tokenized)?)
+}
 
 // Functions registered here will be made avaliable to be called from NodeJS
 register_module!(mut m, {
@@ -64,7 +75,7 @@ register_module!(mut m, {
 
     m.export_function("dedupe_syn", map::dedupe_syn)?;
 
-    m.export_function("tokenize_name", text::tokenize_name)?;
+    m.export_function("tokenize_name", tokenize_name)?;
 
     m.export_function("classify", classify::classify)?;
     m.export_function("conflate", conflate::conflate)?;

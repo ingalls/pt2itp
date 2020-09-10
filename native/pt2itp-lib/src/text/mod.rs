@@ -12,7 +12,7 @@ mod tokens;
 
 pub use self::diacritics::diacritics;
 pub use self::titlecase::titlecase;
-pub use self::tokens::{tokenize_name, ParsedToken, Tokenized, Tokens};
+pub use self::tokens::{ParsedToken, Tokenized, Tokens};
 
 use crate::{Context, Name, Source};
 use regex::{Regex, RegexSet};
