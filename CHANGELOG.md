@@ -10,6 +10,11 @@
 
 ## Version History
 
+
+### v28.4.1
+
+- :rocket: Speed up `conflate` by adding an index.
+
 ### v28.4.0
 
 - :rocket: Cargo fmt all rust code.
