@@ -101,6 +101,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             number TEXT,
             source TEXT,
             output BOOLEAN,
+            interpolate BOOLEAN,
             props JSONB,
             geom GEOMETRY(POINT, 4326)
         );

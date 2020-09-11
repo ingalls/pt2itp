@@ -249,7 +249,7 @@ impl Address {
             .to_hex_ewkb();
 
         format!(
-            "{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{props}\t{geom}\n",
+            "{id}\t{version}\t{names}\t{number}\t{source}\t{output}\t{interpolate}\t{props}\t{geom}\n",
             id = match self.id {
                 None => String::from(""),
                 Some(id) => id.to_string(),
@@ -257,6 +257,7 @@ impl Address {
             version = self.version,
             names = serde_json::to_string(&self.names.names).unwrap_or(String::from("")),
             output = self.output,
+            interpolate = self.interpolate,
             number = self.number,
             source = self.source,
             props = serde_json::value::Value::from(self.props),
@@ -490,12 +491,12 @@ mod tests {
 
             let addr = Address::new(feat, &context).unwrap();
 
-            assert_eq!(addr.to_tsv(), "80614173\t3\t[{\"display\":\"Rosewynne Ct\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"rosewynne\",\"token_type\":null},{\"token\":\"ct\",\"token_type\":\"Way\"}],\"freq\":1}]\t726\thamilton\ttrue\t{\"accuracy\":\"rooftop\",\"number\":\"726\",\"override:postcode\":\"45002\",\"source\":\"hamilton\",\"street\":[{\"display\":\"Rosewynne Ct\",\"priority\":0}],\"type\":\"residential\"}\t0101000020E6100000BD039722542F55C0437BAB64B6944340\n");
+            assert_eq!(addr.to_tsv(), "80614173\t3\t[{\"display\":\"Rosewynne Ct\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"rosewynne\",\"token_type\":null},{\"token\":\"ct\",\"token_type\":\"Way\"}],\"freq\":1}]\t726\thamilton\ttrue\ttrue\t{\"accuracy\":\"rooftop\",\"number\":\"726\",\"override:postcode\":\"45002\",\"source\":\"hamilton\",\"street\":[{\"display\":\"Rosewynne Ct\",\"priority\":0}],\"type\":\"residential\"}\t0101000020E6100000BD039722542F55C0437BAB64B6944340\n");
         }
 
         // street value is string
         {
-            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":1272,"source":"TIGER-2016","output":false},"geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
+            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":1272,"source":"TIGER-2016","output":false},"interpolate":true, "geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
 
             let context = Context::new(
                 String::from("us"),
@@ -505,7 +506,7 @@ mod tests {
 
             let addr = Address::new(feat, &context).unwrap();
 
-            assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\t{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
+            assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\ttrue\t{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
         }
     }
 }

@@ -53,6 +53,7 @@ impl Table for Address {
                 number TEXT,
                 source TEXT,
                 output BOOLEAN,
+                interpolate BOOLEAN,
                 props JSONB,
                 geom GEOMETRY(POINT, 4326)
             )
@@ -140,6 +141,7 @@ impl InputTable for Address {
                 number,
                 source,
                 output,
+                interpolate,
                 props,
                 geom
             )

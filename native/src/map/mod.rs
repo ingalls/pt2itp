@@ -400,7 +400,7 @@ pub fn link_process(conn: &impl postgres::GenericConnection, min: i64, max: i64)
                     Some(link_match) => {
                         match trans.execute(
                             &*"
-                            UPDATE address SET netid = $1 WHERE id = $2;
+                            UPDATE address SET netid = $1 WHERE id = $2 AND interpolate = true;
                         ",
                             &[&link_match.id, &id],
                         ) {
