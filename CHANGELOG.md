@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.5.1
+- :bug: Update version
+
 ### v28.5.0
 
 - :tada: Add support for the interpolation flag (exclude an address from interpolation)
