@@ -76,6 +76,8 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 let potential_tokenized = potential_name.tokenized_string();
                 let potential_tokenless = potential_name.tokenless_string();
 
+                let mut substring_match = false;
+
                 if strict {
                     for tk in &name.tokenized {
                         match tk.token_type {
@@ -106,16 +108,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     {
                         return Some(LinkResult::new(potential.id, 100.0));
                     }
-                }
-
-                // Don't bother considering if the tokenless forms don't share a starting letter
-                // this might require adjustment for countries with addresses that have leading tokens
-                // which aren't properly stripped from the token list
-                if potential_tokenless.len() > 0
-                    && tokenless.len() > 0
-                    && potential_tokenless.get(0..1) != tokenless.get(0..1)
-                {
-                    continue;
                 }
 
                 // Don't bother considering if both addr and network are a numbered street that
@@ -183,6 +175,16 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
                 if score > potential.maxscore {
                     potential.maxscore = score;
+                }
+
+                // Don't bother considering if the tokenless forms don't share a starting letter
+                // this might require adjustment for countries with addresses that have leading tokens
+                // which aren't properly stripped from the token list
+                if substring_match || (potential_tokenless.len() > 0
+                    && tokenless.len() > 0
+                    && potential_tokenless.get(0..1) != tokenless.get(0..1))
+                {
+                    continue;
                 }
             }
         }
