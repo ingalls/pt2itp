@@ -171,24 +171,26 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     }
                 }
 
-                if (lev_score.unwrap() < 0.7 && tokenized.len() > 2 && potential_tokenized.len() > 2) {
-
+                if (lev_score.unwrap() < 0.7
+                    && tokenized.len() > 2
+                    && potential_tokenized.len() > 2)
+                {
                     let atoks: Vec<String> =
-                    name.tokenized.iter().map(|x| x.token.to_owned()).collect();
+                        name.tokenized.iter().map(|x| x.token.to_owned()).collect();
 
                     let mut ntoks: Vec<String> = potential_name
                         .tokenized
                         .iter()
                         .map(|x| x.token.to_owned())
                         .collect();
-                    
+
                     let mut address_subset_match = true;
                     let mut network_subset_match = true;
 
                     for atok in &atoks {
                         // Check if all tokens in the address are present within the network
                         let ntok_index = &ntoks.iter().position(|r| r == atok);
-                        if(ntok_index.is_some()) {
+                        if (ntok_index.is_some()) {
                             address_subset_match = false;
                         }
                     }
@@ -196,12 +198,12 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     for ntok in &ntoks {
                         // Check if all tokens in the network are preset within the address
                         let atok_index = &atoks.iter().position(|r| r == ntok);
-                        if(atok_index.is_some()) {
+                        if (atok_index.is_some()) {
                             network_subset_match = false;
                         }
                     }
 
-                    if(network_subset_match || address_subset_match) {
+                    if (network_subset_match || address_subset_match) {
                         // subset match successful
                         // subtract 0.000001 for each unmatched token
                         lev_score = Some(0.70001);
@@ -221,9 +223,10 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
-                if substring_match || (potential_tokenless.len() > 0
-                    && tokenless.len() > 0
-                    && potential_tokenless.get(0..1) != tokenless.get(0..1))
+                if substring_match
+                    || (potential_tokenless.len() > 0
+                        && tokenless.len() > 0
+                        && potential_tokenless.get(0..1) != tokenless.get(0..1))
                 {
                     continue;
                 }
