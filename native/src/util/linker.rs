@@ -172,15 +172,12 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 }
 
                 let mut score = 100.0
-                - (((2.0 * lev_score.unwrap())
-                    / (potential_tokenized.len() as f64 + tokenized.len() as f64))
-                    * 100.0);
+                    - (((2.0 * lev_score.unwrap())
+                        / (potential_tokenized.len() as f64 + tokenized.len() as f64))
+                        * 100.0);
 
                 // check for subset matches, overriding scores below the matching criteria
-                if (score < 70.0
-                    && tokenized.len() > 2
-                    && potential_tokenized.len() > 2)
-                {
+                if (score < 70.0 && tokenized.len() > 2 && potential_tokenized.len() > 2) {
                     let atoks: Vec<String> =
                         name.tokenized.iter().map(|x| x.token.to_owned()).collect();
 
