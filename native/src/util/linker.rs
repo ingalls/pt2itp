@@ -171,7 +171,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     }
                 }
 
-                if (lev_score < 0.7 && tokenized.len() > 2 && potential_tokenized.len() > 2) {
+                if (lev_score.unwrap() < 0.7 && tokenized.len() > 2 && potential_tokenized.len() > 2) {
 
                     let atoks: Vec<String> =
                     name.tokenized.iter().map(|x| x.token.to_owned()).collect();
@@ -182,29 +182,29 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         .map(|x| x.token.to_owned())
                         .collect();
                     
-                    let mut addressSubsetMatch = true;
-                    let mut networkSubsetMatch = true;
+                    let mut address_subset_match = true;
+                    let mut network_subset_match = true;
 
                     for atok in &atoks {
-                        // If there are dup tokens ensure they match a unique token ie Saint Street => st st != main st
+                        // Check if all tokens in the address are present within the network
                         let ntok_index = &ntoks.iter().position(|r| r == atok);
-                        if(ntok_index < 0) {
-                            addressSubsetMatch = false;
+                        if(ntok_index.is_some()) {
+                            address_subset_match = false;
                         }
                     }
 
                     for ntok in &ntoks {
-                        // If there are dup tokens ensure they match a unique token ie Saint Street => st st != main st
+                        // Check if all tokens in the network are preset within the address
                         let atok_index = &atoks.iter().position(|r| r == ntok);
-                        if(atok_index < 0) {
-                            networkSubsetMatch = false;
+                        if(atok_index.is_some()) {
+                            network_subset_match = false;
                         }
                     }
 
-                    if(networkSubsetMatch || addressSubsetMatch) {
+                    if(network_subset_match || address_subset_match) {
                         // subset match successful
                         // subtract 0.000001 for each unmatched token
-                        lev_score = 0.70001;
+                        lev_score = Some(0.70001);
                         substring_match = true;
                     }
                 }
@@ -1037,6 +1037,18 @@ mod tests {
         {
             let a_name = Names::new(
                 vec![Name::new("Main Street Ave", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, true), None);
+        }
+
+        {
+            let a_name = Names::new(
+                vec![Name::new("Main Street Ave / MLK Blvd", 0, None, &context)],
                 &context,
             );
             let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
