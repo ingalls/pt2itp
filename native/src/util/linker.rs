@@ -76,7 +76,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 let potential_tokenized = potential_name.tokenized_string();
                 let potential_tokenless = potential_name.tokenless_string();
 
-                let mut substring_match = false;
+                let mut subset_match = false;
 
                 if strict {
                     for tk in &name.tokenized {
@@ -171,7 +171,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     }
                 }
 
-                if (lev_score.unwrap() < 0.7
+                if (lev_score.unwrap() < 70.0
                     && tokenized.len() > 2
                     && potential_tokenized.len() > 2)
                 {
@@ -190,7 +190,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     for atok in &atoks {
                         // Check if all tokens in the address are present within the network
                         let ntok_index = &ntoks.iter().position(|r| r == atok);
-                        if (ntok_index.is_some()) {
+                        if (ntok_index.is_none()) {
                             address_subset_match = false;
                         }
                     }
@@ -198,16 +198,15 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     for ntok in &ntoks {
                         // Check if all tokens in the network are preset within the address
                         let atok_index = &atoks.iter().position(|r| r == ntok);
-                        if (atok_index.is_some()) {
+                        if (atok_index.is_none()) {
                             network_subset_match = false;
                         }
                     }
 
                     if (network_subset_match || address_subset_match) {
                         // subset match successful
-                        // subtract 0.000001 for each unmatched token
-                        lev_score = Some(0.70001);
-                        substring_match = true;
+                        lev_score = Some(70.001);
+                        subset_match = true;
                     }
                 }
 
@@ -223,7 +222,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Don't bother considering if the tokenless forms don't share a starting letter
                 // this might require adjustment for countries with addresses that have leading tokens
                 // which aren't properly stripped from the token list
-                if substring_match
+                if subset_match
                     || (potential_tokenless.len() > 0
                         && tokenless.len() > 0
                         && potential_tokenless.get(0..1) != tokenless.get(0..1))
@@ -1051,14 +1050,14 @@ mod tests {
 
         {
             let a_name = Names::new(
-                vec![Name::new("Main Street Ave / MLK Blvd", 0, None, &context)],
+                vec![Name::new("Long Example Ave / Better Yet Blvd", 0, None, &context)],
                 &context,
             );
-            let b_name = Names::new(vec![Name::new("Main Street", 0, None, &context)], &context);
+            let b_name = Names::new(vec![Name::new("Better Yet", 0, None, &context)], &context);
 
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, true), None);
+            assert_eq!(linker(a, b, false), None);
         }
     }
 }
