@@ -171,7 +171,13 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     }
                 }
 
-                if (lev_score.unwrap() < 70.0
+                let mut score = 100.0
+                - (((2.0 * lev_score.unwrap())
+                    / (potential_tokenized.len() as f64 + tokenized.len() as f64))
+                    * 100.0);
+
+                // check for subset matches, overriding scores below the matching criteria
+                if (score < 70.0
                     && tokenized.len() > 2
                     && potential_tokenized.len() > 2)
                 {
@@ -205,15 +211,10 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
                     if (network_subset_match || address_subset_match) {
                         // subset match successful
-                        lev_score = Some(70.001);
+                        score = 70.01;
                         subset_match = true;
                     }
                 }
-
-                let score = 100.0
-                    - (((2.0 * lev_score.unwrap())
-                        / (potential_tokenized.len() as f64 + tokenized.len() as f64))
-                        * 100.0);
 
                 if score > potential.maxscore {
                     potential.maxscore = score;
@@ -1048,16 +1049,44 @@ mod tests {
             assert_eq!(linker(a, b, true), None);
         }
 
+    }
+
+    #[test]
+    fn test_fr_linker() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(
+            String::from("fr"),
+            None,
+            Tokens::generate(vec![String::from("fr")]),
+        );
+        
         {
             let a_name = Names::new(
-                vec![Name::new("Long Example Ave / Better Yet Blvd", 0, None, &context)],
+                vec![Name::new("rue de l'eglise saint martin", 0, None, &context)],
                 &context,
             );
-            let b_name = Names::new(vec![Name::new("Better Yet", 0, None, &context)], &context);
-
+            let b_name = Names::new(
+                vec![Name::new("rue de l'eglise", 0, None, &context)],
+                &context,
+            );
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), None);
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+        
+        {
+            let a_name = Names::new(
+                vec![Name::new("rue de saint martin", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("rue de saint marten", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 92.86)));
         }
     }
 }
