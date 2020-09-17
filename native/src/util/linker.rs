@@ -123,6 +123,9 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Use a weighted average w/ the tokenless dist score if possible
                 let mut lev_score: Option<f64> = None;
 
+                let tokenlev = distance(&tokenized, &potential_tokenized) as f64;
+                let tokenlesslev = distance(&tokenless, &potential_tokenless) as f64;
+
                 if tokenless.len() > 0 && potential_tokenless.len() > 0 {
                     lev_score = Some(
                         (0.25 * distance(&tokenized, &potential_tokenized) as f64)
@@ -165,6 +168,44 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
                     if lev_score.is_none() {
                         lev_score = Some(distance(&tokenized, &potential_tokenized) as f64);
+                    }
+                }
+
+                if (lev_score < 0.7 && tokenized.len() > 2 && potential_tokenized.len() > 2) {
+
+                    let atoks: Vec<String> =
+                    name.tokenized.iter().map(|x| x.token.to_owned()).collect();
+
+                    let mut ntoks: Vec<String> = potential_name
+                        .tokenized
+                        .iter()
+                        .map(|x| x.token.to_owned())
+                        .collect();
+                    
+                    let mut addressSubsetMatch = true;
+                    let mut networkSubsetMatch = true;
+
+                    for atok in &atoks {
+                        // If there are dup tokens ensure they match a unique token ie Saint Street => st st != main st
+                        let ntok_index = &ntoks.iter().position(|r| r == atok);
+                        if(ntok_index < 0) {
+                            addressSubsetMatch = false;
+                        }
+                    }
+
+                    for ntok in &ntoks {
+                        // If there are dup tokens ensure they match a unique token ie Saint Street => st st != main st
+                        let atok_index = &atoks.iter().position(|r| r == ntok);
+                        if(atok_index < 0) {
+                            networkSubsetMatch = false;
+                        }
+                    }
+
+                    if(networkSubsetMatch || addressSubsetMatch) {
+                        // subset match successful
+                        // subtract 0.000001 for each unmatched token
+                        lev_score = 0.70001;
+                        substring_match = true;
                     }
                 }
 
