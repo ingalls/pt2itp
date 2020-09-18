@@ -269,6 +269,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     (max.maxscore * 100.0).round() / 100.0,
                 ))
             } else {
+                println!("{:?} | {:?}", max, primary);
                 None
             }
         }
