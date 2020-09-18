@@ -177,7 +177,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         * 100.0);
 
                 // check for subset matches, overriding scores below the matching criteria
-                if (score < 70.0
+                if (score <= 70.0
                     && tokenized.len() >= 2
                     && potential_tokenized.len() >= 2
                     && tokenless.len() >= 1
