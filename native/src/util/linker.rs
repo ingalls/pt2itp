@@ -2,6 +2,8 @@ use crate::text::{distance, is_numbered, is_routish};
 
 use crate::types::Names;
 use geocoder_abbreviations::TokenType;
+use std::fs::OpenOptions;
+use std::io::Write;
 
 #[derive(Debug)]
 pub struct Link<'a> {
@@ -269,7 +271,19 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     (max.maxscore * 100.0).round() / 100.0,
                 ))
             } else {
-                println!("{:?} | {:?}", max, primary);
+                let mut file = OpenOptions::new()
+                .write(true)
+                .append(true)
+                .create(true)
+                .open("orphan-log.txt")
+                .unwrap();
+
+                println!("[{:?}, {:?}]", max, primary);
+
+                if let Err(e) = writeln!(file, "[{:?}, {:?}]", max, primary) {
+                    eprintln!("Couldn't write to file: {}", e);
+                }
+
                 None
             }
         }
@@ -1089,6 +1103,34 @@ mod tests {
 
         {
             let a_name = Names::new(
+                vec![Name::new("example rd", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("grand example rd express way", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+
+        {
+            let a_name = Names::new(
+                vec![Name::new("example grand rd", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("grand example rd express way", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+
+        {
+            let a_name = Names::new(
                 vec![Name::new("rue de saint martin", 0, None, &context)],
                 &context,
             );
@@ -1099,6 +1141,20 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 92.86)));
+        }
+
+        {
+            let a_name = Names::new(
+                vec![Name::new("un related rd", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("rue de saint marten", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), None);
         }
     }
 }
