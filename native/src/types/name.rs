@@ -295,8 +295,8 @@ impl Name {
         source: Option<Source>,
         context: &Context,
     ) -> Self {
-        let mut display = display.to_string().replace(r#"""#, ""); // commas are not allowed as they are used to delimit synonyms on output
-
+        let mut display = display.to_string().replace(r#"""#, "");
+        
         // only title case non-generated names
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);

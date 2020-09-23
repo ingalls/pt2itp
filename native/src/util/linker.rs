@@ -196,25 +196,33 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                             Some(index) => {
                                 ntoks.remove(*index);
                             }
-                            None => network_subset_match = false,
+                            None => {
+                                network_subset_match = false;
+                                continue;
+                            },
                         };
                     }
+                    
+                    if !network_subset_match {
+                        let mut ntoks: Vec<String> = potential_name
+                            .tokenized
+                            .iter()
+                            .map(|x| x.token.to_owned())
+                            .collect();
 
-                    let mut ntoks: Vec<String> = potential_name
-                        .tokenized
-                        .iter()
-                        .map(|x| x.token.to_owned())
-                        .collect();
-
-                    for ntok in &ntoks {
-                        // Check if all tokens in the network are preset within the address
-                        let atok_index = &atoks.iter().position(|r| r == ntok);
-                        match atok_index {
-                            Some(index) => {
-                                atoks.remove(*index);
-                            }
-                            None => address_subset_match = false,
-                        };
+                        for ntok in &ntoks {
+                            // Check if all tokens in the network are preset within the address
+                            let atok_index = &atoks.iter().position(|r| r == ntok);
+                            match atok_index {
+                                Some(index) => {
+                                    atoks.remove(*index);
+                                }
+                                None => {
+                                    address_subset_match = false;
+                                    continue;
+                                },
+                            };
+                        }
                     }
 
                     if network_subset_match || address_subset_match {
