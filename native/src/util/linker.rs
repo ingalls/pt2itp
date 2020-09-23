@@ -196,7 +196,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                             Some(index) => {
                                 ntoks.remove(*index);
                             }
-                            None => (),
+                            None => network_subset_match = false,
                         };
                     }
 
@@ -213,7 +213,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                             Some(index) => {
                                 atoks.remove(*index);
                             }
-                            None => (),
+                            None => address_subset_match = false,
                         };
                     }
 
@@ -1137,6 +1137,20 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+
+        {
+            let a_name = Names::new(
+                vec![Name::new("place francois mitterrand l'eglise", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("place de la republique francois mitterrand", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), None);
         }
     }
 }
