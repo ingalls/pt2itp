@@ -1126,5 +1126,19 @@ mod tests {
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 90.63)));
         }
+
+        {
+            let a_name = Names::new(
+                vec![Name::new("place francois mitterrand", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("place de la republique francois mitterrand", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
     }
 }
