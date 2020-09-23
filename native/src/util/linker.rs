@@ -1057,7 +1057,12 @@ mod tests {
         );
         {
             let a_name = Names::new(
-                vec![Name::new("Rue Du Dix Neuf Mars 1962,D 149.10", 0, None, &context)],
+                vec![Name::new(
+                    "Rue Du Dix Neuf Mars 1962,D 149.10",
+                    0,
+                    None,
+                    &context,
+                )],
                 &context,
             );
             let b_name = Names::new(
@@ -1131,7 +1136,12 @@ mod tests {
                 &context,
             );
             let b_name = Names::new(
-                vec![Name::new("place de la republique francois mitterrand", 0, None, &context)],
+                vec![Name::new(
+                    "place de la republique francois mitterrand",
+                    0,
+                    None,
+                    &context,
+                )],
                 &context,
             );
             let a = Link::new(1, &a_name);
@@ -1141,11 +1151,21 @@ mod tests {
 
         {
             let a_name = Names::new(
-                vec![Name::new("place francois mitterrand l'eglise", 0, None, &context)],
+                vec![Name::new(
+                    "place francois mitterrand l'eglise",
+                    0,
+                    None,
+                    &context,
+                )],
                 &context,
             );
             let b_name = Names::new(
-                vec![Name::new("place de la republique francois mitterrand", 0, None, &context)],
+                vec![Name::new(
+                    "place de la republique francois mitterrand",
+                    0,
+                    None,
+                    &context,
+                )],
                 &context,
             );
             let a = Link::new(1, &a_name);
