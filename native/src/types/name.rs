@@ -296,7 +296,6 @@ impl Name {
         context: &Context,
     ) -> Self {
         let mut display = display.to_string().replace(r#"""#, "");
-        
         // only title case non-generated names
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
