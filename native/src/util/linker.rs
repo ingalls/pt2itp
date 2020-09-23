@@ -1059,7 +1059,7 @@ mod tests {
         );
         {
             let a_name = Names::new(
-                vec![Name::new("Rue Du 19 Mars 1962,D 149.10", 0, None, &context)],
+                vec![Name::new("Rue Du Dix Neuf Mars 1962,D 149.10", 0, None, &context)],
                 &context,
             );
             let b_name = Names::new(
@@ -1068,7 +1068,7 @@ mod tests {
             );
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+            assert_eq!(linker(a, b, false), None); // needs to match on multi-word Dix Neuf == 19
         }
 
         {
@@ -1124,7 +1124,7 @@ mod tests {
             );
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 90.63)));
         }
     }
 }
