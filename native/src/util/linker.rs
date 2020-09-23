@@ -76,8 +76,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 let potential_tokenized = potential_name.tokenized_string();
                 let potential_tokenless = potential_name.tokenless_string();
 
-                let mut subset_match = false;
-
                 if strict {
                     for tk in &name.tokenized {
                         match tk.token_type {
@@ -177,7 +175,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 if score <= 70.0
                     && tokenized.len() >= 2
                     && potential_tokenized.len() >= 2
-                    && tokenless.len() >= 1
                     && potential_tokenless.len() >= 1
                 {
                     let mut atoks: Vec<String> =
@@ -195,11 +192,12 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     for atok in &atoks {
                         // Check if all tokens in the address are present within the network
                         let ntok_index = &ntoks.iter().position(|r| r == atok);
-                        if ntok_index.is_none() {
-                            address_subset_match = false;
-                        } else {
-                            ntoks.remove(ntok_index.unwrap());
-                        }
+                        match ntok_index {
+                            Some(index) => {
+                                ntoks.remove(*index);
+                            }
+                            None => (),
+                        };
                     }
 
                     let mut ntoks: Vec<String> = potential_name
@@ -211,18 +209,18 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     for ntok in &ntoks {
                         // Check if all tokens in the network are preset within the address
                         let atok_index = &atoks.iter().position(|r| r == ntok);
-                        if atok_index.is_none() {
-                            network_subset_match = false;
-                        } else {
-                            atoks.remove(atok_index.unwrap());
-                        }
+                        match atok_index {
+                            Some(index) => {
+                                atoks.remove(*index);
+                            }
+                            None => (),
+                        };
                     }
 
                     if network_subset_match || address_subset_match {
                         // subset match successful
                         score = 70.01;
-                        subset_match = true;
-                    }
+                    };
                 }
 
                 if score > potential.maxscore {
@@ -1124,7 +1122,7 @@ mod tests {
             );
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 90.63)));
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
         }
 
         {
