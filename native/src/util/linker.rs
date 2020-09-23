@@ -123,9 +123,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Use a weighted average w/ the tokenless dist score if possible
                 let mut lev_score: Option<f64> = None;
 
-                let tokenlev = distance(&tokenized, &potential_tokenized) as f64;
-                let tokenlesslev = distance(&tokenless, &potential_tokenless) as f64;
-
                 if tokenless.len() > 0 && potential_tokenless.len() > 0 {
                     lev_score = Some(
                         (0.25 * distance(&tokenized, &potential_tokenized) as f64)
@@ -177,11 +174,11 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         * 100.0);
 
                 // check for subset matches, overriding scores below the matching criteria
-                if (score <= 70.0
+                if score <= 70.0
                     && tokenized.len() >= 2
                     && potential_tokenized.len() >= 2
                     && tokenless.len() >= 1
-                    && potential_tokenless.len() >= 1)
+                    && potential_tokenless.len() >= 1
                 {
                     let mut atoks: Vec<String> =
                         name.tokenized.iter().map(|x| x.token.to_owned()).collect();
@@ -198,7 +195,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     for atok in &atoks {
                         // Check if all tokens in the address are present within the network
                         let ntok_index = &ntoks.iter().position(|r| r == atok);
-                        if (ntok_index.is_none()) {
+                        if ntok_index.is_none() {
                             address_subset_match = false;
                         } else {
                             ntoks.remove(ntok_index.unwrap());
@@ -214,14 +211,14 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     for ntok in &ntoks {
                         // Check if all tokens in the network are preset within the address
                         let atok_index = &atoks.iter().position(|r| r == ntok);
-                        if (atok_index.is_none()) {
+                        if atok_index.is_none() {
                             network_subset_match = false;
                         } else {
                             atoks.remove(atok_index.unwrap());
                         }
                     }
 
-                    if (network_subset_match || address_subset_match) {
+                    if network_subset_match || address_subset_match {
                         // subset match successful
                         score = 70.01;
                         subset_match = true;
@@ -230,17 +227,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
                 if score > potential.maxscore {
                     potential.maxscore = score;
-                }
-
-                // Don't bother considering if the tokenless forms don't share a starting letter
-                // this might require adjustment for countries with addresses that have leading tokens
-                // which aren't properly stripped from the token list
-                if subset_match
-                    || (potential_tokenless.len() > 0
-                        && tokenless.len() > 0
-                        && potential_tokenless.get(0..1) != tokenless.get(0..1))
-                {
-                    continue;
                 }
             }
         }
@@ -1071,6 +1057,33 @@ mod tests {
             None,
             Tokens::generate(vec![String::from("fr")]),
         );
+        {
+            let a_name = Names::new(
+                vec![Name::new("Rue Du 19 Mars 1962,D 149.10", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("Rue Du 19 Mars 1962", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+
+        {
+            let a_name = Names::new(
+                vec![Name::new("saint martin rue de l'eglise", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("rue de l'eglise", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
 
         {
             let a_name = Names::new(
@@ -1098,6 +1111,20 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 92.86)));
+        }
+
+        {
+            let a_name = Names::new(
+                vec![Name::new("impasse sourdoire", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("impasse de la sourdoire", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
         }
     }
 }
