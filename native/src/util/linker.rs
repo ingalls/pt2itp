@@ -199,10 +199,9 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                             None => {
                                 network_subset_match = false;
                                 continue;
-                            },
+                            }
                         };
                     }
-                    
                     if !network_subset_match {
                         let mut ntoks: Vec<String> = potential_name
                             .tokenized
@@ -220,7 +219,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                                 None => {
                                     address_subset_match = false;
                                     continue;
-                                },
+                                }
                             };
                         }
                     }
