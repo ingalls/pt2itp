@@ -166,8 +166,8 @@ impl Names {
 
     ///
     /// Dedupe a Names struct based on the tokenized version of each name.
-    /// Names with the same priority and tokenized name will preference the dupliacate with the
-    /// longest display name. This tries to prefence non-abbreviated synonyms where they exist,
+    /// Names with the same priority and tokenized name will preference the duplicate with the
+    /// longest display name. This tries to preface non-abbreviated synonyms where they exist,
     /// e.g. 'East Main Street' rather than 'E Main St'
     ///
     pub fn dedupe(&mut self) {
@@ -295,13 +295,11 @@ impl Name {
         source: Option<Source>,
         context: &Context,
     ) -> Self {
-        let mut display = display.to_string().replace(r#"""#, "").replace(r#","#, ""); // commas are not allowed as they are used to delimit synonyms on output
-
+        let mut display = display.to_string().replace(r#"""#, "");
         // only title case non-generated names
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
         }
-
         let tokenized = context.tokens.process(&display, &context.country);
 
         if context.country == String::from("US") || context.country == String::from("CA") {
@@ -488,7 +486,7 @@ mod tests {
         assert_eq!(
             Name::new(String::from(","), 0, None, &context),
             Name {
-                display: String::from(""),
+                display: String::from(","),
                 priority: 0,
                 source: None,
                 tokenized: vec![],
