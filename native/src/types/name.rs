@@ -2,6 +2,7 @@ use crate::text::titlecase;
 use crate::Tokenized;
 use crate::{text, Context};
 use geocoder_abbreviations::TokenType;
+use regex::Regex;
 use std::collections::HashMap;
 
 ///
@@ -295,8 +296,12 @@ impl Name {
         source: Option<Source>,
         context: &Context,
     ) -> Self {
-        let mut display = display.to_string().replace(r#"""#, "").replace(r#","#, ""); // commas are not allowed as they are used to delimit synonyms on output
-        
+        let mut display = display.to_string().replace(r#"""#, "");
+        let re = Regex::new(r#","#).unwrap();
+        let disp_str: &str = &*display; // convert from std::string::String -> &str
+        if re.is_match(disp_str) {
+            println!("comma: {}", disp_str)
+        };
         // only title case non-generated names
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
