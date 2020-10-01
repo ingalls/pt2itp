@@ -2,7 +2,6 @@ use crate::text::titlecase;
 use crate::Tokenized;
 use crate::{text, Context};
 use geocoder_abbreviations::TokenType;
-use regex::Regex;
 use std::collections::HashMap;
 
 ///
@@ -297,7 +296,7 @@ impl Name {
         context: &Context,
     ) -> Self {
         let mut display = display.to_string().replace(r#"""#, "").replace(r#","#, ""); // commas are not allowed as they are used to delimit synonyms on output
-        
+
         // only title case non-generated names
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
