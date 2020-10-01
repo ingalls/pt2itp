@@ -295,7 +295,8 @@ impl Name {
         source: Option<Source>,
         context: &Context,
     ) -> Self {
-        let mut display = display.to_string().replace(r#"""#, "");
+        let mut display = display.to_string().replace(r#"""#, "").replace(r#","#, ""); // commas are not allowed as they are used to delimit synonyms on output
+
         // only title case non-generated names
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
@@ -486,7 +487,7 @@ mod tests {
         assert_eq!(
             Name::new(String::from(","), 0, None, &context),
             Name {
-                display: String::from(","),
+                display: String::from(""),
                 priority: 0,
                 source: None,
                 tokenized: vec![],
