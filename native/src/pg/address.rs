@@ -1,8 +1,8 @@
-use postgres::{Connection};
+use super::{InputTable, Table};
+use postgres::Connection;
 use std::io::Read;
-use super::{Table, InputTable};
 
-pub struct Address ();
+pub struct Address();
 
 impl Address {
     pub fn new() -> Self {
@@ -10,29 +10,41 @@ impl Address {
     }
 
     pub fn max(&self, conn: &Connection) -> i64 {
-        match conn.query(r#"
+        match conn.query(
+            r#"
             SELECT max(id) FROM address
-        "#, &[]) {
+        "#,
+            &[],
+        ) {
             Ok(res) => {
                 let max: i64 = res.get(0).get(0);
                 max
-            },
-            _ => 0
+            }
+            _ => 0,
         }
     }
 }
 
 impl Table for Address {
     fn create(&self, conn: &Connection) {
-        conn.execute(r#"
+        conn.execute(
+            r#"
              CREATE EXTENSION IF NOT EXISTS POSTGIS
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             DROP TABLE IF EXISTS address;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE UNLOGGED TABLE address (
                 id BIGINT,
                 version BIGINT,
@@ -41,21 +53,28 @@ impl Table for Address {
                 number TEXT,
                 source TEXT,
                 output BOOLEAN,
+                interpolate BOOLEAN,
                 props JSONB,
                 geom GEOMETRY(POINT, 4326)
             )
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
     }
 
     fn count(&self, conn: &Connection) -> i64 {
-        match conn.query(r#"
+        match conn.query(
+            r#"
             SELECT count(*) FROM address
-        "#, &[]) {
+        "#,
+            &[],
+        ) {
             Ok(res) => {
                 let cnt: i64 = res.get(0).get(0);
                 cnt
-            },
-            _ => 0
+            }
+            _ => 0,
         }
     }
 
@@ -67,27 +86,54 @@ impl Table for Address {
                 USING ST_SetSRID(ST_MakePoint(ST_X(geom), ST_Y(geom), COALESCE(id::FLOAT, 0)), 4326);
         "#, &[]).unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE INDEX address_idx ON address (id);
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE INDEX address_gix ON address USING GIST (geom);
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
+            CREATE INDEX address_number_idx ON address (number);
+        "#,
+            &[],
+        )
+        .unwrap();
+
+        conn.execute(
+            r#"
             CLUSTER address USING address_idx;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             ANALYZE address;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
     }
 }
 
 impl InputTable for Address {
     fn input(&self, conn: &Connection, mut data: impl Read) {
-        let stmt = conn.prepare(format!(r#"
+        let stmt = conn
+            .prepare(
+                format!(
+                    r#"
             COPY address (
                 id,
                 version,
@@ -95,6 +141,7 @@ impl InputTable for Address {
                 number,
                 source,
                 output,
+                interpolate,
                 props,
                 geom
             )
@@ -105,24 +152,40 @@ impl InputTable for Address {
                 DELIMITER E'\t',
                 QUOTE E'\b'
             )
-        "#).as_str()).unwrap();
+        "#
+                )
+                .as_str(),
+            )
+            .unwrap();
 
         stmt.copy_in(&[], &mut data).unwrap();
     }
 
     fn seq_id(&self, conn: &Connection) {
-        conn.execute(r#"
+        conn.execute(
+            r#"
             DROP SEQUENCE IF EXISTS address_seq;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE SEQUENCE address_seq;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             UPDATE address
                 SET id = nextval('address_seq');
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
     }
 }
 
@@ -130,11 +193,16 @@ impl InputTable for Address {
 // for all past versions of a feature.
 // This ensures that past features are not modified but will match addresses being conflated.
 pub fn pre_conflate(conn: &Connection) {
-    conn.execute(r#"
+    conn.execute(
+        r#"
         DROP TABLE IF EXISTS address_id_to_version;
-    "#, &[]).unwrap();
+    "#,
+        &[],
+    )
+    .unwrap();
 
-    conn.execute(r#"
+    conn.execute(
+        r#"
         CREATE TABLE IF NOT EXISTS address_id_to_version as
             SELECT
                 id,
@@ -143,9 +211,13 @@ pub fn pre_conflate(conn: &Connection) {
                 address
             GROUP BY
                 id
-    "#, &[]).unwrap();
+    "#,
+        &[],
+    )
+    .unwrap();
 
-    conn.execute(r#"
+    conn.execute(
+        r#"
         UPDATE address
         SET
             output = false,
@@ -155,5 +227,8 @@ pub fn pre_conflate(conn: &Connection) {
         WHERE
             address.id = address_id_to_version.id
             AND address.version != address_id_to_version.max_version
-    "#, &[]).unwrap();
+    "#,
+        &[],
+    )
+    .unwrap();
 }

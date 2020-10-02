@@ -1,8 +1,8 @@
-use postgres::{Connection};
+use super::{InputTable, Table};
+use postgres::Connection;
 use std::io::Read;
-use super::{Table, InputTable};
 
-pub struct Network ();
+pub struct Network();
 
 impl Network {
     pub fn new() -> Self {
@@ -12,15 +12,24 @@ impl Network {
 
 impl Table for Network {
     fn create(&self, conn: &Connection) {
-        conn.execute(r#"
+        conn.execute(
+            r#"
              CREATE EXTENSION IF NOT EXISTS POSTGIS
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             DROP TABLE IF EXISTS network;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE UNLOGGED TABLE network (
                 id BIGINT,
                 names JSONB,
@@ -28,21 +37,26 @@ impl Table for Network {
                 props JSONB,
                 geom GEOMETRY(MultiLineString, 4326)
             )
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
     }
 
     fn count(&self, conn: &Connection) -> i64 {
-        match conn.query(r#"
+        match conn.query(
+            r#"
             SELECT count(*) FROM network
-        "#, &[]) {
+        "#,
+            &[],
+        ) {
             Ok(res) => {
                 let cnt: i64 = res.get(0).get(0);
                 cnt
-            },
-            _ => 0
+            }
+            _ => 0,
         }
     }
-
 
     fn index(&self, conn: &Connection) {
         conn.execute(r#"
@@ -52,27 +66,46 @@ impl Table for Network {
                 USING ST_GEomFromEWKT(Regexp_Replace(ST_AsEWKT(geom)::TEXT, '(?<=\d)(?=[,)])', ' '||id, 'g'))
         "#, &[]).unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE INDEX network_idx ON network (id);
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE INDEX network_gix ON network USING GIST (geom);
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CLUSTER network USING network_idx;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             ANALYZE network;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
     }
 }
 
 impl InputTable for Network {
     fn input(&self, conn: &Connection, mut data: impl Read) {
-        let stmt = conn.prepare(format!(r#"
+        let stmt = conn
+            .prepare(
+                format!(
+                    r#"
             COPY network (
                 names,
                 source,
@@ -86,24 +119,39 @@ impl InputTable for Network {
                 DELIMITER E'\t',
                 QUOTE E'\b'
             )
-        "#).as_str()).unwrap();
+        "#
+                )
+                .as_str(),
+            )
+            .unwrap();
 
         stmt.copy_in(&[], &mut data).unwrap();
     }
 
     fn seq_id(&self, conn: &Connection) {
-        conn.execute(r#"
+        conn.execute(
+            r#"
             DROP SEQUENCE IF EXISTS network_seq;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE SEQUENCE network_seq;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             UPDATE network
                 SET id = nextval('network_seq');
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
     }
-
 }

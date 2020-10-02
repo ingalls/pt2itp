@@ -1,7 +1,7 @@
-use postgres::Connection;
 use super::Table;
+use postgres::Connection;
 
-pub struct Intersections ();
+pub struct Intersections();
 
 impl Intersections {
     pub fn new() -> Self {
@@ -12,7 +12,8 @@ impl Intersections {
     /// Create intersections from network data
     ///
     pub fn generate(&self, conn: &Connection) {
-        conn.execute("
+        conn.execute(
+            "
             INSERT INTO intersections (a_id, b_id, geom) (
                 SELECT
                     a.id,
@@ -25,35 +26,55 @@ impl Intersections {
                         a.id != b.id
                         AND ST_Intersects(a.geom, b.geom)
             )
-        ", &[]).unwrap();
+        ",
+            &[],
+        )
+        .unwrap();
 
-        conn.execute("
+        conn.execute(
+            "
             UPDATE intersections
                 SET b_street = network_cluster.names
                 FROM network_cluster
                 WHERE intersections.b_id = network_cluster.id
-        ", &[]).unwrap();
+        ",
+            &[],
+        )
+        .unwrap();
 
-        conn.execute("
+        conn.execute(
+            "
             UPDATE intersections
                 SET a_street = network_cluster.names
                 FROM network_cluster
                 WHERE intersections.a_id = network_cluster.id
-        ", &[]).unwrap();
+        ",
+            &[],
+        )
+        .unwrap();
     }
 }
 
 impl Table for Intersections {
     fn create(&self, conn: &Connection) {
-        conn.execute(r#"
+        conn.execute(
+            r#"
              CREATE EXTENSION IF NOT EXISTS POSTGIS
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             DROP TABLE IF EXISTS intersections;
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
 
-        conn.execute(r#"
+        conn.execute(
+            r#"
             CREATE UNLOGGED TABLE intersections (
                 id SERIAL,
                 a_id BIGINT,
@@ -62,24 +83,34 @@ impl Table for Intersections {
                 b_street JSONB,
                 geom GEOMETRY(POINT, 4326)
             )
-        "#, &[]).unwrap();
+        "#,
+            &[],
+        )
+        .unwrap();
     }
 
     fn count(&self, conn: &Connection) -> i64 {
-        match conn.query("
+        match conn.query(
+            "
             SELECT count(*) FROM intersections
-        ", &[]) {
+        ",
+            &[],
+        ) {
             Ok(res) => {
                 let cnt: i64 = res.get(0).get(0);
                 cnt
-            },
-            _ => 0
+            }
+            _ => 0,
         }
     }
 
     fn index(&self, conn: &Connection) {
-        conn.execute("
+        conn.execute(
+            "
             CREATE INDEX IF NOT EXISTS intersections_gix ON intersections USING GIST (geom);
-        ", &[]).unwrap();
+        ",
+            &[],
+        )
+        .unwrap();
     }
 }

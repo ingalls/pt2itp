@@ -1,10 +1,10 @@
+use std::convert::From;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
-use std::convert::From;
 use std::iter::Iterator;
 
 pub struct GeoStream {
-    input: Input
+    input: Input,
 }
 
 pub enum Input {
@@ -17,15 +17,15 @@ impl GeoStream {
         let stream = match input {
             Some(inpath) => match File::open(inpath) {
                 Ok(file) => GeoStream {
-                    input: Input::File(BufReader::new(file).lines())
+                    input: Input::File(BufReader::new(file).lines()),
                 },
-                Err(err) => { panic!("Unable to open input file: {}", err); }
-            },
-            None => {
-                GeoStream {
-                    input: Input::StdIn(Box::leak(Box::new(io::stdin())).lock().lines())
+                Err(err) => {
+                    panic!("Unable to open input file: {}", err);
                 }
-            }
+            },
+            None => GeoStream {
+                input: Input::StdIn(Box::leak(Box::new(io::stdin())).lock().lines()),
+            },
         };
 
         stream
@@ -37,16 +37,16 @@ impl GeoStream {
                 None => None,
                 Some(file) => match file {
                     Ok(line) => Some(line),
-                    Err(err) => panic!("{}", err)
-                }
+                    Err(err) => panic!("{}", err),
+                },
             },
             Input::StdIn(ref mut stdin) => match stdin.next() {
                 None => None,
                 Some(stdin) => match stdin {
                     Ok(line) => Some(line),
-                    Err(err) => panic!("{}", err)
-                }
-            }
+                    Err(err) => panic!("{}", err),
+                },
+            },
         }
     }
 }
@@ -60,14 +60,14 @@ impl Iterator for GeoStream {
         while line.is_some() && line.as_ref().unwrap().trim().len() == 0 {
             line = match GeoStream::line(&mut self.input) {
                 None => None,
-                Some(line) => Some(line)
+                Some(line) => Some(line),
             };
         }
 
         match line {
             None => {
                 return None;
-            },
+            }
             Some(mut line) => {
                 //Remove Ascii Record Separators at beginning or end of line
                 if line.ends_with("\u{001E}") {

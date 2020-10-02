@@ -1,23 +1,22 @@
-use std::convert::From;
+use geojson::GeoJson;
 use postgres::{Connection, TlsMode};
 use std::collections::HashMap;
+use std::convert::From;
 use std::fs::File;
 use std::io::{BufWriter, Write};
-use geojson::GeoJson;
 
 use neon::prelude::*;
 
 use crate::{
-    Names,
-    Address,
     hecate,
-    util::linker,
+    stream::{AddrStream, GeoStream},
     types::name::InputName,
-    stream::{GeoStream, AddrStream}
+    util::linker,
+    Address, Names,
 };
 
 use super::pg;
-use super::pg::{Table, InputTable};
+use super::pg::{InputTable, Table};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct ConflateArgs {
@@ -27,7 +26,7 @@ struct ConflateArgs {
     in_persistent: Option<String>,
     error_address: Option<String>,
     error_persistent: Option<String>,
-    output: Option<String>
+    output: Option<String>,
 }
 
 impl ConflateArgs {
@@ -39,7 +38,7 @@ impl ConflateArgs {
             in_persistent: None,
             error_address: None,
             error_persistent: None,
-            output: None
+            output: None,
         }
     }
 }
@@ -74,17 +73,26 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => panic!("Output file required"),
         Some(output) => match File::create(output) {
             Ok(outfile) => BufWriter::new(outfile),
-            Err(err) => panic!("Unable to write to output file: {}", err)
-        }
+            Err(err) => panic!("Unable to write to output file: {}", err),
+        },
     };
 
-    let conn = Connection::connect(format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(), TlsMode::None).unwrap();
+    let conn = Connection::connect(
+        format!("postgres://postgres@localhost:5432/{}", &args.db).as_str(),
+        TlsMode::None,
+    )
+    .unwrap();
 
-    conn.execute("
+    conn.execute(
+        "
         DROP TABLE IF EXISTS modified;
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
 
-    conn.execute("
+    conn.execute(
+        "
         CREATE UNLOGGED TABLE modified (
             id BIGINT,
             version BIGINT,
@@ -93,26 +101,47 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             number TEXT,
             source TEXT,
             output BOOLEAN,
+            interpolate BOOLEAN,
             props JSONB,
             geom GEOMETRY(POINT, 4326)
         );
-    ", &[]).unwrap();
+    ",
+        &[],
+    )
+    .unwrap();
 
     let context = match args.context {
         Some(context) => crate::Context::from(context),
-        None => crate::Context::new(String::from(""), None, crate::Tokens::new(HashMap::new(), HashMap::new()))
+        None => crate::Context::new(
+            String::from(""),
+            None,
+            crate::Tokens::new(HashMap::new(), HashMap::new()),
+        ),
     };
 
     let pgaddress = pg::Address::new();
     pgaddress.create(&conn);
-    pgaddress.input(&conn, AddrStream::new(GeoStream::new(args.in_persistent), context.clone(), args.error_persistent));
+    pgaddress.input(
+        &conn,
+        AddrStream::new(
+            GeoStream::new(args.in_persistent),
+            context.clone(),
+            args.error_persistent,
+        ),
+    );
     pgaddress.index(&conn);
     pg::address::pre_conflate(&conn);
 
-    for addr in AddrStream::new(GeoStream::new(args.in_address), context.clone(), args.error_address) {
+    for addr in AddrStream::new(
+        GeoStream::new(args.in_address),
+        context.clone(),
+        args.error_address,
+    ) {
         // find all persistent addresses with the same address number
         // within 0.01 decimal degrees (~ 1 km) of the new address
-        let rows = conn.query("
+        let rows = conn
+            .query(
+                "
             SELECT
                 ST_Distance(ST_SetSRID(ST_Point($2, $3), 4326), p.geom),
                 json_build_object(
@@ -130,7 +159,10 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             WHERE
                 p.number = $1
                 AND ST_DWithin(ST_SetSRID(ST_Point($2, $3), 4326), p.geom, 0.01);
-        ", &[ &addr.number, &addr.geom[0], &addr.geom[1] ]).unwrap();
+        ",
+                &[&addr.number, &addr.geom[0], &addr.geom[1]],
+            )
+            .unwrap();
 
         let mut persistents: Vec<Address> = Vec::with_capacity(rows.len());
 
@@ -143,10 +175,13 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         match compare(&addr, &mut persistents) {
             // persistent address matches new address, consider modifying persistent address
             Some(link_id) => {
-                let mut pmatches: Vec<&mut Address> = persistents.iter_mut().filter(|persistent| {
-                    // addresses with output set to false should not be modified
-                    link_id == persistent.id.unwrap() && persistent.output
-                }).collect();
+                let mut pmatches: Vec<&mut Address> = persistents
+                    .iter_mut()
+                    .filter(|persistent| {
+                        // addresses with output set to false should not be modified
+                        link_id == persistent.id.unwrap() && persistent.output
+                    })
+                    .collect();
 
                 match pmatches.len() {
                     // if all matches have output set to false, don't modify
@@ -162,7 +197,8 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                             combined_names.sort();
                             combined_names.dedupe();
 
-                            let mut new_names: Vec<InputName> = Vec::with_capacity(combined_names.names.len());
+                            let mut new_names: Vec<InputName> =
+                                Vec::with_capacity(combined_names.names.len());
                             for name in combined_names.names {
                                 new_names.push(InputName::from(name));
                             }
@@ -173,18 +209,30 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                             paddr.props.insert(String::from("street"), new_names);
                             paddr.to_db(&conn, "modified").unwrap();
                         }
-                    },
-                    _ => panic!("Duplicate IDs are not allowed in input data")
+                    }
+                    _ => panic!("Duplicate IDs are not allowed in input data"),
                 }
-            },
+            }
             // no match in persistent addresses, write new address to output
             None => {
-                output.write(format!("{}\n", GeoJson::Feature(addr.to_geojson(hecate::Action::Create, false)).to_string()).as_bytes()).unwrap();
+                output
+                    .write(
+                        format!(
+                            "{}\n",
+                            GeoJson::Feature(addr.to_geojson(hecate::Action::Create, false))
+                                .to_string()
+                        )
+                        .as_bytes(),
+                    )
+                    .unwrap();
             }
         };
     }
 
-    let modifieds = pg::Cursor::new(conn, format!("
+    let modifieds = pg::Cursor::new(
+        conn,
+        format!(
+            "
         SELECT
             json_build_object(
                 'id', id,
@@ -200,7 +248,10 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             id,
             version,
             geom
-    ")).unwrap();
+    "
+        ),
+    )
+    .unwrap();
 
     for mut modified in modifieds {
         let modified_obj = modified.as_object_mut().unwrap();
@@ -218,13 +269,17 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             // other properties
             let mut props_base = props_arr.pop().unwrap();
             let props_base_obj = props_base.as_object_mut().unwrap();
-            let names_base: Vec<InputName> = serde_json::from_value(props_base_obj.remove(&String::from("street")).unwrap()).unwrap();
+            let names_base: Vec<InputName> =
+                serde_json::from_value(props_base_obj.remove(&String::from("street")).unwrap())
+                    .unwrap();
 
             let mut names_base = Names::from_input(names_base, &context);
             for prop in props_arr {
                 let prop_obj = prop.as_object_mut().unwrap();
 
-                let names_new: Vec<InputName> = serde_json::from_value(prop_obj.remove(&String::from("street")).unwrap()).unwrap();
+                let names_new: Vec<InputName> =
+                    serde_json::from_value(prop_obj.remove(&String::from("street")).unwrap())
+                        .unwrap();
                 let names_new = Names::from_input(names_new, &context);
 
                 names_base.concat(names_new);
@@ -237,21 +292,26 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
                 names_final.push(InputName::from(name));
             }
 
-            props_base_obj.insert(String::from("street"), serde_json::to_value(names_final).unwrap());
+            props_base_obj.insert(
+                String::from("street"),
+                serde_json::to_value(names_final).unwrap(),
+            );
             modified_obj.insert(String::from("properties"), props_base);
         }
 
         let modified = match modified {
             serde_json::Value::Object(modified) => modified,
-            _ => panic!("Modified should always be an object")
+            _ => panic!("Modified should always be an object"),
         };
 
         let modified: geojson::Feature = match geojson::Feature::from_json_object(modified) {
             Ok(m) => m,
-            Err(e) => panic!(e)
+            Err(e) => panic!(e),
         };
 
-        output.write(format!("{}\n", modified.to_string()).as_bytes()).unwrap();
+        output
+            .write(format!("{}\n", modified.to_string()).as_bytes())
+            .unwrap();
     }
 
     Ok(cx.boolean(true))
@@ -271,12 +331,13 @@ pub fn compare(potential: &Address, persistents: &mut Vec<Address>) -> Option<i6
         return None;
     }
     let potential_link = linker::Link::new(0, &potential.names);
-    let persistent_links: Vec<linker::Link> = persistents.iter().map(|persistent| {
-        linker::Link::new(persistent.id.unwrap(), &persistent.names)
-    }).collect();
+    let persistent_links: Vec<linker::Link> = persistents
+        .iter()
+        .map(|persistent| linker::Link::new(persistent.id.unwrap(), &persistent.names))
+        .collect();
 
     match linker::linker(potential_link, persistent_links, true) {
         Some(link) => Some(link.id),
-        None => None
+        None => None,
     }
 }

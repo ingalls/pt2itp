@@ -1,15 +1,13 @@
+use super::*;
 use crate::stream::GeoStream;
+use geo::algorithm::bounding_rect::BoundingRect;
 use std::collections::HashMap;
 use std::convert::TryInto;
-use super::*;
-use geo::algorithm::{
-    bounding_rect::BoundingRect
-};
 
 pub struct Rect {
     pub geom: geo::MultiPolygon<f64>,
     pub name: String,
-    pub rect: rstar::primitives::Rectangle<[f64; 2]>
+    pub rect: rstar::primitives::Rectangle<[f64; 2]>,
 }
 
 impl Rect {
@@ -21,8 +19,8 @@ impl Rect {
             name: name.to_string(),
             rect: rstar::primitives::Rectangle::from_corners(
                 [bound.min.x, bound.min.y],
-                [bound.max.x, bound.max.y]
-            )
+                [bound.max.x, bound.max.y],
+            ),
         }
     }
 }
@@ -41,7 +39,10 @@ impl rstar::PointDistance for Rect {
     }
 }
 
-pub fn create(bound: Option<String>, boundmap: &mut HashMap<String, StatsBound>) -> rstar::RTree<Rect> {
+pub fn create(
+    bound: Option<String>,
+    boundmap: &mut HashMap<String, StatsBound>,
+) -> rstar::RTree<Rect> {
     let bounds_stream = GeoStream::new(bound);
 
     let mut tree_contents = Vec::new();
@@ -49,15 +50,15 @@ pub fn create(bound: Option<String>, boundmap: &mut HashMap<String, StatsBound>)
     for bound in bounds_stream {
         let feat = match bound {
             geojson::GeoJson::Feature(feat) => feat,
-            _ => panic!("Bounds must be (Multi)Polygon Features")
+            _ => panic!("Bounds must be (Multi)Polygon Features"),
         };
 
         let name = match feat.properties.unwrap().get(&String::from("name")) {
             Some(name) => match name {
                 serde_json::Value::String(string) => string.to_string(),
-                _ => panic!("bounds features must have string .propeties.name value")
+                _ => panic!("bounds features must have string .propeties.name value"),
             },
-            None => panic!("Add bounds features must have .properties.name string")
+            None => panic!("Add bounds features must have .properties.name string"),
         };
 
         let geom: geo::Geometry<f64> = feat.geometry.unwrap().value.try_into().unwrap();
@@ -65,7 +66,7 @@ pub fn create(bound: Option<String>, boundmap: &mut HashMap<String, StatsBound>)
         let geom = match geom {
             geo::Geometry::Polygon(poly) => geo::MultiPolygon(vec![poly]),
             geo::Geometry::MultiPolygon(mpoly) => mpoly,
-            _ => panic!("Bound must be (Multi)Polygon Features")
+            _ => panic!("Bound must be (Multi)Polygon Features"),
         };
 
         boundmap.insert(name.clone(), StatsBound::new());
@@ -79,4 +80,3 @@ pub fn create(bound: Option<String>, boundmap: &mut HashMap<String, StatsBound>)
 
     rstar::RTree::bulk_load(tree_contents)
 }
-

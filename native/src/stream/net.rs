@@ -1,15 +1,15 @@
 use std::convert::From;
-use std::iter::Iterator;
-use std::io::{Write, BufWriter};
 use std::fs::File;
+use std::io::{BufWriter, Write};
+use std::iter::Iterator;
 
-use crate::{stream::geo::GeoStream, Network, Context};
+use crate::{stream::geo::GeoStream, Context, Network};
 
 pub struct NetStream {
     context: Context,
     input: GeoStream,
     buffer: Option<Vec<u8>>, //Used by Read impl for storing partial features
-    errors: Option<BufWriter<File>>
+    errors: Option<BufWriter<File>>,
 }
 
 impl NetStream {
@@ -20,8 +20,8 @@ impl NetStream {
             buffer: None,
             errors: match errors {
                 None => None,
-                Some(path) => Some(BufWriter::new(File::create(path).unwrap()))
-            }
+                Some(path) => Some(BufWriter::new(File::create(path).unwrap())),
+            },
         }
     }
 }
@@ -38,7 +38,7 @@ impl std::io::Read for NetStream {
             } else {
                 let feat = match self.next() {
                     Some(feat) => feat.to_tsv(),
-                    None => String::from("")
+                    None => String::from(""),
                 };
 
                 let mut bytes = feat.into_bytes();
@@ -83,13 +83,14 @@ impl Iterator for NetStream {
 
                             Err(err)
                         }
-                    }
+                    },
                 },
-                None => { return None; }
+                None => {
+                    return None;
+                }
             };
         }
 
         Some(next.unwrap())
-
     }
 }

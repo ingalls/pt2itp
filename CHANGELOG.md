@@ -10,6 +10,25 @@
 
 ## Version History
 
+### v28.7.0
+- :rocket: Add support for the ability to link an address to a network and vice versa based on substring comparison.
+
+### v28.5.1
+- :bug: Update version
+
+### v28.5.0
+
+- :tada: Add support for the interpolation flag (exclude an address from interpolation)
+
+### v28.4.1
+
+- :rocket: Speed up `conflate` by adding an index.
+
+### v28.4.0
+
+- :rocket: Cargo fmt all rust code.
+- :rocket: Normalize straße/strasse when parsing German addresses.
+
 ### v28.3.0
 
 - :tada: Add `consensus` mode agreement metrics for sets of address data.
