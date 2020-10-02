@@ -150,7 +150,7 @@ impl Tokens {
             static ref UP: Regex = Regex::new(r"[\^]+").unwrap();
 
             // collapse apostrophes, periods
-            static ref PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07\.]").unwrap();
+            static ref PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07'\.]").unwrap();
 
             // all other ascii and unicode punctuation except '-' per
             // http://stackoverflow.com/questions/4328500 split terms
@@ -343,11 +343,10 @@ mod tests {
         assert_eq!(tokenized_string(tokens.process(&String::from("foo(bar"), &String::from(""))), String::from("foo bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("foo)bar"), &String::from(""))), String::from("foo bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("foo b.a.r"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo's bar"), &String::from(""))), String::from("foo s bar"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("foo's bar"), &String::from(""))), String::from("foos bar"));
         assert_eq!(tokenized_string(tokens.process(&String::from("San José"), &String::from(""))), String::from("san jose"));
         assert_eq!(tokenized_string(tokens.process(&String::from("A Coruña"), &String::from(""))), String::from("a coruna"));
         assert_eq!(tokenized_string(tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))), String::from("chamonix mont blanc"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("Rue d'Argout"), &String::from(""))), String::from("rue d argout"));
         assert_eq!(tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))), String::from("haleiwa road")); // \u2019
         assert_eq!(tokenized_string(tokens.process(&String::from("москва"), &String::from(""))), String::from("москва"));
         assert_eq!(tokenized_string(tokens.process(&String::from("京都市"), &String::from(""))), String::from("京都市"));
