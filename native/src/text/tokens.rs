@@ -149,8 +149,14 @@ impl Tokens {
         lazy_static! {
             static ref UP: Regex = Regex::new(r"[\^]+").unwrap();
 
-            // collapse apostrophes, periods
-            static ref PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07'\.]").unwrap();
+            // collapse periods
+            static ref PERIOD_PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07\.]").unwrap();
+
+            // collapse apostrophes
+            static ref APOS_PUNC: Regex = Regex::new(r"'").unwrap();
+
+            // split apostrophes if l' or d' followed by vowel ie. l'onze
+            static ref APOSTROPHE: Regex = Regex::new(r"(l|d)'([aeiouhy][^ ]+)").unwrap();
 
             // all other ascii and unicode punctuation except '-' per
             // http://stackoverflow.com/questions/4328500 split terms
@@ -164,7 +170,9 @@ impl Tokens {
         let mut normalized = diacritics(&text.to_lowercase());
 
         normalized = UP.replace_all(normalized.as_str(), "").to_string();
-        normalized = PUNC.replace_all(normalized.as_str(), "").to_string();
+        normalized = PERIOD_PUNC.replace_all(normalized.as_str(), "").to_string();
+        normalized = APOSTROPHE.replace_all(normalized.as_str(), "$1 $2").to_string();
+        normalized = APOS_PUNC.replace_all(normalized.as_str(), "").to_string();
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
 
@@ -347,9 +355,10 @@ mod tests {
         assert_eq!(tokenized_string(tokens.process(&String::from("San José"), &String::from(""))), String::from("san jose"));
         assert_eq!(tokenized_string(tokens.process(&String::from("A Coruña"), &String::from(""))), String::from("a coruna"));
         assert_eq!(tokenized_string(tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))), String::from("chamonix mont blanc"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))), String::from("haleiwa road")); // \u2019
+        assert_eq!(tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))), String::from("haleiwa road"));
         assert_eq!(tokenized_string(tokens.process(&String::from("москва"), &String::from(""))), String::from("москва"));
         assert_eq!(tokenized_string(tokens.process(&String::from("京都市"), &String::from(""))), String::from("京都市"));
+        assert_eq!(tokenized_string(tokens.process(&String::from("carrer de l'onze de setembre"), &String::from(""))), String::from("carrer de l onze de setembre"));
     }
 
     #[test]
@@ -425,6 +434,22 @@ mod tests {
             Tokenized::new(String::from("gv"), None),
             Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
             Tokenized::new(String::from("colon"), None)
+        ]);
+        assert_eq!(tokens.process(&String::from("carrer de l'onze de setembre"), &String::from("ES")),
+        vec![
+            Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("la"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("11"), Some(TokenType::Number)),
+            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("setembre"), None)
+        ]);
+        assert_eq!(tokens.process(&String::from("cl onze de setembre"), &String::from("ES")),
+        vec![
+            Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+            Tokenized::new(String::from("11"), Some(TokenType::Number)),
+            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+            Tokenized::new(String::from("setembre"), None)
         ]);
     }
 

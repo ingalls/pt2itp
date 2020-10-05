@@ -1161,4 +1161,40 @@ mod tests {
             assert_eq!(linker(a, b, false), None);
         }
     }
+    #[test]
+    fn test_es_linker() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(
+            String::from("es"),
+            None,
+            Tokens::generate(vec![String::from("es")]),
+        );
+        {
+            let a_name = Names::new(
+                vec![Name::new("carrer de ramon casas", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("cl ramon casas", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 95.16)));
+        }
+        {
+            let a_name = Names::new(
+                vec![Name::new("carrer de l'onze de setembre", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("cl onze de setembre", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 92.5)));
+        }
+    }
 }
