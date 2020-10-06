@@ -373,14 +373,12 @@ mod tests {
             String::from("a coruna")
         );
         assert_eq!(
-            tokenized_string(
-                tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))
-            ),
+            tokenized_string(tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))),
             String::from("chamonix mont blanc")
         );
-        assert_eq!(	
-            tokenized_string(tokens.process(&String::from("Rue d'Argout"), &String::from(""))),	
-            String::from("rue d argout")	
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("Rue d'Argout"), &String::from(""))),
+            String::from("rue d argout")
         );
         assert_eq!(
             tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))),
