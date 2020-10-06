@@ -378,6 +378,10 @@ mod tests {
             ),
             String::from("chamonix mont blanc")
         );
+        assert_eq!(	
+            tokenized_string(tokens.process(&String::from("Rue d'Argout"), &String::from(""))),	
+            String::from("rue d argout")	
+        );
         assert_eq!(
             tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))),
             String::from("haleiwa road")
