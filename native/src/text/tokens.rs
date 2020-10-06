@@ -60,75 +60,28 @@ impl Tokens {
     }
 
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
-        let tokens = self.tokenize(&text);
-        let normalized_full_text = diacritics(&text.to_lowercase());
+        let mut tokens = self.tokenize(&text);
+        let mut normalized_full_text = diacritics(&text.to_lowercase());
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
+        if !country.is_empty() && country != &String::from("US") {
+            for (regex_string, v) in self.regex_tokens.iter() {
+                let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
+                let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
+                normalized_full_text = re.replace_all(&normalized_full_text, canonical).to_string();
+                tokens = self.tokenize(&normalized_full_text);
+            }
+        }
         for token in &tokens {
-            // for right now let's only apply regexes to Germany. English has a negative lookahead query that rust doesn't support.
-            if country == &String::from("DE") {
-                match self.tokens.get(token) {
-                    None => {
-                        // apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
-                        // loop through regexes to apply any canonical replacements that match
-                        // TODO #1 add in ability to evaluate multiple regex tokens https://github.com/mapbox/pt2itp/issues/554
-                        // TODO #2 bring in `skipDiacriticStripping` flag from geocoder-abbreviations for if there's any case where we'll want to strip diacritics for a regex pattern https://github.com/mapbox/pt2itp/issues/554
-                        let mut no_token_match = Tokenized::new(token.to_owned(), None);
-                        for (regex_string, v) in self.regex_tokens.iter() {
-                            let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
-                            if re.is_match(token) {
-                                let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
-                                let regexed_token = re.replace_all(&token, canonical).to_string();
-                                no_token_match =
-                                    Tokenized::new(regexed_token, v.token_type.to_owned());
-                            }
-                        }
-                        tokenized.push(no_token_match);
-                    }
-                    Some(t) => {
-                        tokenized.push(Tokenized::new(
-                            t.canonical.to_owned(),
-                            t.token_type.to_owned(),
-                        ));
-                    }
-                };
-            } else {
-                match self.tokens.get(token) {
-                    None => {
-                        // and as we loop through &tokens, if there's not a word-for-word match we run through the master list of tokens to check if there is 
-                        // 1) a hit on a multi-word token and 
-                        // 2) if the other words in the master-token list are also in the &tokens array
-                        // example: full street name is "gran via de les corts catalanes"
-                        // "gran" didn't match as it's a part of the "gran via" token
-                        // if "gran via" is part of the full street name we will apply the Tokenized version
-                        let mut partial_key_match = false;
-                        for key in self.tokens.keys() {
-                            if key.contains(token) && normalized_full_text.contains(key) {
-                                match self.tokens.get(key) {
-                                    Some(t) => {
-                                        tokenized.push(Tokenized::new(
-                                            t.canonical.to_owned(),
-                                            t.token_type.to_owned(),
-                                        ));
-                                        partial_key_match = true;
-                                    },
-                                    None => {
-                                        tokenized.push(Tokenized::new(token.to_owned(), None));
-                                        partial_key_match = true;
-                                    }
-                                }
-                            }
-                        }
-                        if !partial_key_match {
-                            tokenized.push(Tokenized::new(token.to_owned(), None));
-                        }
-                    }
-                    Some(t) => {
-                        tokenized.push(Tokenized::new(
-                            t.canonical.to_owned(),
-                            t.token_type.to_owned(),
-                        ));
-                    }
+            match self.tokens.get(token) {
+                None => {
+                    tokenized.push(Tokenized::new(token.to_owned(), None));
+                }
+                Some(t) => {
+                    tokenized.push(Tokenized::new(
+                        t.canonical.to_owned(),
+                        t.token_type.to_owned(),
+                    ));
                 }
             }
         }
@@ -171,7 +124,9 @@ impl Tokens {
 
         normalized = UP.replace_all(normalized.as_str(), "").to_string();
         normalized = PERIOD_PUNC.replace_all(normalized.as_str(), "").to_string();
-        normalized = APOSTROPHE.replace_all(normalized.as_str(), "$1 $2").to_string();
+        normalized = APOSTROPHE
+            .replace_all(normalized.as_str(), "$1 $2")
+            .to_string();
         normalized = APOS_PUNC.replace_all(normalized.as_str(), "").to_string();
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
@@ -333,32 +288,115 @@ mod tests {
     #[test]
     fn test_tokenize() {
         let tokens = Tokens::new(HashMap::new(), HashMap::new());
-        assert_eq!(tokenized_string(tokens.process(&String::from(""), &String::from(""))), String::from(""));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo"), &String::from(""))), String::from("foo"));
-        assert_eq!(tokenized_string(tokens.process(&String::from(" foo bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo bar "), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo-bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo+bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo_bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo:bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo;bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo|bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo}bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo{bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo[bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo]bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo(bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo)bar"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo b.a.r"), &String::from(""))), String::from("foo bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("foo's bar"), &String::from(""))), String::from("foos bar"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("San José"), &String::from(""))), String::from("san jose"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("A Coruña"), &String::from(""))), String::from("a coruna"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))), String::from("chamonix mont blanc"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))), String::from("haleiwa road"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("москва"), &String::from(""))), String::from("москва"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("京都市"), &String::from(""))), String::from("京都市"));
-        assert_eq!(tokenized_string(tokens.process(&String::from("carrer de l'onze de setembre"), &String::from(""))), String::from("carrer de l onze de setembre"));
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from(""), &String::from(""))),
+            String::from("")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo"), &String::from(""))),
+            String::from("foo")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from(" foo bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo bar "), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo-bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo+bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo_bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo:bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo;bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo|bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo}bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo{bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo[bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo]bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo(bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo)bar"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo b.a.r"), &String::from(""))),
+            String::from("foo bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("foo's bar"), &String::from(""))),
+            String::from("foos bar")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("San José"), &String::from(""))),
+            String::from("san jose")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("A Coruña"), &String::from(""))),
+            String::from("a coruna")
+        );
+        assert_eq!(
+            tokenized_string(
+                tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))
+            ),
+            String::from("chamonix mont blanc")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))),
+            String::from("haleiwa road")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("москва"), &String::from(""))),
+            String::from("москва")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(&String::from("京都市"), &String::from(""))),
+            String::from("京都市")
+        );
+        assert_eq!(
+            tokenized_string(tokens.process(
+                &String::from("carrer de l'onze de setembre"),
+                &String::from("")
+            )),
+            String::from("carrer de l onze de setembre")
+        );
     }
 
     #[test]
@@ -405,7 +443,8 @@ mod tests {
             tokens.process(&String::from("foo barter"), &String::from("")),
             vec![
                 Tokenized::new(String::from("foo"), None) // two words -> one word due to deduping of tokens
-                ]);
+            ]
+        );
     }
 
     #[test]
@@ -413,44 +452,63 @@ mod tests {
         let tokens = Tokens::generate(vec![String::from("de")]);
         assert_eq!(
             tokens.process(&String::from("Fresenbergstr"), &String::from("DE")),
-            vec![Tokenized::new(String::from("fresenberg str"), None),]
+            vec![
+                Tokenized::new(String::from("fresenberg"), None),
+                Tokenized::new(String::from("str"), Some(TokenType::Way)),
+            ]
         );
     }
-    
     #[test]
     fn test_multi_word_tokens() {
         let tokens = Tokens::generate(vec![String::from("es")]);
-        assert_eq!(tokens.process(&String::from("Gran Via De Les Corts Catalanes"), &String::from("ES")),
-        vec![
-            Tokenized::new(String::from("gv"), None),
-            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
-            Tokenized::new(String::from("les"), Some(TokenType::Determiner)),
-            Tokenized::new(String::from("corts"), None),
-            Tokenized::new(String::from("catalanes"), None)
-        ]);
-        assert_eq!(tokens.process(&String::from("Calle Gran Vía de Colón"), &String::from("ES")),
-        vec![
-            Tokenized::new(String::from("cl"), Some(TokenType::Way)),
-            Tokenized::new(String::from("gv"), None),
-            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
-            Tokenized::new(String::from("colon"), None)
-        ]);
-        assert_eq!(tokens.process(&String::from("carrer de l'onze de setembre"), &String::from("ES")),
-        vec![
-            Tokenized::new(String::from("cl"), Some(TokenType::Way)),
-            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
-            Tokenized::new(String::from("la"), Some(TokenType::Determiner)),
-            Tokenized::new(String::from("11"), Some(TokenType::Number)),
-            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
-            Tokenized::new(String::from("setembre"), None)
-        ]);
-        assert_eq!(tokens.process(&String::from("cl onze de setembre"), &String::from("ES")),
-        vec![
-            Tokenized::new(String::from("cl"), Some(TokenType::Way)),
-            Tokenized::new(String::from("11"), Some(TokenType::Number)),
-            Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
-            Tokenized::new(String::from("setembre"), None)
-        ]);
+        assert_eq!(
+            tokens.process(
+                &String::from("Gran Via De Les Corts Catalanes"),
+                &String::from("ES")
+            ),
+            vec![
+                Tokenized::new(String::from("gv"), None),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("les"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("corts"), None),
+                Tokenized::new(String::from("catalanes"), None)
+            ]
+        );
+        assert_eq!(
+            tokens.process(
+                &String::from("Calle Gran Vía de Colón"),
+                &String::from("ES")
+            ),
+            vec![
+                Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+                Tokenized::new(String::from("gv"), None),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("colon"), None)
+            ]
+        );
+        assert_eq!(
+            tokens.process(
+                &String::from("carrer de l'onze de setembre"),
+                &String::from("ES")
+            ),
+            vec![
+                Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("la"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("11"), Some(TokenType::Number)),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("setembre"), None)
+            ]
+        );
+        assert_eq!(
+            tokens.process(&String::from("cl onze de setembre"), &String::from("ES")),
+            vec![
+                Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+                Tokenized::new(String::from("11"), Some(TokenType::Number)),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("setembre"), None)
+            ]
+        );
     }
 
     #[test]
