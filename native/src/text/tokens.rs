@@ -373,7 +373,9 @@ mod tests {
             String::from("a coruna")
         );
         assert_eq!(
-            tokenized_string(tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))),
+            tokenized_string(
+                tokens.process(&String::from("Chamonix-Mont-Blanc"), &String::from(""))
+            ),
             String::from("chamonix mont blanc")
         );
         assert_eq!(
