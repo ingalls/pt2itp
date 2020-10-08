@@ -138,10 +138,8 @@ impl Address {
         lazy_static! {
             static ref NAMES_KEY: String = String::from("names");
         }
-        let names: Names = match value.get(&*NAMES_KEY) {
+        let names: Names = match value.remove(&*NAMES_KEY) {
             Some(names) => {
-                let names = names.clone();
-
                 let names: Vec<Name> = match serde_json::from_value(names) {
                     Ok(names) => names,
                     Err(err) => {
