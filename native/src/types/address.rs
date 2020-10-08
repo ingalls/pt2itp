@@ -85,10 +85,12 @@ impl Address {
             }
         };
 
-        let street = match props.remove(&String::from("street")) {
+        lazy_static! {
+            static ref STREET_KEY: String = String::from("street");
+        }
+        let street = match props.remove(&*STREET_KEY) {
             Some(street) => {
-                props.insert(String::from("street"), street.clone());
-
+                props.insert(STREET_KEY.clone(), street.clone());
                 Some(street)
             }
             None => None,
@@ -133,7 +135,10 @@ impl Address {
             }
         };
 
-        let names: Names = match value.get(&String::from("names")) {
+        lazy_static! {
+            static ref NAMES_KEY: String = String::from("names");
+        }
+        let names: Names = match value.get(&*NAMES_KEY) {
             Some(names) => {
                 let names = names.clone();
 
@@ -151,7 +156,10 @@ impl Address {
             }
         };
 
-        let props = match value.remove(&String::from("props")) {
+        lazy_static! {
+            static ref PROPS_KEY: String = String::from("props");
+        }
+        let props = match value.remove(&*PROPS_KEY) {
             Some(props) => match props {
                 serde_json::Value::Object(obj) => obj,
                 _ => {
@@ -165,7 +173,10 @@ impl Address {
             }
         };
 
-        let geom = match value.remove(&String::from("geom")) {
+        lazy_static! {
+            static ref GEOM_KEY: String = String::from("geom");
+        }
+        let geom = match value.remove(&*GEOM_KEY) {
             Some(geom) => match geom {
                 serde_json::value::Value::String(geom) => match geom.parse::<geojson::GeoJson>() {
                     Ok(geom) => match geom {
@@ -413,7 +424,10 @@ impl Address {
 }
 
 fn get_id(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<Option<i64>, String> {
-    match map.remove(&String::from("id")) {
+    lazy_static! {
+        static ref ID_KEY: String = String::from("id");
+    }
+    match map.remove(&*ID_KEY) {
         Some(id) => match id.as_i64() {
             Some(id) => Ok(Some(id)),
             None => Err(String::from("ID must be numeric")),
@@ -423,7 +437,10 @@ fn get_id(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<Option
 }
 
 fn get_number(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<String, String> {
-    match map.get(&String::from("number")) {
+    lazy_static! {
+        static ref NUMBER_KEY: String = String::from("number");
+    }
+    match map.get(&*NUMBER_KEY) {
         Some(number) => match number.clone() {
             serde_json::value::Value::Number(num) => Ok(String::from(num.to_string())),
             serde_json::value::Value::String(num) => Ok(num),
@@ -434,7 +451,10 @@ fn get_number(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<St
 }
 
 fn get_version(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<i64, String> {
-    match map.remove(&String::from("version")) {
+    lazy_static! {
+        static ref VERSION_KEY: String = String::from("version");
+    }
+    match map.remove(&*VERSION_KEY) {
         Some(version) => match version.as_i64() {
             Some(version) => Ok(version),
             _ => Err(String::from("Version must be numeric")),
@@ -444,7 +464,10 @@ fn get_version(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<i
 }
 
 fn get_source(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<String, String> {
-    match map.get(&String::from("source")) {
+    lazy_static! {
+        static ref SOURCE_KEY: String = String::from("source");
+    }
+    match map.get(&*SOURCE_KEY) {
         Some(source) => match source.clone() {
             serde_json::value::Value::String(source) => Ok(source),
             _ => Ok(String::from("")),
@@ -454,7 +477,10 @@ fn get_source(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<St
 }
 
 fn get_output(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<bool, String> {
-    match map.remove(&String::from("output")) {
+    lazy_static! {
+        static ref OUTPUT_KEY: String = String::from("output");
+    }
+    match map.remove(&*OUTPUT_KEY) {
         Some(output) => match output.as_bool() {
             None => Ok(true),
             Some(output) => Ok(output),
@@ -464,7 +490,10 @@ fn get_output(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<bo
 }
 
 fn get_interpolate(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<bool, String> {
-    match map.remove(&String::from("interpolate")) {
+    lazy_static! {
+        static ref INTERPOLATE_KEY: String = String::from("interpolate");
+    }
+    match map.remove(&*INTERPOLATE_KEY) {
         Some(itp) => match itp.as_bool() {
             None => Ok(true),
             Some(itp) => Ok(itp),
