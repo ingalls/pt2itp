@@ -166,8 +166,8 @@ impl Names {
 
     ///
     /// Dedupe a Names struct based on the tokenized version of each name.
-    /// Names with the same priority and tokenized name will preference the dupliacate with the
-    /// longest display name. This tries to prefence non-abbreviated synonyms where they exist,
+    /// Names with the same priority and tokenized name will preference the duplicate with the
+    /// longest display name. This tries to preface non-abbreviated synonyms where they exist,
     /// e.g. 'East Main Street' rather than 'E Main St'
     ///
     pub fn dedupe(&mut self) {
@@ -301,7 +301,6 @@ impl Name {
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
         }
-
         let tokenized = context.tokens.process(&display, &context.country);
 
         if context.country == String::from("US") || context.country == String::from("CA") {
