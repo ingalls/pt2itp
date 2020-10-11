@@ -317,7 +317,8 @@ mod tests {
     #[test]
     fn test_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let multi_tokens: HashMap<String, ParsedToken> = HashMap::new();
         tokens.insert(
             String::from("saint"),
             ParsedToken::new(String::from("st"), None),
@@ -394,8 +395,11 @@ mod tests {
             String::from("e"),
             ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)),
         );
-
-        let context = Context::new(String::from("us"), None, Tokens::new(tokens, regex_tokens));
+        let context = Context::new(
+            String::from("us"),
+            None,
+            Tokens::new(tokens, regex_tokens, multi_tokens),
+        );
 
         // === Intentional Matches ===
         // The following tests should match one of the given potential matches

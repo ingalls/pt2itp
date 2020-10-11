@@ -418,7 +418,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -554,7 +554,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         let mut names = Names {
@@ -665,7 +665,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         let expected = Names::new(
@@ -738,7 +738,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         let _names = Names::from_value(
@@ -759,7 +759,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         let a_name = Names::new(vec![Name::new("Main St", 0, None, &context)], &context);
@@ -1268,7 +1268,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         let mut empty_a = Names::new(

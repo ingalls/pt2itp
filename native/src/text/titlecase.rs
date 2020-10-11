@@ -110,7 +110,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -243,7 +243,7 @@ mod tests {
         let context = Context::new(
             String::from("de"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
         assert_eq!(
             titlecase(&String::from(" hast Du recht"), &context),

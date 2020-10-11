@@ -115,7 +115,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => crate::Context::new(
             String::from(""),
             None,
-            crate::Tokens::new(HashMap::new(), HashMap::new()),
+            crate::Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         ),
     };
 

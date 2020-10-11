@@ -8,16 +8,19 @@ use std::collections::HashMap;
 pub struct Tokens {
     tokens: HashMap<String, ParsedToken>,
     regex_tokens: HashMap<String, ParsedToken>,
+    multi_tokens: HashMap<String, ParsedToken>,
 }
 
 impl Tokens {
     pub fn new(
         tokens: HashMap<String, ParsedToken>,
         regex_tokens: HashMap<String, ParsedToken>,
+        multi_tokens: HashMap<String, ParsedToken>,
     ) -> Self {
         Tokens {
             tokens: tokens,
             regex_tokens: regex_tokens,
+            multi_tokens: multi_tokens,
         }
     }
 
@@ -26,25 +29,40 @@ impl Tokens {
             geocoder_abbreviations::config(languages).unwrap();
         let mut map: HashMap<String, ParsedToken> = HashMap::new();
         let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut multi_map: HashMap<String, ParsedToken> = HashMap::new();
 
         for language in import.keys() {
             for group in import.get(language).unwrap() {
-                if !group.regex {
-                    for tk in &group.tokens {
-                        map.insert(
-                            diacritics(&tk.to_lowercase()),
-                            ParsedToken::new(
-                                diacritics(&group.canonical.to_lowercase()),
-                                group.token_type.to_owned(),
-                            ),
-                        );
-                    }
-                } else {
+                if group.regex {
                     for tk in &group.tokens {
                         regex_map.insert(
                             tk.to_lowercase(),
                             ParsedToken::new(
                                 group.canonical.to_lowercase(),
+                                group.token_type.to_owned(),
+                            ),
+                        );
+                    }
+                } else if Some(group.span_boundaries) != Some(None) {
+                    for tk in &group.tokens {
+                        let token = &tk.to_lowercase();
+                        let canonical = &group.canonical.to_lowercase();
+                        if token != canonical {
+                            multi_map.insert(
+                                diacritics(&tk.to_lowercase()),
+                                ParsedToken::new(
+                                    diacritics(&group.canonical.to_lowercase()),
+                                    group.token_type.to_owned(),
+                                ),
+                            );
+                        }
+                    }
+                } else {
+                    for tk in &group.tokens {
+                        map.insert(
+                            diacritics(&tk.to_lowercase()),
+                            ParsedToken::new(
+                                diacritics(&group.canonical.to_lowercase()),
                                 group.token_type.to_owned(),
                             ),
                         );
@@ -56,6 +74,7 @@ impl Tokens {
         Tokens {
             tokens: map,
             regex_tokens: regex_map,
+            multi_tokens: multi_map,
         }
     }
 
@@ -69,6 +88,13 @@ impl Tokens {
                 let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
                 let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
                 normalized_full_text = re.replace_all(&normalized_full_text, canonical).to_string();
+                tokens = self.tokenize(&normalized_full_text);
+            }
+            for (multi_string, v) in self.multi_tokens.iter() {
+                let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
+                normalized_full_text = normalized_full_text
+                    .replace(multi_string, canonical)
+                    .to_string();
                 tokens = self.tokenize(&normalized_full_text);
             }
         }
@@ -236,7 +262,7 @@ mod tests {
 
     #[test]
     fn test_remove_diacritics() {
-        let tokens = Tokens::new(HashMap::new(), HashMap::new());
+        let tokens = Tokens::new(HashMap::new(), HashMap::new(), HashMap::new());
 
         // diacritics are removed from latin text
         assert_eq!(
@@ -287,7 +313,7 @@ mod tests {
 
     #[test]
     fn test_tokenize() {
-        let tokens = Tokens::new(HashMap::new(), HashMap::new());
+        let tokens = Tokens::new(HashMap::new(), HashMap::new(), HashMap::new());
         assert_eq!(
             tokenized_string(tokens.process(&String::from(""), &String::from(""))),
             String::from("")
@@ -407,6 +433,7 @@ mod tests {
     fn test_replacement_tokens() {
         let mut map: HashMap<String, ParsedToken> = HashMap::new();
         let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut multi_map: HashMap<String, ParsedToken> = HashMap::new();
         map.insert(
             String::from("barter"),
             ParsedToken::new(String::from("foo"), None),
@@ -420,7 +447,7 @@ mod tests {
             ParsedToken::new(String::from("st"), Some(TokenType::Way)),
         );
 
-        let tokens = Tokens::new(map, regex_map);
+        let tokens = Tokens::new(map, regex_map, multi_map);
 
         assert_eq!(
             tokens.process(&String::from("Main Street"), &String::from("")),

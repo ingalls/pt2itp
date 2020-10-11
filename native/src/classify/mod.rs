@@ -76,7 +76,7 @@ pub fn classify(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             crate::Context::new(
                 String::from("xx"),
                 None,
-                Tokens::new(HashMap::new(), HashMap::new()),
+                Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
             ),
             None,
         ),
