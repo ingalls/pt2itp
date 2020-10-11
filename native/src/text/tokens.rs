@@ -30,7 +30,12 @@ impl Tokens {
         let mut map: HashMap<String, ParsedToken> = HashMap::new();
         let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
         let mut multi_map: HashMap<String, ParsedToken> = HashMap::new();
+        // regex_map contains all tokens with `regex: true`, regardless of spanBoundaries setting
+        // multi_map contains all tokens with a `spanBoundaries` property
+        // map contains the remaining tokens that does not spanBoundaries and is not a regex
 
+        // the priority for creating the token maps and applying transformations on the names for linking is:
+        // 1) regex, 2) span boundaries, 3) all others
         for language in import.keys() {
             for group in import.get(language).unwrap() {
                 if group.regex {
@@ -492,6 +497,17 @@ mod tests {
     #[test]
     fn test_multi_word_tokens() {
         let tokens = Tokens::generate(vec![String::from("es")]);
+        assert_eq!(
+            tokens.process(
+                &String::from("GV Corts Catalanes"),
+                &String::from("ES")
+            ),
+            vec![
+                Tokenized::new(String::from("gv"), None),
+                Tokenized::new(String::from("corts"), None),
+                Tokenized::new(String::from("catalanes"), None)
+            ]
+        );
         assert_eq!(
             tokens.process(
                 &String::from("Gran Via De Les Corts Catalanes"),
