@@ -498,10 +498,7 @@ mod tests {
     fn test_multi_word_tokens() {
         let tokens = Tokens::generate(vec![String::from("es")]);
         assert_eq!(
-            tokens.process(
-                &String::from("GV Corts Catalanes"),
-                &String::from("ES")
-            ),
+            tokens.process(&String::from("GV Corts Catalanes"), &String::from("ES")),
             vec![
                 Tokenized::new(String::from("gv"), None),
                 Tokenized::new(String::from("corts"), None),
