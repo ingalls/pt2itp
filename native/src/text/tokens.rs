@@ -48,7 +48,7 @@ impl Tokens {
                             ),
                         );
                     }
-                } else if Some(group.span_boundaries) != Some(None) {
+                } else if group.span_boundaries != None {
                     for tk in &group.tokens {
                         let token = &tk.to_lowercase();
                         let canonical = &group.canonical.to_lowercase();
@@ -116,7 +116,6 @@ impl Tokens {
                 }
             }
         }
-        tokenized.dedup(); // dedup
         if country == &String::from("US") {
             tokenized = type_us_st(&tokens, tokenized);
         }
@@ -478,7 +477,8 @@ mod tests {
         assert_eq!(
             tokens.process(&String::from("foo barter"), &String::from("")),
             vec![
-                Tokenized::new(String::from("foo"), None) // two words -> one word due to deduping of tokens
+                Tokenized::new(String::from("foo"), None),
+                Tokenized::new(String::from("foo"), None)
             ]
         );
     }
