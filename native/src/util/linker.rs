@@ -317,7 +317,8 @@ mod tests {
     #[test]
     fn test_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let multi_tokens: HashMap<String, ParsedToken> = HashMap::new();
         tokens.insert(
             String::from("saint"),
             ParsedToken::new(String::from("st"), None),
@@ -394,8 +395,11 @@ mod tests {
             String::from("e"),
             ParsedToken::new(String::from("e"), Some(TokenType::Cardinal)),
         );
-
-        let context = Context::new(String::from("us"), None, Tokens::new(tokens, regex_tokens));
+        let context = Context::new(
+            String::from("us"),
+            None,
+            Tokens::new(tokens, regex_tokens, multi_tokens),
+        );
 
         // === Intentional Matches ===
         // The following tests should match one of the given potential matches
@@ -1115,7 +1119,7 @@ mod tests {
             );
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
-            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 90.63)));
         }
 
         {
@@ -1159,6 +1163,70 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
+        }
+    }
+    #[test]
+    fn test_es_linker() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(
+            String::from("es"),
+            None,
+            Tokens::generate(vec![String::from("es")]),
+        );
+        {
+            let a_name = Names::new(
+                vec![Name::new("carrer de ramon casas", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("cl ramon casas", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 95.16)));
+        }
+        {
+            let a_name = Names::new(
+                vec![Name::new("carrer de l'onze de setembre", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("cl onze de setembre", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 92.5)));
+        }
+        {
+            let a_name = Names::new(
+                vec![Name::new("passatge de llessami", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(vec![Name::new("pj llessami", 0, None, &context)], &context);
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 94.0)));
+        }
+        {
+            let a_name = Names::new(
+                vec![Name::new("GV Corts Catalanes", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new(
+                    "Gran Via De Les Corts Catalanes",
+                    0,
+                    None,
+                    &context,
+                )],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 91.86)));
         }
     }
 }

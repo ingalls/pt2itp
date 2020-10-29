@@ -170,7 +170,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             Some(String::from("dc")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         let net = Network::new(feat, &context).unwrap();
@@ -186,7 +186,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         let feat: geojson::GeoJson = String::from(r#"{

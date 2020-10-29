@@ -904,7 +904,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -920,7 +920,7 @@ mod tests {
         let context = Context::new(
             String::from("de"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
         assert_eq!(
             is_drivethrough(&String::from("McDonalds einfahrt"), &context),
@@ -1001,7 +1001,7 @@ mod tests {
         let mut context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -1721,7 +1721,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -1811,7 +1811,7 @@ mod tests {
         let context = Context::new(
             String::from("ca"),
             Some(String::from("qc")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -1869,7 +1869,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             Some(String::from("ny")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -1974,7 +1974,7 @@ mod tests {
         let context = Context::new(
             String::from("ca"),
             Some(String::from("on")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -2058,7 +2058,7 @@ mod tests {
         let context = Context::new(
             String::from("ca"),
             Some(String::from("nb")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
         let results = vec![
             Name::new(
@@ -2199,7 +2199,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -2394,7 +2394,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             Some(String::from("PA")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -2631,7 +2631,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -2726,7 +2726,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -2787,7 +2787,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             Some(String::from("PA")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -2856,7 +2856,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             Some(String::from("PA")),
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(

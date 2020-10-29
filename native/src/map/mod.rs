@@ -134,7 +134,7 @@ pub fn import_addr(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => CrateContext::new(
             String::from(""),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         ),
     };
 
@@ -181,7 +181,7 @@ pub fn import_net(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => CrateContext::new(
             String::from(""),
             None,
-            Tokens::new(HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
         ),
     };
 

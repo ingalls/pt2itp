@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/pt2itp",
-  "version": "28.7.0",
+  "version": "28.7.1",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
@@ -15,7 +15,8 @@
     "coverage": "nyc tape test/*.js && nyc report --reporter=text-lcov > coverage.lcov",
     "coverage-upload": "coveralls < ./coverage.lcov",
     "pretest": "test/pretest.js",
-    "test": "tape test/*.test.js && cd native && cargo test --release"
+    "test": "tape test/*.test.js && cd native && cargo test --release",
+    "format": "cd native/ && cargo fmt -- --check"
   },
   "binary": {
     "module_name": "index",

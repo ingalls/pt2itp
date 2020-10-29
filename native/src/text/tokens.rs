@@ -8,16 +8,19 @@ use std::collections::HashMap;
 pub struct Tokens {
     tokens: HashMap<String, ParsedToken>,
     regex_tokens: HashMap<String, ParsedToken>,
+    multi_tokens: HashMap<String, ParsedToken>,
 }
 
 impl Tokens {
     pub fn new(
         tokens: HashMap<String, ParsedToken>,
         regex_tokens: HashMap<String, ParsedToken>,
+        multi_tokens: HashMap<String, ParsedToken>,
     ) -> Self {
         Tokens {
             tokens: tokens,
             regex_tokens: regex_tokens,
+            multi_tokens: multi_tokens,
         }
     }
 
@@ -26,25 +29,45 @@ impl Tokens {
             geocoder_abbreviations::config(languages).unwrap();
         let mut map: HashMap<String, ParsedToken> = HashMap::new();
         let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut multi_map: HashMap<String, ParsedToken> = HashMap::new();
+        // regex_map contains all tokens with `regex: true`, regardless of spanBoundaries setting
+        // multi_map contains all tokens with a `spanBoundaries` property
+        // map contains the remaining tokens that does not spanBoundaries and is not a regex
 
+        // the priority for creating the token maps and applying transformations on the names for linking is:
+        // 1) regex, 2) span boundaries, 3) all others
         for language in import.keys() {
             for group in import.get(language).unwrap() {
-                if !group.regex {
-                    for tk in &group.tokens {
-                        map.insert(
-                            diacritics(&tk.to_lowercase()),
-                            ParsedToken::new(
-                                diacritics(&group.canonical.to_lowercase()),
-                                group.token_type.to_owned(),
-                            ),
-                        );
-                    }
-                } else {
+                if group.regex {
                     for tk in &group.tokens {
                         regex_map.insert(
                             tk.to_lowercase(),
                             ParsedToken::new(
                                 group.canonical.to_lowercase(),
+                                group.token_type.to_owned(),
+                            ),
+                        );
+                    }
+                } else if group.span_boundaries != None {
+                    for tk in &group.tokens {
+                        let token = &tk.to_lowercase();
+                        let canonical = &group.canonical.to_lowercase();
+                        if token != canonical {
+                            multi_map.insert(
+                                diacritics(&tk.to_lowercase()),
+                                ParsedToken::new(
+                                    diacritics(&group.canonical.to_lowercase()),
+                                    group.token_type.to_owned(),
+                                ),
+                            );
+                        }
+                    }
+                } else {
+                    for tk in &group.tokens {
+                        map.insert(
+                            diacritics(&tk.to_lowercase()),
+                            ParsedToken::new(
+                                diacritics(&group.canonical.to_lowercase()),
                                 group.token_type.to_owned(),
                             ),
                         );
@@ -56,59 +79,46 @@ impl Tokens {
         Tokens {
             tokens: map,
             regex_tokens: regex_map,
+            multi_tokens: multi_map,
         }
     }
 
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
-        let tokens = self.tokenize(&text);
+        let mut tokens = self.tokenize(&text);
+        let mut normalized_full_text = diacritics(&text.to_lowercase());
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
+        if !country.is_empty() && country != &String::from("US") {
+            for (regex_string, v) in self.regex_tokens.iter() {
+                let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
+                let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
+                normalized_full_text = re.replace_all(&normalized_full_text, canonical).to_string();
+                tokens = self.tokenize(&normalized_full_text);
+            }
+            for (multi_string, v) in self.multi_tokens.iter() {
+                let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
+                normalized_full_text = normalized_full_text
+                    .replace(multi_string, canonical)
+                    .to_string();
+                tokens = self.tokenize(&normalized_full_text);
+            }
+        }
         for token in &tokens {
-            // for right now let's only apply regexes to Germany. English has a negative lookahead query that rust doesn't support.
-            if country == &String::from("DE") {
-                match self.tokens.get(token) {
-                    None => {
-                        // apply regex before defaulting to tokenized.push(Tokenized::new(token.to_owned(), None))
-                        // loop through regexes to apply any canonical replacements that match
-                        // TODO #1 add in ability to evaluate multiple regex tokens https://github.com/mapbox/pt2itp/issues/554
-                        // TODO #2 bring in `skipDiacriticStripping` flag from geocoder-abbreviations for if there's any case where we'll want to strip diacritics for a regex pattern https://github.com/mapbox/pt2itp/issues/554
-                        let mut no_token_match = Tokenized::new(token.to_owned(), None);
-                        for (regex_string, v) in self.regex_tokens.iter() {
-                            let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
-                            if re.is_match(token) {
-                                let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
-                                let regexed_token = re.replace_all(&token, canonical).to_string();
-                                no_token_match =
-                                    Tokenized::new(regexed_token, v.token_type.to_owned());
-                            }
-                        }
-                        tokenized.push(no_token_match);
-                    }
-                    Some(t) => {
-                        tokenized.push(Tokenized::new(
-                            t.canonical.to_owned(),
-                            t.token_type.to_owned(),
-                        ));
-                    }
-                };
-            } else {
-                match self.tokens.get(token) {
-                    None => {
-                        tokenized.push(Tokenized::new(token.to_owned(), None));
-                    }
-                    Some(t) => {
-                        tokenized.push(Tokenized::new(
-                            t.canonical.to_owned(),
-                            t.token_type.to_owned(),
-                        ));
-                    }
+            match self.tokens.get(token) {
+                None => {
+                    tokenized.push(Tokenized::new(token.to_owned(), None));
+                }
+                Some(t) => {
+                    tokenized.push(Tokenized::new(
+                        t.canonical.to_owned(),
+                        t.token_type.to_owned(),
+                    ));
                 }
             }
         }
         if country == &String::from("US") {
             tokenized = type_us_st(&tokens, tokenized);
         }
-
         tokenized
     }
 
@@ -122,8 +132,14 @@ impl Tokens {
         lazy_static! {
             static ref UP: Regex = Regex::new(r"[\^]+").unwrap();
 
-            // collapse apostraphes, periods
-            static ref PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07'\.]").unwrap();
+            // collapse periods
+            static ref PERIOD_PUNC: Regex = Regex::new(r"[\u2018\u2019\u02BC\u02BB\uFF07\.]").unwrap();
+
+            // collapse apostrophes
+            static ref APOS_PUNC: Regex = Regex::new(r"'").unwrap();
+
+            // split apostrophes if l' or d' followed by vowel ie. l'onze
+            static ref APOSTROPHE: Regex = Regex::new(r"(l|d)'([aeiouhy][^ ]+)").unwrap();
 
             // all other ascii and unicode punctuation except '-' per
             // http://stackoverflow.com/questions/4328500 split terms
@@ -137,7 +153,11 @@ impl Tokens {
         let mut normalized = diacritics(&text.to_lowercase());
 
         normalized = UP.replace_all(normalized.as_str(), "").to_string();
-        normalized = PUNC.replace_all(normalized.as_str(), "").to_string();
+        normalized = PERIOD_PUNC.replace_all(normalized.as_str(), "").to_string();
+        normalized = APOSTROPHE
+            .replace_all(normalized.as_str(), "$1 $2")
+            .to_string();
+        normalized = APOS_PUNC.replace_all(normalized.as_str(), "").to_string();
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
 
@@ -246,7 +266,7 @@ mod tests {
 
     #[test]
     fn test_remove_diacritics() {
-        let tokens = Tokens::new(HashMap::new(), HashMap::new());
+        let tokens = Tokens::new(HashMap::new(), HashMap::new(), HashMap::new());
 
         // diacritics are removed from latin text
         assert_eq!(
@@ -297,13 +317,11 @@ mod tests {
 
     #[test]
     fn test_tokenize() {
-        let tokens = Tokens::new(HashMap::new(), HashMap::new());
-
+        let tokens = Tokens::new(HashMap::new(), HashMap::new(), HashMap::new());
         assert_eq!(
             tokenized_string(tokens.process(&String::from(""), &String::from(""))),
             String::from("")
         );
-
         assert_eq!(
             tokenized_string(tokens.process(&String::from("foo"), &String::from(""))),
             String::from("foo")
@@ -376,7 +394,6 @@ mod tests {
             tokenized_string(tokens.process(&String::from("foo's bar"), &String::from(""))),
             String::from("foos bar")
         );
-
         assert_eq!(
             tokenized_string(tokens.process(&String::from("San José"), &String::from(""))),
             String::from("san jose")
@@ -393,7 +410,7 @@ mod tests {
         );
         assert_eq!(
             tokenized_string(tokens.process(&String::from("Rue d'Argout"), &String::from(""))),
-            String::from("rue dargout")
+            String::from("rue d argout")
         );
         assert_eq!(
             tokenized_string(tokens.process(&String::from("Hale’iwa Road"), &String::from(""))),
@@ -407,12 +424,20 @@ mod tests {
             tokenized_string(tokens.process(&String::from("京都市"), &String::from(""))),
             String::from("京都市")
         );
+        assert_eq!(
+            tokenized_string(tokens.process(
+                &String::from("carrer de l'onze de setembre"),
+                &String::from("")
+            )),
+            String::from("carrer de l onze de setembre")
+        );
     }
 
     #[test]
     fn test_replacement_tokens() {
         let mut map: HashMap<String, ParsedToken> = HashMap::new();
         let mut regex_map: HashMap<String, ParsedToken> = HashMap::new();
+        let mut multi_map: HashMap<String, ParsedToken> = HashMap::new();
         map.insert(
             String::from("barter"),
             ParsedToken::new(String::from("foo"), None),
@@ -426,7 +451,7 @@ mod tests {
             ParsedToken::new(String::from("st"), Some(TokenType::Way)),
         );
 
-        let tokens = Tokens::new(map, regex_map);
+        let tokens = Tokens::new(map, regex_map, multi_map);
 
         assert_eq!(
             tokens.process(&String::from("Main Street"), &String::from("")),
@@ -463,7 +488,70 @@ mod tests {
         let tokens = Tokens::generate(vec![String::from("de")]);
         assert_eq!(
             tokens.process(&String::from("Fresenbergstr"), &String::from("DE")),
-            vec![Tokenized::new(String::from("fresenberg str"), None),]
+            vec![
+                Tokenized::new(String::from("fresenberg"), None),
+                Tokenized::new(String::from("str"), Some(TokenType::Way)),
+            ]
+        );
+    }
+    #[test]
+    fn test_multi_word_tokens() {
+        let tokens = Tokens::generate(vec![String::from("es")]);
+        assert_eq!(
+            tokens.process(&String::from("GV Corts Catalanes"), &String::from("ES")),
+            vec![
+                Tokenized::new(String::from("gv"), None),
+                Tokenized::new(String::from("corts"), None),
+                Tokenized::new(String::from("catalanes"), None)
+            ]
+        );
+        assert_eq!(
+            tokens.process(
+                &String::from("Gran Via De Les Corts Catalanes"),
+                &String::from("ES")
+            ),
+            vec![
+                Tokenized::new(String::from("gv"), None),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("les"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("corts"), None),
+                Tokenized::new(String::from("catalanes"), None)
+            ]
+        );
+        assert_eq!(
+            tokens.process(
+                &String::from("Calle Gran Vía de Colón"),
+                &String::from("ES")
+            ),
+            vec![
+                Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+                Tokenized::new(String::from("gv"), None),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("colon"), None)
+            ]
+        );
+        assert_eq!(
+            tokens.process(
+                &String::from("carrer de l'onze de setembre"),
+                &String::from("ES")
+            ),
+            vec![
+                Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("la"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("11"), Some(TokenType::Number)),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("setembre"), None)
+            ]
+        );
+        assert_eq!(
+            tokens.process(&String::from("cl onze de setembre"), &String::from("ES")),
+            vec![
+                Tokenized::new(String::from("cl"), Some(TokenType::Way)),
+                Tokenized::new(String::from("11"), Some(TokenType::Number)),
+                Tokenized::new(String::from("de"), Some(TokenType::Determiner)),
+                Tokenized::new(String::from("setembre"), None)
+            ]
         );
     }
 
