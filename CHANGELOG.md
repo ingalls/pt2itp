@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.7.1
+- :bug: Update version
+
 ### v28.7.0
 - :rocket: Add support for the ability to link an address to a network and vice versa based on substring comparison.
 
