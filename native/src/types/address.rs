@@ -216,8 +216,8 @@ impl Address {
     }
 
     pub fn std(&mut self, country: &str) -> Result<(), String> {
-        // Czech Republic and Poland have addresses in the format of "123/89". Let's allow those through.println!
-        // But still not 123 1/2
+        // Czech Republic and Poland have addresses in the format of "123/89"
+        // Let's allow those through, but still not 123 1/2, regadless of country
         let slash_excluded_countries = ["pl", "cz"];
         self.number = self.number.to_lowercase();
         let HALF = Regex::new(r"\s1/2$").unwrap();
