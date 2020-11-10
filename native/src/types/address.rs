@@ -548,7 +548,7 @@ mod tests {
             assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\ttrue\t{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
         }
 
-        // street value is has a `/`
+        // Poland street value is has a `/`
         {
             let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":"123/89","source":"TIGER-2016","output":false},"interpolate":true, "geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
 
@@ -561,6 +561,23 @@ mod tests {
             let addr = Address::new(feat, &context).unwrap();
 
             assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hills\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":null}],\"freq\":1}]\t123/89\tTIGER-2016\tfalse\ttrue\t{\"number\":\"123/89\",\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Number is not a supported address/unit type")]
+    fn test_address_simple_geom_fail() {
+        // US street value is has a `/`
+        {
+            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":"123/89","source":"TIGER-2016","output":false},"interpolate":true, "geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
+
+            let context = Context::new(
+                String::from("us"),
+                Some(String::from("mn")),
+                Tokens::generate(vec![String::from("en")]),
+            );
+
+            let addr = Address::new(feat, &context).unwrap();
         }
     }
 }
