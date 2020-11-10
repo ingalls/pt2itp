@@ -216,31 +216,29 @@ impl Address {
     }
 
     pub fn std(&mut self, country: &str) -> Result<(), String> {
-        // Czech Republic and Poland have addresses in the format of "123/89"
-        // Let's allow those through, but still not 123 1/2, regardless of country
-        let slash_excluded_countries = ["pl", "cz"];
         self.number = self.number.to_lowercase();
-        let HALF = Regex::new(r"\s1/2$").unwrap();
-        let UNIT = Regex::new(r"^(?P<num>\d+)\s(?P<unit>[a-z])$").unwrap();
-        let mut SUPPORTED = RegexSet::new(&[
-            r"^\d+[a-z]?$",
-            r"^(\d+)-(\d+)[a-z]?$",
-            r"^(\d+)([nsew])(\d+)[a-z]?$",
-            r"^([nesw])(\d+)([nesw]\d+)?$",
-            r"^\d+(к\d+)?(с\d+)?$",
-        ])
-        .unwrap();
-        if slash_excluded_countries.contains(&country) {
-            SUPPORTED = RegexSet::new(&[
+
+        lazy_static! {
+            static ref HALF: Regex = Regex::new(r"\s1/2$").unwrap();
+            static ref UNIT: Regex = Regex::new(r"^(?P<num>\d+)\s(?P<unit>[a-z])$").unwrap();
+            static ref SUPPORTED: RegexSet = RegexSet::new(&[
+                r"^\d+[a-z]?$",
+                r"^(\d+)-(\d+)[a-z]?$",
+                r"^(\d+)([nsew])(\d+)[a-z]?$",
+                r"^([nesw])(\d+)([nesw]\d+)?$",
+                r"^\d+(к\d+)?(с\d+)?$"
+            ])
+            .unwrap();
+            static ref SLASH_SUPPORTED: RegexSet = RegexSet::new(&[
                 r"^\d+[a-z]?$",
                 r"^(\d+)-(\d+)[a-z]?$",
                 r"^(\d+)/(\d+)?$",
                 r"^(\d+)([nsew])(\d+)[a-z]?$",
                 r"^([nesw])(\d+)([nesw]\d+)?$",
-                r"^\d+(к\d+)?(с\d+)?$",
+                r"^\d+(к\d+)?(с\d+)?$"
             ])
             .unwrap();
-        }
+        };
 
         // Remove 1/2 Numbers from addresses as they are not currently supported
         self.number = HALF.replace(self.number.as_str(), "").to_string();
@@ -248,7 +246,14 @@ impl Address {
         // Transform '123 B' = '123B' so it is supported
         self.number = UNIT.replace(self.number.as_str(), "$num$unit").to_string();
 
-        if !SUPPORTED.is_match(self.number.as_str()) {
+        // Czech Republic and Poland have addresses in the format of "123/89"
+        // Let's allow those through, but still not 123 1/2, regardless of country
+        let slash_excluded_countries = ["pl", "cz"];
+        if slash_excluded_countries.contains(&country) {
+            if !SLASH_SUPPORTED.is_match(self.number.as_str()) {
+                return Err(String::from("Number is not a supported address/unit type"));
+            }
+        } else if !SUPPORTED.is_match(self.number.as_str()) {
             return Err(String::from("Number is not a supported address/unit type"));
         }
 
