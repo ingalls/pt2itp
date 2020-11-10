@@ -215,7 +215,7 @@ impl Address {
         })
     }
 
-    pub fn std(&mut self, country: &str) -> Result<(), String> {
+    pub fn std(&mut self, country: &String) -> Result<(), String> {
         self.number = self.number.to_lowercase();
 
         lazy_static! {
@@ -238,6 +238,8 @@ impl Address {
                 r"^\d+(к\d+)?(с\d+)?$"
             ])
             .unwrap();
+            static ref SLASH_EXCLUDED_COUNTRIES: Vec<String> =
+                vec![String::from("pl"), String::from("cz")];
         };
 
         // Remove 1/2 Numbers from addresses as they are not currently supported
@@ -248,13 +250,14 @@ impl Address {
 
         // Czech Republic and Poland have addresses in the format of "123/89"
         // Let's allow those through, but still not 123 1/2, regardless of country
-        let slash_excluded_countries = ["pl", "cz"];
-        if slash_excluded_countries.contains(&country) {
+        if SLASH_EXCLUDED_COUNTRIES.contains(&country) {
             if !SLASH_SUPPORTED.is_match(self.number.as_str()) {
                 return Err(String::from("Number is not a supported address/unit type"));
             }
-        } else if !SUPPORTED.is_match(self.number.as_str()) {
-            return Err(String::from("Number is not a supported address/unit type"));
+        } else {
+            if !SUPPORTED.is_match(self.number.as_str()) {
+                return Err(String::from("Number is not a supported address/unit type"));
+            }
         }
 
         if self.number.len() > 10 {
