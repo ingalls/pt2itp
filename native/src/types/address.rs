@@ -5,7 +5,7 @@ use regex::{Regex, RegexSet};
 use crate::{hecate, types::name::InputName, Context, Name, Names, Source};
 
 /// A representation of a single Address
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Address {
     /// An optional identifier for the address
     pub id: Option<i64>,
@@ -221,7 +221,7 @@ impl Address {
         lazy_static! {
             static ref HALF: Regex = Regex::new(r"\s1/2$").unwrap();
             static ref UNIT: Regex = Regex::new(r"^(?P<num>\d+)\s(?P<unit>[a-z])$").unwrap();
-            static ref SUPPORTED: RegexSet = RegexSet::new(&[
+            static ref DEFAULT_SUPPORTED: RegexSet = RegexSet::new(&[
                 r"^\d+[a-z]?$",
                 r"^(\d+)-(\d+)[a-z]?$",
                 r"^(\d+)([nsew])(\d+)[a-z]?$",
@@ -255,7 +255,7 @@ impl Address {
                 return Err(String::from("Number is not a supported address/unit type"));
             }
         } else {
-            if !SUPPORTED.is_match(self.number.as_str()) {
+            if !DEFAULT_SUPPORTED.is_match(self.number.as_str()) {
                 return Err(String::from("Number is not a supported address/unit type"));
             }
         }
@@ -573,7 +573,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Number is not a supported address/unit type")]
     fn test_address_simple_geom_fail() {
         // US street value is has a `/`
         {
@@ -585,7 +584,9 @@ mod tests {
                 Tokens::generate(vec![String::from("en")]),
             );
 
-            let addr = Address::new(feat, &context).unwrap();
+            let addr = Address::new(feat, &context);
+            let expected_error = Err(String::from("Number is not a supported address/unit type"));
+            assert_eq!(addr, expected_error);
         }
     }
 }
