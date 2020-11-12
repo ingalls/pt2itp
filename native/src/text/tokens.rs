@@ -89,7 +89,7 @@ impl Tokens {
         let skip_regex_list = vec![String::from("US"), String::from("GB")]; // add countries that are using english tokens here to get around lookahead token replacement errors
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
-            if !country.is_empty() && !skip_regex_list.contains(&country) {
+        if !country.is_empty() && !skip_regex_list.contains(&country) {
             for (regex_string, v) in self.regex_tokens.iter() {
                 let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
                 let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
