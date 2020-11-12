@@ -5,7 +5,7 @@ use regex::{Regex, RegexSet};
 use crate::{hecate, types::name::InputName, Context, Name, Names, Source};
 
 /// A representation of a single Address
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Address {
     /// An optional identifier for the address
     pub id: Option<i64>,
@@ -117,7 +117,8 @@ impl Address {
             geom: geom,
         };
 
-        addr.std()?;
+        let country = &context.country.to_lowercase();
+        addr.std(country)?;
 
         Ok(addr)
     }
@@ -214,14 +215,13 @@ impl Address {
         })
     }
 
-    pub fn std(&mut self) -> Result<(), String> {
+    pub fn std(&mut self, country: &String) -> Result<(), String> {
         self.number = self.number.to_lowercase();
 
-        // Remove 1/2 Numbers from addresses as they are not currently supported
         lazy_static! {
             static ref HALF: Regex = Regex::new(r"\s1/2$").unwrap();
             static ref UNIT: Regex = Regex::new(r"^(?P<num>\d+)\s(?P<unit>[a-z])$").unwrap();
-            static ref SUPPORTED: RegexSet = RegexSet::new(&[
+            static ref DEFAULT_SUPPORTED: RegexSet = RegexSet::new(&[
                 r"^\d+[a-z]?$",
                 r"^(\d+)-(\d+)[a-z]?$",
                 r"^(\d+)([nsew])(\d+)[a-z]?$",
@@ -229,14 +229,33 @@ impl Address {
                 r"^\d+(к\d+)?(с\d+)?$"
             ])
             .unwrap();
-        }
+            static ref SLASH_SUPPORTED: RegexSet = RegexSet::new(&[
+                r"^\d+[a-z]?$",
+                r"^(\d+)-(\d+)[a-z]?$",
+                r"^(\d+)/(\d+)?$",
+                r"^(\d+)([nsew])(\d+)[a-z]?$",
+                r"^([nesw])(\d+)([nesw]\d+)?$",
+                r"^\d+(к\d+)?(с\d+)?$"
+            ])
+            .unwrap();
+            static ref SLASH_EXCLUDED_COUNTRIES: Vec<String> =
+                vec![String::from("pl"), String::from("cz")];
+        };
 
+        // Remove 1/2 Numbers from addresses as they are not currently supported
         self.number = HALF.replace(self.number.as_str(), "").to_string();
 
         // Transform '123 B' = '123B' so it is supported
         self.number = UNIT.replace(self.number.as_str(), "$num$unit").to_string();
 
-        if !SUPPORTED.is_match(self.number.as_str()) {
+        // Czech Republic and Poland have addresses in the format of "123/89"
+        // Let's allow those through, but still not 123 1/2, regardless of country
+        let supported = if SLASH_EXCLUDED_COUNTRIES.contains(&country) {
+            &SLASH_SUPPORTED
+        } else {
+            &*DEFAULT_SUPPORTED
+        };
+        if !supported.is_match(self.number.as_str()) {
             return Err(String::from("Number is not a supported address/unit type"));
         }
 
@@ -534,6 +553,39 @@ mod tests {
             let addr = Address::new(feat, &context).unwrap();
 
             assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\ttrue\t{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
+        }
+
+        // Poland street value is has a `/`
+        {
+            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":"123/89","source":"TIGER-2016","output":false},"interpolate":true, "geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
+
+            let context = Context::new(
+                String::from("pl"),
+                None,
+                Tokens::generate(vec![String::from("pl")]),
+            );
+
+            let addr = Address::new(feat, &context).unwrap();
+
+            assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hills\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":null}],\"freq\":1}]\t123/89\tTIGER-2016\tfalse\ttrue\t{\"number\":\"123/89\",\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
+        }
+    }
+
+    #[test]
+    fn test_address_simple_geom_fail() {
+        // US street value is has a `/`
+        {
+            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":"123/89","source":"TIGER-2016","output":false},"interpolate":true, "geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
+
+            let context = Context::new(
+                String::from("us"),
+                Some(String::from("mn")),
+                Tokens::generate(vec![String::from("en")]),
+            );
+
+            let addr = Address::new(feat, &context);
+            let expected_error = Err(String::from("Number is not a supported address/unit type"));
+            assert_eq!(addr, expected_error);
         }
     }
 }
