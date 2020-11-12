@@ -255,10 +255,12 @@ impl Address {
         } else {
             &*DEFAULT_SUPPORTED
         };
-        println!("country {:?}", country);
-        println!("supported {:?}", supported);
         if !supported.is_match(self.number.as_str()) {
             return Err(String::from("Number is not a supported address/unit type"));
+        }
+
+        if self.number.len() > 10 {
+            return Err(String::from("Number should not exceed 10 chars"));
         }
 
         Ok(())
