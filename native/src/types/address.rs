@@ -250,18 +250,15 @@ impl Address {
 
         // Czech Republic and Poland have addresses in the format of "123/89"
         // Let's allow those through, but still not 123 1/2, regardless of country
-        if SLASH_EXCLUDED_COUNTRIES.contains(&country) {
-            if !SLASH_SUPPORTED.is_match(self.number.as_str()) {
-                return Err(String::from("Number is not a supported address/unit type"));
-            }
+        let supported = if SLASH_EXCLUDED_COUNTRIES.contains(&country) {
+            &SLASH_SUPPORTED
         } else {
-            if !DEFAULT_SUPPORTED.is_match(self.number.as_str()) {
-                return Err(String::from("Number is not a supported address/unit type"));
-            }
-        }
-
-        if self.number.len() > 10 {
-            return Err(String::from("Number should not exceed 10 chars"));
+            &*DEFAULT_SUPPORTED
+        };
+        println!("country {:?}", country);
+        println!("supported {:?}", supported);
+        if !supported.is_match(self.number.as_str()) {
+            return Err(String::from("Number is not a supported address/unit type"));
         }
 
         Ok(())
