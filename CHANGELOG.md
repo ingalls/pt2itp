@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.7.2
+- :bug: Add support to skip negative lookahead for UK
+
 ### v28.7.1
 - :bug: Update version
 
