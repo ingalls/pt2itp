@@ -11,9 +11,22 @@ const database = 'pt_test';
 const carmenIndex = '/tmp/test-de.mbtiles';
 const output = '/tmp/test-de.err';
 const config = path.resolve(__dirname, './fixtures/test-de/carmen-config.json');
-const abbr = path.resolve(__dirname, '../node_modules/@mapbox/geocoder-abbreviations/tokens/global.js');
-
+const deTokens = require('@mapbox/geocoder-abbreviations')('de');
+const abbr = '/tmp/test-de-abbr.json';
 const db = require('./lib/db');
+
+// Convert the de regex tokens into the global format expected by carmen.
+const tokens = {};
+for (const token of deTokens) {
+    if (!Array.isArray(token) || typeof(token[1]) !== 'object' || !token[1]['regex']) {
+        continue;
+    }
+    const from = token[1]['text'];
+    const to = token[0];
+    tokens[from] = to;
+}
+fs.writeFileSync(abbr, JSON.stringify(tokens));
+
 db.init(test);
 
 // loads address and network data into postgres
