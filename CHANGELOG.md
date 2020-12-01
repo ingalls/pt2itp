@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.7.3
+- :arrow_up: Upgrade geocoder-abbreviations to 4.5.0.
+ 
 ### v28.7.2
 - :bug: Add support to skip negative lookahead for UK
 
