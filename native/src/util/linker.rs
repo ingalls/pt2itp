@@ -35,6 +35,37 @@ impl LinkResult {
     }
 }
 
+fn is_abbrev(abbrev: &String, canonical: String) -> bool {
+    let abbrev_chars: Vec<char> = abbrev.chars().collect();
+    let mut canonical_chars: Vec<char> = canonical.chars().collect();
+
+    // the first letter of both words must match
+    if (abbrev_chars[0] != canonical_chars[0]) {
+        return false;
+    }
+
+    // all subsequent letters in the abbreviation must be found in order in the canonical
+    for a in &abbrev_chars {
+        // Check if all tokens in the network are preset within the address
+        let c_index = &canonical_chars.iter().position(|r| r == a);
+        if (c_index.is_none()) {
+            return false;
+        } else {
+            // remove all characters up to the index
+            let mut i = c_index.unwrap();
+            loop {
+                canonical_chars.remove(i);
+                if (i == 0) {
+                    break;
+                };
+                i = i - 1;
+            }
+        }
+    }
+
+    return true;
+}
+
 ///
 /// Determines if there is a match between any of two given set of name values
 /// Geometric proximity must be determined/filtered by the caller
@@ -197,8 +228,12 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                                 ntoks.remove(*index);
                             }
                             None => {
-                                network_subset_match = false;
-                                continue;
+                                if (ntoks.len() > 0 && is_abbrev(atok, ntoks[0].to_string())) {
+                                    ntoks.remove(0);
+                                } else {
+                                    network_subset_match = false;
+                                    continue;
+                                }
                             }
                         };
                     }
@@ -217,8 +252,12 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                                     atoks.remove(*index);
                                 }
                                 None => {
-                                    address_subset_match = false;
-                                    continue;
+                                    if (atoks.len() > 0 && is_abbrev(ntok, atoks[0].to_string())) {
+                                        atoks.remove(0);
+                                    } else {
+                                        address_subset_match = false;
+                                        continue;
+                                    }
                                 }
                             };
                         }
