@@ -239,7 +239,7 @@ impl Address {
             ])
             .unwrap();
             static ref SLASH_EXCLUDED_COUNTRIES: Vec<String> =
-                vec![String::from("pl"), String::from("cz")];
+                vec![String::from("pl"), String::from("cz"), String::from("sk")];
         };
 
         // Remove 1/2 Numbers from addresses as they are not currently supported
