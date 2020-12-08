@@ -5,7 +5,7 @@ use regex::{Regex, RegexSet};
 use crate::{hecate, types::name::InputName, Context, Name, Names, Source};
 
 /// A representation of a single Address
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct Address {
     /// An optional identifier for the address
     pub id: Option<i64>,
@@ -85,12 +85,10 @@ impl Address {
             }
         };
 
-        lazy_static! {
-            static ref STREET_KEY: String = String::from("street");
-        }
-        let street = match props.remove(&*STREET_KEY) {
+        let street = match props.remove(&String::from("street")) {
             Some(street) => {
-                props.insert(STREET_KEY.clone(), street.clone());
+                props.insert(String::from("street"), street.clone());
+
                 Some(street)
             }
             None => None,
@@ -117,8 +115,7 @@ impl Address {
             geom: geom,
         };
 
-        let country = &context.country.to_lowercase();
-        addr.std(country)?;
+        addr.std()?;
 
         Ok(addr)
     }
@@ -136,11 +133,10 @@ impl Address {
             }
         };
 
-        lazy_static! {
-            static ref NAMES_KEY: String = String::from("names");
-        }
-        let names: Names = match value.remove(&*NAMES_KEY) {
+        let names: Names = match value.get(&String::from("names")) {
             Some(names) => {
+                let names = names.clone();
+
                 let names: Vec<Name> = match serde_json::from_value(names) {
                     Ok(names) => names,
                     Err(err) => {
@@ -155,10 +151,7 @@ impl Address {
             }
         };
 
-        lazy_static! {
-            static ref PROPS_KEY: String = String::from("props");
-        }
-        let props = match value.remove(&*PROPS_KEY) {
+        let props = match value.remove(&String::from("props")) {
             Some(props) => match props {
                 serde_json::Value::Object(obj) => obj,
                 _ => {
@@ -172,10 +165,7 @@ impl Address {
             }
         };
 
-        lazy_static! {
-            static ref GEOM_KEY: String = String::from("geom");
-        }
-        let geom = match value.remove(&*GEOM_KEY) {
+        let geom = match value.remove(&String::from("geom")) {
             Some(geom) => match geom {
                 serde_json::value::Value::String(geom) => match geom.parse::<geojson::GeoJson>() {
                     Ok(geom) => match geom {
@@ -215,13 +205,14 @@ impl Address {
         })
     }
 
-    pub fn std(&mut self, country: &String) -> Result<(), String> {
+    pub fn std(&mut self) -> Result<(), String> {
         self.number = self.number.to_lowercase();
 
+        // Remove 1/2 Numbers from addresses as they are not currently supported
         lazy_static! {
             static ref HALF: Regex = Regex::new(r"\s1/2$").unwrap();
             static ref UNIT: Regex = Regex::new(r"^(?P<num>\d+)\s(?P<unit>[a-z])$").unwrap();
-            static ref DEFAULT_SUPPORTED: RegexSet = RegexSet::new(&[
+            static ref SUPPORTED: RegexSet = RegexSet::new(&[
                 r"^\d+[a-z]?$",
                 r"^(\d+)-(\d+)[a-z]?$",
                 r"^(\d+)([nsew])(\d+)[a-z]?$",
@@ -229,33 +220,14 @@ impl Address {
                 r"^\d+(к\d+)?(с\d+)?$"
             ])
             .unwrap();
-            static ref SLASH_SUPPORTED: RegexSet = RegexSet::new(&[
-                r"^\d+[a-z]?$",
-                r"^(\d+)-(\d+)[a-z]?$",
-                r"^(\d+)/(\d+)?$",
-                r"^(\d+)([nsew])(\d+)[a-z]?$",
-                r"^([nesw])(\d+)([nesw]\d+)?$",
-                r"^\d+(к\d+)?(с\d+)?$"
-            ])
-            .unwrap();
-            static ref SLASH_EXCLUDED_COUNTRIES: Vec<String> =
-                vec![String::from("pl"), String::from("cz")];
-        };
+        }
 
-        // Remove 1/2 Numbers from addresses as they are not currently supported
         self.number = HALF.replace(self.number.as_str(), "").to_string();
 
         // Transform '123 B' = '123B' so it is supported
         self.number = UNIT.replace(self.number.as_str(), "$num$unit").to_string();
 
-        // Czech Republic and Poland have addresses in the format of "123/89"
-        // Let's allow those through, but still not 123 1/2, regardless of country
-        let supported = if SLASH_EXCLUDED_COUNTRIES.contains(&country) {
-            &SLASH_SUPPORTED
-        } else {
-            &*DEFAULT_SUPPORTED
-        };
-        if !supported.is_match(self.number.as_str()) {
+        if !SUPPORTED.is_match(self.number.as_str()) {
             return Err(String::from("Number is not a supported address/unit type"));
         }
 
@@ -441,10 +413,7 @@ impl Address {
 }
 
 fn get_id(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<Option<i64>, String> {
-    lazy_static! {
-        static ref ID_KEY: String = String::from("id");
-    }
-    match map.remove(&*ID_KEY) {
+    match map.remove(&String::from("id")) {
         Some(id) => match id.as_i64() {
             Some(id) => Ok(Some(id)),
             None => Err(String::from("ID must be numeric")),
@@ -454,10 +423,7 @@ fn get_id(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<Option
 }
 
 fn get_number(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<String, String> {
-    lazy_static! {
-        static ref NUMBER_KEY: String = String::from("number");
-    }
-    match map.get(&*NUMBER_KEY) {
+    match map.get(&String::from("number")) {
         Some(number) => match number.clone() {
             serde_json::value::Value::Number(num) => Ok(String::from(num.to_string())),
             serde_json::value::Value::String(num) => Ok(num),
@@ -468,10 +434,7 @@ fn get_number(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<St
 }
 
 fn get_version(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<i64, String> {
-    lazy_static! {
-        static ref VERSION_KEY: String = String::from("version");
-    }
-    match map.remove(&*VERSION_KEY) {
+    match map.remove(&String::from("version")) {
         Some(version) => match version.as_i64() {
             Some(version) => Ok(version),
             _ => Err(String::from("Version must be numeric")),
@@ -481,10 +444,7 @@ fn get_version(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<i
 }
 
 fn get_source(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<String, String> {
-    lazy_static! {
-        static ref SOURCE_KEY: String = String::from("source");
-    }
-    match map.get(&*SOURCE_KEY) {
+    match map.get(&String::from("source")) {
         Some(source) => match source.clone() {
             serde_json::value::Value::String(source) => Ok(source),
             _ => Ok(String::from("")),
@@ -494,10 +454,7 @@ fn get_source(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<St
 }
 
 fn get_output(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<bool, String> {
-    lazy_static! {
-        static ref OUTPUT_KEY: String = String::from("output");
-    }
-    match map.remove(&*OUTPUT_KEY) {
+    match map.remove(&String::from("output")) {
         Some(output) => match output.as_bool() {
             None => Ok(true),
             Some(output) => Ok(output),
@@ -507,10 +464,7 @@ fn get_output(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<bo
 }
 
 fn get_interpolate(map: &mut serde_json::Map<String, serde_json::Value>) -> Result<bool, String> {
-    lazy_static! {
-        static ref INTERPOLATE_KEY: String = String::from("interpolate");
-    }
-    match map.remove(&*INTERPOLATE_KEY) {
+    match map.remove(&String::from("interpolate")) {
         Some(itp) => match itp.as_bool() {
             None => Ok(true),
             Some(itp) => Ok(itp),
@@ -553,39 +507,6 @@ mod tests {
             let addr = Address::new(feat, &context).unwrap();
 
             assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hls\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":\"Way\"}],\"freq\":1}]\t1272\tTIGER-2016\tfalse\ttrue\t{\"number\":1272,\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
-        }
-
-        // Poland street value is has a `/`
-        {
-            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":"123/89","source":"TIGER-2016","output":false},"interpolate":true, "geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
-
-            let context = Context::new(
-                String::from("pl"),
-                None,
-                Tokens::generate(vec![String::from("pl")]),
-            );
-
-            let addr = Address::new(feat, &context).unwrap();
-
-            assert_eq!(addr.to_tsv(), "\t0\t[{\"display\":\"Hickory Hills Dr\",\"priority\":-1,\"source\":\"Address\",\"tokenized\":[{\"token\":\"hickory\",\"token_type\":null},{\"token\":\"hills\",\"token_type\":null},{\"token\":\"dr\",\"token_type\":null}],\"freq\":1}]\t123/89\tTIGER-2016\tfalse\ttrue\t{\"number\":\"123/89\",\"source\":\"TIGER-2016\",\"street\":\"Hickory Hills Dr\"}\t0101000020E6100000096C0B88B40D55C00BF02796EB9B4340\n");
-        }
-    }
-
-    #[test]
-    fn test_address_simple_geom_fail() {
-        // US street value is has a `/`
-        {
-            let feat: geojson::GeoJson = String::from(r#"{"type":"Feature","properties":{"street":"Hickory Hills Dr","number":"123/89","source":"TIGER-2016","output":false},"interpolate":true, "geometry":{"type":"Point","coordinates":[-84.21414376368934,39.21812703085023]}}"#).parse().unwrap();
-
-            let context = Context::new(
-                String::from("us"),
-                Some(String::from("mn")),
-                Tokens::generate(vec![String::from("en")]),
-            );
-
-            let addr = Address::new(feat, &context);
-            let expected_error = Err(String::from("Number is not a supported address/unit type"));
-            assert_eq!(addr, expected_error);
         }
     }
 }

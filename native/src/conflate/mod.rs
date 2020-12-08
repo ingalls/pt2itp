@@ -115,7 +115,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         None => crate::Context::new(
             String::from(""),
             None,
-            crate::Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
+            crate::Tokens::new(HashMap::new(), HashMap::new()),
         ),
     };
 
@@ -143,6 +143,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             .query(
                 "
             SELECT
+                ST_Distance(ST_SetSRID(ST_Point($2, $3), 4326), p.geom),
                 json_build_object(
                     'id', p.id,
                     'number', p.number,
@@ -166,7 +167,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
         let mut persistents: Vec<Address> = Vec::with_capacity(rows.len());
 
         for row in rows.iter() {
-            let paddr: serde_json::Value = row.get(0);
+            let paddr: serde_json::Value = row.get(1);
             let paddr = Address::from_value(paddr).unwrap();
             persistents.push(paddr);
         }

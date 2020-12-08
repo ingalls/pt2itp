@@ -166,8 +166,8 @@ impl Names {
 
     ///
     /// Dedupe a Names struct based on the tokenized version of each name.
-    /// Names with the same priority and tokenized name will preference the duplicate with the
-    /// longest display name. This tries to preface non-abbreviated synonyms where they exist,
+    /// Names with the same priority and tokenized name will preference the dupliacate with the
+    /// longest display name. This tries to prefence non-abbreviated synonyms where they exist,
     /// e.g. 'East Main Street' rather than 'E Main St'
     ///
     pub fn dedupe(&mut self) {
@@ -301,6 +301,7 @@ impl Name {
         if source != Some(Source::Generated) {
             display = titlecase(&display, &context);
         }
+
         let tokenized = context.tokens.process(&display, &context.country);
 
         if context.country == String::from("US") || context.country == String::from("CA") {
@@ -418,7 +419,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new()),
         );
 
         assert_eq!(
@@ -554,7 +555,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new()),
         );
 
         let mut names = Names {
@@ -665,7 +666,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new()),
         );
 
         let expected = Names::new(
@@ -738,7 +739,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new()),
         );
 
         let _names = Names::from_value(
@@ -759,7 +760,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new()),
         );
 
         let a_name = Names::new(vec![Name::new("Main St", 0, None, &context)], &context);
@@ -1268,7 +1269,7 @@ mod tests {
         let context = Context::new(
             String::from("us"),
             None,
-            Tokens::new(HashMap::new(), HashMap::new(), HashMap::new()),
+            Tokens::new(HashMap::new(), HashMap::new()),
         );
 
         let mut empty_a = Names::new(

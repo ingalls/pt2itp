@@ -10,21 +10,6 @@
 
 ## Version History
 
-### v28.7.4
-- :arrow_up: Upgrade geocoder-abbreviations to 4.6.0.
-
-### v28.7.3
-- :arrow_up: Upgrade geocoder-abbreviations to 4.5.0.
- 
-### v28.7.2
-- :bug: Add support to skip negative lookahead for UK
-
-### v28.7.1
-- :bug: Update version
-
-### v28.7.0
-- :rocket: Add support for the ability to link an address to a network and vice versa based on substring comparison.
-
 ### v28.5.1
 - :bug: Update version
 
