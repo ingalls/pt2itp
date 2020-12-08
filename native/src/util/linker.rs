@@ -40,7 +40,7 @@ fn is_abbrev(abbrev: &String, canonical: String) -> bool {
     let mut canonical_chars: Vec<char> = canonical.chars().collect();
 
     // the first letter of both words must match
-    if (abbrev_chars[0] != canonical_chars[0]) {
+    if abbrev_chars[0] != canonical_chars[0] {
         return false;
     }
 
@@ -48,14 +48,14 @@ fn is_abbrev(abbrev: &String, canonical: String) -> bool {
     for a in &abbrev_chars {
         // Check if all tokens in the network are preset within the address
         let c_index = &canonical_chars.iter().position(|r| r == a);
-        if (c_index.is_none()) {
+        if c_index.is_none() {
             return false;
         } else {
             // remove all characters up to the index
             let mut i = c_index.unwrap();
             loop {
                 canonical_chars.remove(i);
-                if (i == 0) {
+                if i == 0 {
                     break;
                 };
                 i = i - 1;
@@ -228,7 +228,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                                 ntoks.remove(*index);
                             }
                             None => {
-                                if (ntoks.len() > 0 && is_abbrev(atok, ntoks[0].to_string())) {
+                                if ntoks.len() > 0 && is_abbrev(atok, ntoks[0].to_string()) {
                                     ntoks.remove(0);
                                 } else {
                                     network_subset_match = false;
@@ -252,7 +252,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                                     atoks.remove(*index);
                                 }
                                 None => {
-                                    if (atoks.len() > 0 && is_abbrev(ntok, atoks[0].to_string())) {
+                                    if atoks.len() > 0 && is_abbrev(ntok, atoks[0].to_string()) {
                                         atoks.remove(0);
                                     } else {
                                         address_subset_match = false;
@@ -317,7 +317,7 @@ mod tests {
     #[test]
     fn test_de_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
         let context = Context::new(
             String::from("de"),
             None,
@@ -1099,7 +1099,7 @@ mod tests {
     #[test]
     fn test_fr_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
         let context = Context::new(
             String::from("fr"),
             None,
@@ -1207,7 +1207,7 @@ mod tests {
     #[test]
     fn test_es_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
         let context = Context::new(
             String::from("es"),
             None,
@@ -1266,6 +1266,42 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 91.86)));
+        }
+    }
+    #[test]
+    fn test_sk_linker() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(
+            String::from("sk"),
+            None,
+            Tokens::generate(vec![String::from("es")]),
+        );
+        {
+            let a_name = Names::new(
+                vec![Name::new("M. Pišúta", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("Milana Pišúta", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+        {
+            let a_name = Names::new(
+                vec![Name::new("Andreja Kostolného", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("A. Kostolného", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
         }
     }
 }
