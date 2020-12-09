@@ -257,7 +257,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     if subset_match {
                         // subset match successful
                         score = 70.01;
-                    }
+                    };
                 }
 
                 if score > potential.maxscore {
@@ -308,7 +308,7 @@ mod tests {
     #[test]
     fn test_de_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
         let context = Context::new(
             String::from("de"),
             None,
@@ -1090,7 +1090,7 @@ mod tests {
     #[test]
     fn test_fr_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
         let context = Context::new(
             String::from("fr"),
             None,
@@ -1236,7 +1236,7 @@ mod tests {
     #[test]
     fn test_es_linker() {
         let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
-        let mut regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
         let context = Context::new(
             String::from("es"),
             None,

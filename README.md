@@ -225,4 +225,4 @@ To run only a specific Cargo test:
 ```
 npm run cargo_one
 ```
-- This will run on the test you specify (ie. `util::linker::tests::test_fr_linker`, as well as print any print statements you have added throughout your code.
+- This will run on the test you specify (ie. `util::linker::tests::test_fr_linker`), as well as print any print statements you have added throughout your code.
