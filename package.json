@@ -16,6 +16,8 @@
     "coverage-upload": "coveralls < ./coverage.lcov",
     "pretest": "test/pretest.js",
     "test": "tape test/*.test.js && cd native && cargo test --release",
+    "cargo_all": "cd native && cargo test --release",
+    "cargo_one": "cd native && cargo test --release -- --exact util::linker::tests::test_fr_linker -- --nocapture",
     "format": "cd native/ && cargo fmt -- --check"
   },
   "binary": {
@@ -30,7 +32,7 @@
   "dependencies": {
     "@mapbox/carmen": "27.2.0",
     "@mapbox/eslint-config-geocoding": "^2.0.2",
-    "@mapbox/geocoder-abbreviations": "git+https://github.com/mapbox/geocoder-abbreviations.git#54da997e73d8ddf15b32e03bc7cf5faa7b6c225e",
+    "@mapbox/geocoder-abbreviations": "4.6.0",
     "@mapbox/geojson-area": "^0.2.2",
     "@mapbox/mbtiles": "^0.11.0",
     "@mapbox/tile-cover": "^3.0.2",
