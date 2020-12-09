@@ -35,14 +35,33 @@ impl LinkResult {
     }
 }
 
+fn substr_match(pattern: &str, full: &str) -> bool {
+    let mut pattern_chars = pattern.chars();
+    let mut full_chars = full.chars();
+    
+    'outer: for p in &mut pattern_chars {
+        for f in &mut full_chars {
+            if f == p {
+                continue 'outer;
+            }
+        }
+        return false;
+    } 
+    true
+}
+
 // loop through token list. if abbrev is in token list remove token_list items through matching list index value
 fn is_abbrev(abbrev: &String, token_list: &Vec<String>) -> (bool, Vec<String>) {
     for (index, x) in token_list.iter().enumerate() {
-        if x.starts_with(abbrev) {
-            return (true, token_list[index + 1..].to_vec());
-        }
-        if abbrev.starts_with(x) {
-            return (true, token_list[index + 1..].to_vec());
+        if abbrev.chars().nth(0).unwrap() == x.chars().nth(0).unwrap() {
+            let substring_match: bool = substr_match(x, abbrev);
+            if substring_match {
+                return (true, token_list[index + 1..].to_vec());
+            }
+            let substring_match: bool = substr_match(abbrev, x);
+            if substring_match {
+                return (true, token_list[index + 1..].to_vec());
+            }
         }
     }
     return (false, token_list.to_vec());
@@ -1296,6 +1315,37 @@ mod tests {
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 91.86)));
         }
+        {
+            let a_name = Names::new(
+                vec![Name::new("cl f garcia lorca", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new(
+                    "cl federico garcia lorca",
+                    0,
+                    None,
+                    &context,
+                )],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+            {
+            let a_name = Names::new(
+                vec![Name::new("bo ntra", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("barrio nuestra", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
     }
     #[test]
     fn test_sk_linker() {
@@ -1354,6 +1404,19 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), None);
+        }
+        {
+            let a_name = Names::new(
+                vec![Name::new("Andja Kostolného", 0, None, &context)],
+                &context,
+            );
+            let b_name = Names::new(
+                vec![Name::new("Andreja Kostlného Kostolného", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
         }
     }
 }
