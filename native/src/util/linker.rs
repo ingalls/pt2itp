@@ -70,7 +70,7 @@ fn is_abbrev(token: &String, token_list: &Vec<String>) -> (bool, Vec<String>) {
     return (false, token_list.to_vec());
 }
 
-// comparing address token list against network token list or network token list
+// compare address token list against network token list or network token list
 // against address token list
 fn check_substring(token_list_one: Vec<String>, mut token_list_two: Vec<String>) -> bool {
     for word in &token_list_one {
@@ -82,7 +82,7 @@ fn check_substring(token_list_one: Vec<String>, mut token_list_two: Vec<String>)
             }
             None => {
                 if token_list_two.len() > 0 {
-                    // return stripped through abbreviated index value
+                    // if abbreviation is found return stripped through abbreviated index value
                     let check_abbreviation: (bool, Vec<String>) = is_abbrev(word, &token_list_two);
                     abbrev_match = check_abbreviation.0;
                     token_list_two = check_abbreviation.1;
@@ -250,7 +250,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     let mut subset_match: bool = true;
                     let address_length: usize = atoks.len();
                     let network_length: usize = ntoks.len();
-                    // if network length is greater than address length then all of address need to be in network
+                    // compare smaller list against larger list. all tokens in the smaller list must be in the larger list
                     if network_length > address_length {
                         // Check if all tokens in the address are present within the network
                         subset_match = check_substring(atoks, ntoks);
