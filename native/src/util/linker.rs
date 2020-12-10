@@ -35,10 +35,10 @@ impl LinkResult {
     }
 }
 
-fn substr_match(pattern: &str, full: &str) -> bool {
+// check if characters are consecutive in string; ie. "ntra" in "nuestra"
+fn pattern_match(pattern: &str, full: &str) -> bool {
     let mut pattern_chars = pattern.chars();
     let mut full_chars = full.chars();
-    
     'outer: for p in &mut pattern_chars {
         for f in &mut full_chars {
             if f == p {
@@ -46,25 +46,54 @@ fn substr_match(pattern: &str, full: &str) -> bool {
             }
         }
         return false;
-    } 
+    }
     true
 }
 
 // loop through token list. if abbrev is in token list remove token_list items through matching list index value
-fn is_abbrev(abbrev: &String, token_list: &Vec<String>) -> (bool, Vec<String>) {
+fn is_abbrev(token: &String, token_list: &Vec<String>) -> (bool, Vec<String>) {
     for (index, x) in token_list.iter().enumerate() {
-        if abbrev.chars().nth(0).unwrap() == x.chars().nth(0).unwrap() {
-            let substring_match: bool = substr_match(x, abbrev);
+        if token.chars().nth(0).unwrap() == x.chars().nth(0).unwrap() {
+            // check token compared to list index token
+            let substring_match: bool = pattern_match(x, token);
             if substring_match {
                 return (true, token_list[index + 1..].to_vec());
             }
-            let substring_match: bool = substr_match(abbrev, x);
+
+            // check list index token compared to token
+            let substring_match: bool = pattern_match(token, x);
             if substring_match {
                 return (true, token_list[index + 1..].to_vec());
             }
         }
     }
     return (false, token_list.to_vec());
+}
+
+// comparing address token list against network token list or network token list
+// against address token list
+fn check_substring(token_list_one: Vec<String>, mut token_list_two: Vec<String>) -> bool {
+    for word in &token_list_one {
+        let ntok_index = &token_list_two.iter().position(|r| r == word);
+        let mut abbrev_match: bool = false;
+        match ntok_index {
+            Some(index) => {
+                token_list_two.remove(*index);
+            }
+            None => {
+                if token_list_two.len() > 0 {
+                    // return stripped through abbreviated index value
+                    let check_abbreviation: (bool, Vec<String>) = is_abbrev(word, &token_list_two);
+                    abbrev_match = check_abbreviation.0;
+                    token_list_two = check_abbreviation.1;
+                }
+                if !abbrev_match {
+                    return false;
+                }
+            }
+        };
+    }
+    return true;
 }
 
 ///
@@ -218,59 +247,16 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         .map(|x| x.token.to_owned())
                         .collect();
 
-                    let mut subset_match = true;
-
+                    let mut subset_match: bool = true;
                     let address_length: usize = atoks.len();
                     let network_length: usize = ntoks.len();
                     // if network length is greater than address length then all of address need to be in network
                     if network_length > address_length {
                         // Check if all tokens in the address are present within the network
-                        for atok in &atoks {
-                            let ntok_index = &ntoks.iter().position(|r| r == atok);
-                            let mut abbrev_match: bool = false;
-                            match ntok_index {
-                                Some(index) => {
-                                    ntoks.remove(*index);
-                                }
-                                None => {
-                                    if ntoks.len() > 0 {
-                                        // return stripped through abbreviated index value
-                                        let check_abbreviation: (bool, Vec<String>) =
-                                            is_abbrev(atok, &ntoks);
-                                        abbrev_match = check_abbreviation.0;
-                                        ntoks = check_abbreviation.1;
-                                    }
-                                    if !abbrev_match {
-                                        subset_match = false;
-                                        continue;
-                                    }
-                                }
-                            };
-                        }
+                        subset_match = check_substring(atoks, ntoks);
                     } else {
                         // Check if all tokens in the network are preset within the address
-                        for ntok in &ntoks {
-                            let atok_index = &atoks.iter().position(|r| r == ntok);
-                            let mut abbrev_match: bool = false;
-                            match atok_index {
-                                Some(index) => {
-                                    atoks.remove(*index);
-                                }
-                                None => {
-                                    if atoks.len() > 0 {
-                                        // return stripped through abbreviated index value
-                                        let check_abbreviation: (bool, Vec<String>) =
-                                            is_abbrev(ntok, &atoks);
-                                        abbrev_match = check_abbreviation.0;
-                                        atoks = check_abbreviation.1;
-                                    }
-                                    if !abbrev_match {
-                                        subset_match = false;
-                                        continue;
-                                    }
-                                }
-                            };
-                        }
+                        subset_match = check_substring(ntoks, atoks);
                     }
 
                     if subset_match {
@@ -1321,23 +1307,16 @@ mod tests {
                 &context,
             );
             let b_name = Names::new(
-                vec![Name::new(
-                    "cl federico garcia lorca",
-                    0,
-                    None,
-                    &context,
-                )],
+                vec![Name::new("cl federico garcia lorca", 0, None, &context)],
                 &context,
             );
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
         }
-            {
-            let a_name = Names::new(
-                vec![Name::new("bo ntra", 0, None, &context)],
-                &context,
-            );
+        // "nrta" consecutive in "nuestra" --> pass
+        {
+            let a_name = Names::new(vec![Name::new("bo ntra", 0, None, &context)], &context);
             let b_name = Names::new(
                 vec![Name::new("barrio nuestra", 0, None, &context)],
                 &context,
@@ -1345,6 +1324,17 @@ mod tests {
             let a = Link::new(1, &a_name);
             let b = vec![Link::new(2, &b_name)];
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+        // "nrta" not consecutive in "nuestra" --> fail
+        {
+            let a_name = Names::new(vec![Name::new("bo nrta", 0, None, &context)], &context);
+            let b_name = Names::new(
+                vec![Name::new("barrio nuestra", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), None);
         }
     }
     #[test]
@@ -1385,7 +1375,12 @@ mod tests {
                 &context,
             );
             let b_name = Names::new(
-                vec![Name::new("Andreja Kostolného Kostolného", 0, None, &context)],
+                vec![Name::new(
+                    "Andreja Kostolného Kostolného",
+                    0,
+                    None,
+                    &context,
+                )],
                 &context,
             );
             let a = Link::new(1, &a_name);
@@ -1398,7 +1393,12 @@ mod tests {
                 &context,
             );
             let b_name = Names::new(
-                vec![Name::new("Andreja Kostolného Kostolného", 0, None, &context)],
+                vec![Name::new(
+                    "Andreja Kostolného Kostolného",
+                    0,
+                    None,
+                    &context,
+                )],
                 &context,
             );
             let a = Link::new(1, &a_name);
