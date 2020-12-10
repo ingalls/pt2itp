@@ -190,10 +190,9 @@
   resolved "https://registry.yarnpkg.com/@mapbox/eslint-config-geocoding/-/eslint-config-geocoding-2.0.2.tgz#0dab7b9cc7827f4426dcff707e06e6b7be134136"
   integrity sha512-SZRaSgVLYJuTMQ/N2bb+4gdsQcuP5p6zboiIAi55l0d82LMMx3YL1RUqxOSRkJVU7Y4oO1+AYkJMLLcSbYgXAQ==
 
-"@mapbox/geocoder-abbreviations@4.5.0":
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/@mapbox/geocoder-abbreviations/-/geocoder-abbreviations-4.5.0.tgz#71c37c9b0c577400f331152ac7b50a6a5a2cdf37"
-  integrity sha512-igO5vsbBnvKBwFn25rY0YhTRiT0uX0mP+3xaBwMq3NrW/iWUbc93I7Q21jf6rLssSpRoQ38uviTW68EF4Duwpg==
+"@mapbox/geocoder-abbreviations@git+https://github.com/mapbox/geocoder-abbreviations.git#28a25062c4ea7e90f453952a60daf7775da0e13e":
+  version "4.6.0"
+  resolved "git+https://github.com/mapbox/geocoder-abbreviations.git#28a25062c4ea7e90f453952a60daf7775da0e13e"
   dependencies:
     tape "^4.6.3"
     union-find "^1.0.2"
