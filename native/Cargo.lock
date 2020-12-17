@@ -359,7 +359,7 @@ dependencies = [
 [[package]]
 name = "geocoder-abbreviations"
 version = "0.1.0"
-source = "git+https://github.com/mapbox/geocoder-abbreviations?rev=28a25062c4ea7e90f453952a60daf7775da0e13e#28a25062c4ea7e90f453952a60daf7775da0e13e"
+source = "git+https://github.com/mapbox/geocoder-abbreviations?tag=v4.6.0#002e99f9f6032ec3c52ac63e9949adccdeb2c05d"
 dependencies = [
  "alphanumeric-sort",
  "fancy-regex",
