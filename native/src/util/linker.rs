@@ -1419,4 +1419,54 @@ mod tests {
             assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
         }
     }
+    #[test]
+    fn test_it_linker() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(
+            String::from("it"),
+            None,
+            Tokens::generate(vec![String::from("it")]),
+        );
+        {
+            let a_name = Names::new(vec![Name::new("Via Angelo Silvio Novaro", 0, None, &context)], &context);
+            let b_name = Names::new(
+                vec![Name::new("Via A. S. Novaro", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+    }
+    #[test]
+    fn test_be_linker() {
+        let mut tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let regex_tokens: HashMap<String, ParsedToken> = HashMap::new();
+        let context = Context::new(
+            String::from("fr"),
+            None,
+            Tokens::generate(vec![String::from("fr")]),
+        );
+        {
+            let a_name = Names::new(vec![Name::new("rue de la reine astrid", 0, None, &context)], &context);
+            let b_name = Names::new(
+                vec![Name::new("rue reine astrid", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 91.18)));
+        }
+        {
+            let a_name = Names::new(vec![Name::new("grand'place", 0, None, &context)], &context);
+            let b_name = Names::new(
+                vec![Name::new("grand place", 0, None, &context)],
+                &context,
+            );
+            let a = Link::new(1, &a_name);
+            let b = vec![Link::new(2, &b_name)];
+            assert_eq!(linker(a, b, false), Some(LinkResult::new(2, 70.01)));
+        }
+    }
 }
