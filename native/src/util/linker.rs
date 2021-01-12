@@ -311,8 +311,6 @@ macro_rules! build_lang_context {
 #[macro_export]
 macro_rules! assert_linker_eq {
     ($language:expr; $name_a:expr; $name_b:expr; $strict_mode:expr; $expected_return:expr) => {
-        println!("{}", $name_a);
-        println!("{}", $name_b);
         let context = build_lang_context!($language);
         let a_name = Names::new(vec![Name::new($name_a, 0, None, &context)], &context);
         let b_name = Names::new(vec![Name::new($name_b, 0, None, &context)], &context);
