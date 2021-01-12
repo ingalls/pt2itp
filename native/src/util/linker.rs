@@ -316,15 +316,22 @@ macro_rules! assert_linker_eq {
         let b_name = Names::new(vec![Name::new($name_b, 0, None, &context)], &context);
         let a = Link::new(1, &a_name);
         let b = vec![Link::new(2, &b_name)];
+        assert_eq!(
+            linker(a, b, $strict_mode),
+            Some(LinkResult::new(2, $expected_return))
+        );
+    };
+}
 
-        if $expected_return == 0.0 {
-            assert_eq!(linker(a, b, $strict_mode), None);
-        } else {
-            assert_eq!(
-                linker(a, b, $strict_mode),
-                Some(LinkResult::new(2, $expected_return))
-            );
-        }
+#[macro_export]
+macro_rules! assert_linker_no_match {
+    ($language:expr; $name_a:expr; $name_b:expr; $strict_mode:expr) => {
+        let context = build_lang_context!($language);
+        let a_name = Names::new(vec![Name::new($name_a, 0, None, &context)], &context);
+        let b_name = Names::new(vec![Name::new($name_b, 0, None, &context)], &context);
+        let a = Link::new(1, &a_name);
+        let b = vec![Link::new(2, &b_name)];
+        assert_eq!(linker(a, b, false), None)
     };
 }
 
@@ -1116,7 +1123,7 @@ mod tests {
             assert_linker_eq!("fr"; "place francois mitterrand"; "place de la republique francois mitterrand"; false; 70.01);
         }
         {
-            assert_linker_eq!("fr"; "place francois mitterrand l'eglise"; "place de la republique francois mitterrand"; false; 0.0);
+            assert_linker_no_match!("fr"; "place francois mitterrand l'eglise"; "place de la republique francois mitterrand"; false);
         }
     }
 
@@ -1143,7 +1150,7 @@ mod tests {
         }
         // "nrta" not consecutive in "nuestra" --> fail
         {
-            assert_linker_eq!("es"; "bo nrta"; "barrio nuestra"; false; 0.0);
+            assert_linker_no_match!("es"; "bo nrta"; "barrio nuestra"; false);
         }
     }
 
@@ -1159,7 +1166,7 @@ mod tests {
             assert_linker_eq!("sk"; "A. Kostolného"; "Ak. Kostolného"; false; 92.0);
         }
         {
-            assert_linker_eq!("sk"; "Ak. Kostolného"; "Andreja Kostolného Kostolného"; false; 0.0);
+            assert_linker_no_match!("sk"; "Ak. Kostolného"; "Andreja Kostolného Kostolného"; false);
         }
         {
             assert_linker_eq!("sk"; "Andja Kostolného"; "Andreja Kostlného Kostolného"; false; 70.01);
