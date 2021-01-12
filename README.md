@@ -212,17 +212,21 @@ don't change/break the CLI interface.
 ## Tests
 
 To run the entire JS & Rust test suite:
+
 ```
 npm run test
 ```
 
 To run only the Cargo test suite:
-```
-npm run cargo_all
-````
 
-To run only a specific Cargo test:
 ```
-npm run cargo_one
+npm run cargo
 ```
-- This will run on the test you specify (ie. `util::linker::tests::test_fr_linker`), as well as print any print statements you have added throughout your code.
+
+To run a specific Cargo test:
+
+```
+npm run cargo_individual --my_test=<path_to_test>
+```
+
+- This will run only the test you specify (ie. `npm run cargo_one --my_test=util::linker::tests::test_be_linker`), as well as print any print statements you have added throughout your code.

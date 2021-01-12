@@ -16,8 +16,8 @@
     "coverage-upload": "coveralls < ./coverage.lcov",
     "pretest": "test/pretest.js",
     "test": "tape test/*.test.js && cd native && cargo test --release",
-    "cargo_all": "cd native && cargo test --release",
-    "cargo_one": "cd native && cargo test --release -- --exact util::linker::tests::test_fr_linker -- --nocapture",
+    "cargo": "cd native && cargo test --release",
+    "cargo_individual": "cd native && cargo test --release -- --exact $npm_config_test -- --nocapture",
     "format": "cd native/ && cargo fmt -- --check"
   },
   "binary": {
