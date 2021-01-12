@@ -310,7 +310,7 @@ macro_rules! build_lang_context {
 
 #[macro_export]
 macro_rules! assert_linker_eq {
-    ($language:expr; $name_a:expr; $name_b:expr; $strict_mode:expr; $expected_return:expr) => {
+    ($language:expr, $name_a:expr, $name_b:expr, $strict_mode:expr, $expected_return:expr) => {
         let context = build_lang_context!($language);
         let a_name = Names::new(vec![Name::new($name_a, 0, None, &context)], &context);
         let b_name = Names::new(vec![Name::new($name_b, 0, None, &context)], &context);
@@ -325,13 +325,13 @@ macro_rules! assert_linker_eq {
 
 #[macro_export]
 macro_rules! assert_linker_no_match {
-    ($language:expr; $name_a:expr; $name_b:expr; $strict_mode:expr) => {
+    ($language:expr, $name_a:expr, $name_b:expr, $strict_mode:expr) => {
         let context = build_lang_context!($language);
         let a_name = Names::new(vec![Name::new($name_a, 0, None, &context)], &context);
         let b_name = Names::new(vec![Name::new($name_b, 0, None, &context)], &context);
         let a = Link::new(1, &a_name);
         let b = vec![Link::new(2, &b_name)];
-        assert_eq!(linker(a, b, false), None)
+        assert_eq!(linker(a, b, $strict_mode), None)
     };
 }
 
@@ -1089,104 +1089,198 @@ mod tests {
     #[test]
     fn test_de_linker() {
         {
-            assert_linker_eq!("de"; "weserstrandstrasse"; "weserstrandstr"; false; 100.0);
+            assert_linker_eq!("de", "weserstrandstrasse", "weserstrandstr", false, 100.0);
         }
         {
-            assert_linker_eq!("de"; "kuferstr"; "kuferstrasse"; false; 100.0);
+            assert_linker_eq!("de", "kuferstr", "kuferstrasse", false, 100.0);
         }
         {
-            assert_linker_eq!("de"; "kuferstraße"; "kuferstrasse"; false; 100.0);
+            assert_linker_eq!("de", "kuferstraße", "kuferstrasse", false, 100.0);
         }
     }
 
     #[test]
     fn test_fr_linker() {
         {
-            assert_linker_eq!("fr"; "saint martin rue de l'eglise"; "rue de l'eglise"; false; 70.01);
+            assert_linker_eq!(
+                "fr",
+                "saint martin rue de l'eglise",
+                "rue de l'eglise",
+                false,
+                70.01
+            );
         }
         {
-            assert_linker_eq!("fr"; "saint martin ruet de l'eglise encore"; "rue de l'eglise"; false; 70.01);
+            assert_linker_eq!(
+                "fr",
+                "saint martin ruet de l'eglise encore",
+                "rue de l'eglise",
+                false,
+                70.01
+            );
         }
         {
-            assert_linker_eq!("fr"; "rue de l'eglise"; "saint martin ruet de l'eglise encore"; false; 70.01);
+            assert_linker_eq!(
+                "fr",
+                "rue de l'eglise",
+                "saint martin ruet de l'eglise encore",
+                false,
+                70.01
+            );
         }
         {
-            assert_linker_eq!("fr"; "rue de l'eglise saint martin"; "rue de l'eglise"; false; 70.01);
+            assert_linker_eq!(
+                "fr",
+                "rue de l'eglise saint martin",
+                "rue de l'eglise",
+                false,
+                70.01
+            );
         }
         {
-            assert_linker_eq!("fr"; "rue de saint martin"; "rue de saint marten"; false; 92.86);
+            assert_linker_eq!(
+                "fr",
+                "rue de saint martin",
+                "rue de saint marten",
+                false,
+                92.86
+            );
         }
         {
-            assert_linker_eq!("fr"; "impasse sourdoire"; "impasse de la sourdoire"; false; 90.63);
+            assert_linker_eq!(
+                "fr",
+                "impasse sourdoire",
+                "impasse de la sourdoire",
+                false,
+                90.63
+            );
         }
         {
-            assert_linker_eq!("fr"; "place francois mitterrand"; "place de la republique francois mitterrand"; false; 70.01);
+            assert_linker_eq!(
+                "fr",
+                "place francois mitterrand",
+                "place de la republique francois mitterrand",
+                false,
+                70.01
+            );
         }
         {
-            assert_linker_no_match!("fr"; "place francois mitterrand l'eglise"; "place de la republique francois mitterrand"; false);
+            assert_linker_no_match!(
+                "fr",
+                "place francois mitterrand l'eglise",
+                "place de la republique francois mitterrand",
+                false
+            );
         }
     }
 
     #[test]
     fn test_es_linker() {
         {
-            assert_linker_eq!("es"; "carrer de ramon casas"; "cl ramon casas"; false; 95.16);
+            assert_linker_eq!(
+                "es",
+                "carrer de ramon casas",
+                "cl ramon casas",
+                false,
+                95.16
+            );
         }
         {
-            assert_linker_eq!("es"; "carrer de l'onze de setembre"; "cl onze de setembre"; false; 92.5);
+            assert_linker_eq!(
+                "es",
+                "carrer de l'onze de setembre",
+                "cl onze de setembre",
+                false,
+                92.5
+            );
         }
         {
-            assert_linker_eq!("es"; "passatge de llessami"; "pj llessami"; false; 94.0);
+            assert_linker_eq!("es", "passatge de llessami", "pj llessami", false, 94.0);
         }
         {
-            assert_linker_eq!("es"; "GV Corts Catalanes"; "Gran Via De Les Corts Catalanes"; false; 91.86);
+            assert_linker_eq!(
+                "es",
+                "GV Corts Catalanes",
+                "Gran Via De Les Corts Catalanes",
+                false,
+                91.86
+            );
         }
         {
-            assert_linker_eq!("es"; "cl f garcia lorca"; "cl federico garcia lorca"; false; 70.01);
+            assert_linker_eq!(
+                "es",
+                "cl f garcia lorca",
+                "cl federico garcia lorca",
+                false,
+                70.01
+            );
         }
         // "nrta" consecutive in "nuestra" --> pass
         {
-            assert_linker_eq!("es"; "bo ntra"; "barrio nuestra"; false; 70.01);
+            assert_linker_eq!("es", "bo ntra", "barrio nuestra", false, 70.01);
         }
         // "nrta" not consecutive in "nuestra" --> fail
         {
-            assert_linker_no_match!("es"; "bo nrta"; "barrio nuestra"; false);
+            assert_linker_no_match!("es", "bo nrta", "barrio nuestra", false);
         }
     }
 
     #[test]
     fn test_sk_linker() {
         {
-            assert_linker_eq!("sk"; "M. Pišúta"; "Milana Pišúta"; false; 70.01);
+            assert_linker_eq!("sk", "M. Pišúta", "Milana Pišúta", false, 70.01);
         }
         {
-            assert_linker_eq!("sk"; "Andreja Kostolného"; "A. Kostolného"; false; 70.01);
+            assert_linker_eq!("sk", "Andreja Kostolného", "A. Kostolného", false, 70.01);
         }
         {
-            assert_linker_eq!("sk"; "A. Kostolného"; "Ak. Kostolného"; false; 92.0);
+            assert_linker_eq!("sk", "A. Kostolného", "Ak. Kostolného", false, 92.0);
         }
         {
-            assert_linker_no_match!("sk"; "Ak. Kostolného"; "Andreja Kostolného Kostolného"; false);
+            assert_linker_no_match!(
+                "sk",
+                "Ak. Kostolného",
+                "Andreja Kostolného Kostolného",
+                false
+            );
         }
         {
-            assert_linker_eq!("sk"; "Andja Kostolného"; "Andreja Kostlného Kostolného"; false; 70.01);
+            assert_linker_eq!(
+                "sk",
+                "Andja Kostolného",
+                "Andreja Kostlného Kostolného",
+                false,
+                70.01
+            );
         }
     }
 
     #[test]
     fn test_it_linker() {
         {
-            assert_linker_eq!("it"; "Via Angelo Silvio Novaro"; "Via A. S. Novaro"; false; 70.01);
+            assert_linker_eq!(
+                "it",
+                "Via Angelo Silvio Novaro",
+                "Via A. S. Novaro",
+                false,
+                70.01
+            );
         }
     }
 
     #[test]
     fn test_be_linker() {
         {
-            assert_linker_eq!("fr"; "rue de la reine astrid"; "rue reine astrid"; false; 91.18);
+            assert_linker_eq!(
+                "fr",
+                "rue de la reine astrid",
+                "rue reine astrid",
+                false,
+                91.18
+            );
         }
         {
-            assert_linker_eq!("fr"; "grand'place"; "grand place"; false; 70.01);
+            assert_linker_eq!("fr", "grand'place", "grand place", false, 70.01);
         }
     }
 }
