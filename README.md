@@ -208,3 +208,25 @@ don't change/break the CLI interface.
 └┤ Hypenated Primary Address Number - The hyphen is significant and should not be omitted.
  │ Different hyphenated standards represent different things. wikipedia: Queens Addresses
 ```
+
+## Tests
+
+To run the entire JS & Rust test suite:
+
+```
+npm run test
+```
+
+To run only the Cargo test suite:
+
+```
+npm run cargo
+```
+
+To run a specific Cargo test:
+
+```
+npm run cargo_individual --my_test=<path_to_test>
+```
+
+- This will run only the test you specify (ie. `npm run cargo_one --my_test=util::linker::tests::test_be_linker`), as well as print any print statements you have added throughout your code.
