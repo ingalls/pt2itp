@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.7.5
+- :rocket: Add support to link an address to a network and vice versa based on abbreviation comparison. 
+
 ### v28.7.4
 - :arrow_up: Upgrade geocoder-abbreviations to 4.6.0.
 
