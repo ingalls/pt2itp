@@ -156,7 +156,7 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             FROM
                 address p
             WHERE
-                p.number = $1
+                (p.number = $1 OR REPLACE(p.number, '-', '') = REPLACE($1, '-', ''))
                 AND ST_DWithin(ST_SetSRID(ST_Point($2, $3), 4326), p.geom, 0.01);
         ",
                 &[&addr.number, &addr.geom[0], &addr.geom[1]],
