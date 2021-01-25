@@ -169,7 +169,6 @@ pub fn conflate(mut cx: FunctionContext) -> JsResult<JsBoolean> {
             let paddr: serde_json::Value = row.get(0);
             let paddr = Address::from_value(paddr).unwrap();
             persistents.push(paddr);
-            println!("TESTING COMPARES {:?}: {:?}", &addr.number, row)
         }
 
         match compare(&addr, &mut persistents) {
