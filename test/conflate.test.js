@@ -64,6 +64,40 @@ test('conflate - CREATE finds only exact duplicate features, adds nothing', (t) 
     t.end();
 });
 
+test('conflate - CREATE finds only duplicate feature with hyphen in address number, adds nothing', (t) => {
+    // Ensure files don't exist before test
+    try {
+        fs.unlinkSync('/tmp/output.geojson');
+        fs.unlinkSync('/tmp/error-persistent');
+    } catch (err) {
+        console.error('ok - cleaned tmp files');
+    }
+
+    worker({
+        'in_persistent': path.resolve(__dirname, './fixtures/hi-persistent.geojson'),
+        'in_address': path.resolve(__dirname, './fixtures/hi-with-hyphen.geojson'),
+        output: '/tmp/output.geojson',
+        'error_persistent': '/tmp/error-persistent',
+        context: {
+            country: 'us',
+            region: 'hi',
+            languages: ['en']
+        },
+        db: 'pt_test'
+    });
+
+    const rl = new ReadLine('/tmp/output.geojson');
+
+    t.notOk(rl.next(), 'no output features');
+    t.doesNotThrow(() => {
+        fs.accessSync('/tmp/error-persistent');
+    });
+
+    fs.unlinkSync('/tmp/output.geojson');
+    fs.unlinkSync('/tmp/error-persistent');
+    t.end();
+});
+
 test('conflate - CREATE finds features with same address number and street less than 1km away, adds nothing', (t) => {
     // Ensure files don't exist before test
     try {

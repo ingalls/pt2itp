@@ -1,0 +1,1 @@
+{ "id": 1, "version": 1, "type": "Feature", "properties": { "number": "43963", "street": [ { "display": "paauilo makai rd", "priority": 0 } ] }, "geometry": { "type": "Point", "coordinates": [ -155.365909, 20.041685 ] } }
