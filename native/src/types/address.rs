@@ -586,7 +586,7 @@ mod tests {
             );
 
             let addr = Address::new(feat, &context);
-            let expected_error = Err(String::from("Number is not a supported address/unit type"));
+            let expected_error = Err(String::from("Number is not a supported address/unit type: \"123/89\""));
             assert_eq!(addr, expected_error);
         }
     }
