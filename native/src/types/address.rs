@@ -257,12 +257,12 @@ impl Address {
         };
         if !supported.is_match(self.number.as_str()) {
             let return_string = format!("Number is not a supported address/unit type: {:?}", self.number);
-            return Err(String::from(return_string));
+            return Err(return_string);
         }
 
         if self.number.len() > 10 {
             let return_string = format!("Number should not exceed 10 chars: {:?}", self.number);
-            return Err(String::from(return_string));
+            return Err(return_string);
         }
 
         Ok(())
