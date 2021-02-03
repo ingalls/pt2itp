@@ -256,7 +256,10 @@ impl Address {
             &*DEFAULT_SUPPORTED
         };
         if !supported.is_match(self.number.as_str()) {
-            let return_string = format!("Number is not a supported address/unit type: {:?}", self.number);
+            let return_string = format!(
+                "Number is not a supported address/unit type: {:?}",
+                self.number
+            );
             return Err(return_string);
         }
 
@@ -586,7 +589,9 @@ mod tests {
             );
 
             let addr = Address::new(feat, &context);
-            let expected_error = Err(String::from("Number is not a supported address/unit type: \"123/89\""));
+            let expected_error = Err(String::from(
+                "Number is not a supported address/unit type: \"123/89\"",
+            ));
             assert_eq!(addr, expected_error);
         }
     }
