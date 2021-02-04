@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v28.7.6
+- :bug: Add support to skip negative lookahead for Canada
+- :arrow_up: Upgrade geocoder-abbreviations to 4.6.4. 
+
 ### v28.7.5
 - :rocket: Add support to link an address to a network and vice versa based on abbreviation comparison. 
 
