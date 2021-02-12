@@ -52,21 +52,7 @@ fn pattern_match(pattern: &str, full: &str) -> bool {
 
 // loop through token list. if abbrev is in token list remove token_list items through matching list index value
 fn is_abbrev(token: &String, token_list: &Vec<String>) -> (bool, Vec<String>) {
-    for (index, x) in token_list.iter().enumerate() {
-        if token.chars().nth(0).unwrap() == x.chars().nth(0).unwrap() {
-            // check token compared to list index token
-            let substring_match: bool = pattern_match(x, token);
-            if substring_match {
-                return (true, token_list[index + 1..].to_vec());
-            }
-
-            // check list index token compared to token
-            let substring_match: bool = pattern_match(token, x);
-            if substring_match {
-                return (true, token_list[index + 1..].to_vec());
-            }
-        }
-    }
+    // @temp: return all abbreviation checks as false
     return (false, token_list.to_vec());
 }
 
@@ -256,7 +242,8 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
                     if subset_match {
                         // subset match successful
-                        score = 70.01;
+                        // @temp: do nothing with a subset match
+                        // score = 70.01;
                     };
                 }
 
