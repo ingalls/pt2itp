@@ -21,7 +21,7 @@
     "geocoder_address": 1,
     "geocoder_format": "{address._number} {address._name}, {locality._name}, {place._name}, {region._name} {postcode._name}, {country._name}",
     "geocoder_resolution": 0,
-    "geocoder_version": 9,
+    "geocoder_version": 10,
     "geocoder_stack": [
         "us"
     ],
