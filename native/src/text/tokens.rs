@@ -86,7 +86,7 @@ impl Tokens {
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
         let mut tokens = self.tokenize(&text);
         let mut normalized_full_text = diacritics(&text.to_lowercase());
-        let skip_regex_list = vec![String::from("US"), String::from("GB"), String::from("CA")]; // add countries that are using english tokens here to get around lookahead token replacement errors
+        let skip_regex_list = vec![String::from("US"), String::from("GB"), String::from("CA"), String::from("IE")]; // add countries that are using english tokens here to get around lookahead token replacement errors
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
         if !country.is_empty() && !skip_regex_list.contains(&country) {
