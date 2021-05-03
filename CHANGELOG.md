@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v28.7.7
+- :bug: Add support to skip negative lookahead for Ireland
+- :arrow_up: Upgrade geocoder-abbreviations to 4.6.6 to include token additions for Latvia and Bulgaria. 
+
 ### v28.7.6
 - :bug: Add support to skip negative lookahead for Canada
 - :arrow_up: Upgrade geocoder-abbreviations to 4.6.4. 
