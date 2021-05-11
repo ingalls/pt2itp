@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.7.8
+- :arrow_up: Upgrade geocoder-abbreviations to 4.6.8 to include token additions for Gr, BA, CY, HR. 
+
 ### v28.7.7
 - :bug: Add support to skip negative lookahead for Ireland
 - :arrow_up: Upgrade geocoder-abbreviations to 4.6.6 to include token additions for Latvia and Bulgaria. 
