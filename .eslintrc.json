@@ -7,5 +7,5 @@
             "requireReturn": false
         }]
     },
-    "extends": ["@mapbox/eslint-config-geocoding"]
+    "extends": ["@mapbox/eslint-config-mapbox"]
 }
