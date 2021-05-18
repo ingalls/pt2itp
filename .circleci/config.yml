@@ -28,10 +28,10 @@ jobs:
             - run:
                 name: "Install NodeJS"
                 command: |
-                  curl 'https://nodejs.org/dist/v10.15.3/node-v10.15.3-linux-x64.tar.gz' | tar -xzv \
-                  && cp ./node-v10.15.3-linux-x64/bin/node /usr/bin/ \
-                  && ./node-v10.15.3-linux-x64/bin/npm install -g yarn \
-                  && ./node-v10.15.3-linux-x64/bin/npm install -g npm \
+                  curl 'https://nodejs.org/dist/v14.17.0/node-v14.17.0-linux-x64.tar.gz' | tar -xzv \
+                  && cp ./node-v14.17.0-linux-x64/bin/node /usr/bin/ \
+                  && ./node-v14.17.0-linux-x64/bin/npm install -g yarn \
+                  && ./node-v14.17.0-linux-x64/bin/npm install -g npm \
                   && echo "export PATH=$(yarn global bin):$PATH" >> $BASH_ENV \
                   yarn install
 
