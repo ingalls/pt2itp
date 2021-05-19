@@ -197,6 +197,13 @@ mod tests {
             "wilhelm str 3"
         );
         assert_eq!(
+            Regex::new(r"([^ ]+)(gatan)")
+                .unwrap()
+                .replace_all("rudbecksgatan 3", "$1")
+                .unwrap(),
+            "rudbecks 3"
+        );
+        assert_eq!(
             Regex::new(r"(foo) (bar)")
                 .unwrap()
                 .replace_all("foo bar", "$2 $1")

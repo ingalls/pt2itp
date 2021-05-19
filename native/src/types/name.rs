@@ -302,6 +302,8 @@ impl Name {
             display = titlecase(&display, &context);
         }
         let tokenized = context.tokens.process(&display, &context.country);
+        println!("tokenized {:?}", tokenized);
+
 
         if context.country == String::from("US") || context.country == String::from("CA") {
             display = text::str_remove_octo(&display);

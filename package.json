@@ -17,7 +17,7 @@
     "pretest": "test/pretest.js",
     "test": "tape test/*.test.js && cd native && cargo test --release",
     "cargo": "cd native && cargo test --release",
-    "cargo_individual": "cd native && cargo test --release -- --exact $npm_config_test -- --nocapture",
+    "cargo_individual": "cd native && cargo test --release -- --exact util::linker::tests::test_se_linker -- --nocapture",
     "format": "cd native/ && cargo fmt -- --check"
   },
   "binary": {

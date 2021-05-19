@@ -85,6 +85,7 @@ impl Tokens {
 
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
         let mut tokens = self.tokenize(&text);
+
         let mut normalized_full_text = diacritics(&text.to_lowercase());
         let skip_regex_list = vec![
             String::from("US"),
@@ -98,7 +99,11 @@ impl Tokens {
             for (regex_string, v) in self.regex_tokens.iter() {
                 let re = Regex::new(&format!(r"{}", regex_string)).unwrap();
                 let canonical: &str = &*v.canonical; // convert from std::string::String -> &str
+                println!("tokens regex_string {:?}", regex_string);
+                println!("tokens normalized_full_text {:?}", &normalized_full_text);
+                println!("tokens canonical {:?}", canonical);
                 normalized_full_text = re.replace_all(&normalized_full_text, canonical).to_string();
+                println!("tokens uPDATED normalized_full_text {:?}", normalized_full_text);
                 tokens = self.tokenize(&normalized_full_text);
             }
             for (multi_string, v) in self.multi_tokens.iter() {
@@ -134,6 +139,7 @@ impl Tokens {
     ///
     fn tokenize(&self, text: &String) -> Vec<String> {
         let text = text.trim();
+        println!("address text {:?}", text);
 
         lazy_static! {
             static ref UP: Regex = Regex::new(r"[\^]+").unwrap();
@@ -166,6 +172,7 @@ impl Tokens {
         normalized = APOS_PUNC.replace_all(normalized.as_str(), "").to_string();
         normalized = SPACEPUNC.replace_all(normalized.as_str(), " ").to_string();
         normalized = SPACE.replace_all(normalized.as_str(), " ").to_string();
+        println!("address normalized {:?}", normalized);
 
         let tokens: Vec<String> = normalized
             .split(" ")
