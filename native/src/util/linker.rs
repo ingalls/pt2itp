@@ -119,22 +119,15 @@ fn check_substring(token_list_one: Vec<String>, mut token_list_two: Vec<String>)
 /// reasons.
 ///
 pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<LinkResult> {
-    println!("primary {:?}", primary);
-    println!("potentials {:?}", potentials);
     for name in &primary.names.names {
         let tokenized = name.tokenized_string();
         let tokenless = name.tokenless_string();
-        println!("name {:?}", name);
-        println!("tokenized {:?}", tokenized);
-        println!("tokenless {:?}", tokenless);
 
         for potential in potentials.iter_mut() {
             'outer: for potential_name in &potential.names.names {
                 // Ensure exact matches are always returned before potential short-circuits
                 //
                 // N Main St == N Main St
-                println!("name.tokenized {:?}", name.tokenized);
-                println!("potential_name.tokenized {:?}", potential_name.tokenized);
                 if name.tokenized == potential_name.tokenized {
                     return Some(LinkResult::new(potential.id, 100.0));
                 }
@@ -186,8 +179,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
 
                 // Use a weighted average w/ the tokenless dist score if possible
                 let mut lev_score: Option<f64> = None;
-                println!("tokenless {:?}", tokenless);
-                println!("potential_tokenless {:?}", potential_tokenless);
 
 
                 if tokenless.len() > 0 && potential_tokenless.len() > 0 {
@@ -234,7 +225,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         lev_score = Some(distance(&tokenized, &potential_tokenized) as f64);
                     }
                 }
-                println!("lev_score {:?}", lev_score);
 
 
                 let mut score = 100.0
@@ -243,12 +233,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         * 100.0);
 
                 // check for subset matches, overriding scores below the matching criteria
-                println!("score {:?}", score);
-                println!("lev_score {:?}", lev_score);
-                println!("potential_tokenized.len() {:?}", potential_tokenized.len() as f64);
-                println!("tokenized.len() {:?}", tokenized.len() as f64);
-                println!("tokenized {:?}", tokenized);
-                println!("potential_tokenized {:?}", potential_tokenized);
                 if score <= 70.0
                     && tokenized.len() >= 2
                     && potential_tokenized.len() >= 2
