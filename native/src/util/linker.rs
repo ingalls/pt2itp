@@ -226,7 +226,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                     }
                 }
 
-
                 let mut score = 100.0
                     - (((2.0 * lev_score.unwrap())
                         / (potential_tokenized.len() as f64 + tokenized.len() as f64))

@@ -303,7 +303,6 @@ impl Name {
         }
         let tokenized = context.tokens.process(&display, &context.country);
 
-
         if context.country == String::from("US") || context.country == String::from("CA") {
             display = text::str_remove_octo(&display);
             // penalize less desireable street names
