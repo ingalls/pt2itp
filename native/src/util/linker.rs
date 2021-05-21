@@ -180,7 +180,6 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                 // Use a weighted average w/ the tokenless dist score if possible
                 let mut lev_score: Option<f64> = None;
 
-
                 if tokenless.len() > 0 && potential_tokenless.len() > 0 {
                     lev_score = Some(
                         (0.25 * distance(&tokenized, &potential_tokenized) as f64)
