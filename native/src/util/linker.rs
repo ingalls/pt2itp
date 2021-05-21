@@ -245,7 +245,7 @@ pub fn linker(primary: Link, mut potentials: Vec<Link>, strict: bool) -> Option<
                         .map(|x| x.token.to_owned())
                         .collect();
 
-                    // Compare smaller list against larger list. Sll tokens in the smaller list must be in the larger list
+                    // Compare smaller list against larger list. All tokens in the smaller list must be in the larger list
                     // ie. check if all tokens in the address are present within the network
                     // OR check if all tokens in the network are preset within the address
                     let subset_match = if ntoks.len() > atoks.len() {
@@ -1096,6 +1096,13 @@ mod tests {
         }
         {
             assert_linker_eq!("de", "kuferstraße", "kuferstrasse", false, 100.0);
+        }
+    }
+
+    #[test]
+    fn test_se_linker() {
+        {
+            assert_linker_no_match!("sv", "rudbecksgatan", "eyragatan", false);
         }
     }
 

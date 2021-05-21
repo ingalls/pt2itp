@@ -85,6 +85,7 @@ impl Tokens {
 
     pub fn process(&self, text: &String, country: &String) -> Vec<Tokenized> {
         let mut tokens = self.tokenize(&text);
+
         let mut normalized_full_text = diacritics(&text.to_lowercase());
         let skip_regex_list = vec![
             String::from("US"),
