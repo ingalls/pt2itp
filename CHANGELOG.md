@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.7.9
+- :arrow_up: Upgrade geocoder-abbreviations to 4.6.9 to include token fix for Sweden. 
+
 ### v28.7.8
 - :arrow_up: Upgrade geocoder-abbreviations to 4.6.8 to include token additions for Gr, BA, CY, HR. 
 

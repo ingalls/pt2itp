@@ -1,6 +1,6 @@
 {
   "name": "@mapbox/pt2itp",
-  "version": "28.7.8",
+  "version": "28.7.9",
   "license": "BSD-2-Clause ",
   "description": "Attach interpolation values given a road network and address points",
   "main": "index.js",
@@ -32,7 +32,7 @@
   "dependencies": {
     "@mapbox/carmen": "27.2.0",
     "@mapbox/eslint-config-geocoding": "^2.0.2",
-    "@mapbox/geocoder-abbreviations": "4.6.8",
+    "@mapbox/geocoder-abbreviations": "4.6.9",
     "@mapbox/geojson-area": "^0.2.2",
     "@mapbox/mbtiles": "^0.11.0",
     "@mapbox/tile-cover": "^3.0.2",
