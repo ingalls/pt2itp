@@ -10,6 +10,9 @@
 
 ## Version History
 
+### v28.8.0
+- :bug: Add support to skip negative lookahead for Singapore, Iceland.
+
 ### v28.7.9
 - :arrow_up: Upgrade geocoder-abbreviations to 4.6.9 to include token fix for Sweden. 
 
