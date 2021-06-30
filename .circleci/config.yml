@@ -6,6 +6,8 @@ jobs:
             - image: ubuntu:18.04
             - image: mdillon/postgis:11
         resource_class: xlarge
+        environment:
+          MBX_CI_DOMAIN: o619qyc20d.execute-api.us-east-1.amazonaws.com
         steps:
             - run:
                 name: "Add ubuntu-toolchain"
@@ -17,7 +19,12 @@ jobs:
                   && apt-get -y install libstdc++-5-dev gcc-4.8 g++-4.8; export CXX=g++-4.8
 
             - checkout
-
+            - run:
+                name: "AWS & NPM Access token  setup using mbx-ci"
+                command: "curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci && chmod 755 ./mbx-ci && ./mbx-ci aws setup && ./mbx-ci npm token --write-file"
+            - run:
+                name: "Export AWS creds for docker image"
+                command: "./mbx-ci aws credentials --export >> $BASH_ENV"            
             - run:
                 name: "Install Rust"
                 command: |
