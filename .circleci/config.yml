@@ -21,10 +21,7 @@ jobs:
             - checkout
             - run:
                 name: "AWS & NPM Access token  setup using mbx-ci"
-                command: "curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci && chmod 755 ./mbx-ci && ./mbx-ci aws setup && ./mbx-ci npm token --write-file"
-            - run:
-                name: "Export AWS creds for docker image"
-                command: "./mbx-ci aws credentials --export >> $BASH_ENV"            
+                command: "curl -Ls https://mapbox-release-engineering.s3.amazonaws.com/mbx-ci/latest/mbx-ci-linux-amd64 > mbx-ci && chmod 755 ./mbx-ci && ./mbx-ci aws setup && ./mbx-ci npm token --write-file"       
             - run:
                 name: "Install Rust"
                 command: |
