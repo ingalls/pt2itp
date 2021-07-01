@@ -9,7 +9,7 @@ fi
 
 echo "ok - Publishing release."
 
-export NODE_PRE_GYP_GITHUB_TOKEN=$(mbx-ci github writer token)
+export NODE_PRE_GYP_GITHUB_TOKEN=$(./mbx-ci github writer token)
 if [[ -z ${NODE_PRE_GYP_GITHUB_TOKEN} ]]; then
   echo "not ok - Unable to retrieve GitHub token."
   exit 1
