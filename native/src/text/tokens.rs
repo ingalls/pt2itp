@@ -94,6 +94,7 @@ impl Tokens {
             String::from("IE"),
             String::from("IS"),
             String::from("SG"),
+            String::from("FI"),
         ]; // add countries that are using english tokens here to get around lookahead token replacement errors
 
         let mut tokenized: Vec<Tokenized> = Vec::with_capacity(tokens.len());
