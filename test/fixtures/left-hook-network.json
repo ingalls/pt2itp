@@ -1,62 +1,43 @@
 {
     "type": "Feature",
     "properties": {
-        "address_props": [],
-        "carmen:intersections": [],
         "carmen:rangetype": "tiger",
         "carmen:parityl": [
-            [
-                null
-            ]
+            null
         ],
         "carmen:lfromhn": [
-            [
-                null
-            ]
+            null
         ],
         "carmen:ltohn": [
-            [
-                null
-            ]
+            null
         ],
         "carmen:parityr": [
-            [
-                null
-            ]
+            null
         ],
         "carmen:rfromhn": [
-            [
-                null
-            ]
+            null
         ],
         "carmen:rtohn": [
-            [
-                null
-            ]
+            null
         ]
     },
     "geometry": {
-        "type": "GeometryCollection",
-        "geometries": [
-            {
-                "type": "MultiLineString",
-                "coordinates": [
-                    [
-                        [
-                            -77.19249486923218,
-                            39.090421398604306
-                        ],
-                        [
-                            -77.19209790229797,
-                            39.09155388949448
-                        ],
-                        [
-                            -77.19150245189667,
-                            39.091428983303274
-                        ]
-                    ]
+        "type": "MultiLineString",
+        "coordinates": [
+            [
+                [
+                    -77.19249486923218,
+                    39.090421398604306
+                ],
+                [
+                    -77.19209790229797,
+                    39.09155388949448
+                ],
+                [
+                    -77.19150245189667,
+                    39.091428983303274
                 ]
-            }
+            ]
         ]
     }
 }

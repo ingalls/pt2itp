@@ -83,12 +83,12 @@ test('Split: Simple Intersection', (t) => {
             ]],
             'carmen:addressnumber': [null, ['2', '10', '20'], null],
             'carmen:rangetype': 'tiger',
-            'carmen:parityl': [['E', 'E', 'E'], null, null],
-            'carmen:lfromhn': [[2, 20, 20], null, null],
-            'carmen:ltohn': [[10, 20, 30], null, null],
-            'carmen:parityr': [[null, null, null], null, null],
-            'carmen:rfromhn': [[null, null, null], null, null],
-            'carmen:rtohn': [[null, null, null], null, null],
+            'carmen:parityl': [['E', 'E', 'E', 'E'], null, null],
+            'carmen:lfromhn': [[0, 2, 20, 20], null, null],
+            'carmen:ltohn': [[2, 10, 20, 30], null, null],
+            'carmen:parityr': [[null, null, null, null], null, null],
+            'carmen:rfromhn': [[null, null, null, null], null, null],
+            'carmen:rtohn': [[null, null, null, null], null, null],
             'carmen:text': 'Riverton Road South',
             'carmen:geocoder_stack': 'us',
             'carmen:center': [-79.43694591522217, 38.74308011985037]
@@ -97,8 +97,16 @@ test('Split: Simple Intersection', (t) => {
         t.deepEquals(res.geometry, {
             type: 'GeometryCollection',
             geometries: [{
-                'type':'MultiLineString',
-                'coordinates': [
+                type:'MultiLineString',
+                coordinates: [
+                    [
+                        [-79.43969249725342, 38.74246924858317],
+                        [-79.43917751312256, 38.74222238816381],
+                        [-79.43901658058167, 38.742201467750064],
+                        [-79.43888247013092, 38.74234372644267],
+                        [-79.43876981735228, 38.74251108924762],
+                        [-79.43869951975134, 38.742560014180114]
+                    ],
                     [
                         [-79.43969249725342, 38.74246924858317],
                         [-79.43917751312256, 38.74222238816381],
@@ -110,19 +118,19 @@ test('Split: Simple Intersection', (t) => {
                         [-79.43735361099243, 38.74278723701823],
                         [-79.43683326244354, 38.74285836581647],
                         [-79.43651139736176, 38.743004807236844],
-                        [-79.4360662, 38.7435738]
+                        [-79.43607950574318, 38.743579930956514]
                     ],
                     [
-                        [-79.4360662, 38.7435738],
+                        [-79.43607950574318, 38.743579930956514],
                         [-79.43585157394409, 38.74388344945229],
                         [-79.43511664867401, 38.74597541121073],
                         [-79.4350254535675, 38.74628501634416],
                         [-79.43521320819855, 38.74643981840743]
                     ],
                     [
-                        [-79.4360662, 38.7435738],
+                        [-79.43607950574318, 38.743579930956514],
                         [-79.43585157394409, 38.74388344945229],
-                        [-79.4351651026362, 38.74583748720664]
+                        [-79.4351650925864, 38.745837515813385]
                     ]
                 ]
             }, {

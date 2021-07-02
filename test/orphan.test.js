@@ -11,6 +11,7 @@ const db = require('./lib/db');
 
 db.init(test);
 
+const { Writable } = require('stream');
 const fs = require('fs');
 const path = require('path');
 const Queue = require('d3-queue').queue;
@@ -81,6 +82,7 @@ test('orphan.address', (t) => {
 });
 
 test('orphan output', (t) => {
+
     let counter = 0;
     const orphans = {
         'Main Street': [['3','4']],
@@ -105,5 +107,107 @@ test('orphan output', (t) => {
         t.end();
     });
 });
+
+test('orphan streets', (t) => {
+
+    const {
+        import_net,
+        cluster_net,
+        intersections
+    } = require('../native/index.node');
+
+    import_net({
+        db: 'pt_test',
+        seq: true,
+        input: path.resolve(__dirname, './fixtures/network_orphans.geojson'),
+        context: { db: 'pt_test' }
+    });
+
+    cluster_net('pt_test');
+
+    intersections('pt_test');
+
+    let outputBuffer = '';
+    const output = new Writable({
+        write(chunk, encoding, callback) {
+            outputBuffer += chunk.toString();
+            callback();
+        }
+    });
+
+    t.test('Should output intersections if requested', (tt) => {
+
+        const pool = db.get();
+        const orphan = new Orphan(pool, { intersections: true }, output);
+
+        orphan.network((err) => {
+            t.error(err);
+            pool.end();
+            const result = outputBuffer.split('\n').filter((v) => v.length > 0).map(JSON.parse);
+            t.equal(result.length, 2);
+
+            t.deepEqual(result[0].properties['carmen:text'], 'Hobart Place Northwest');
+            t.deepEqual(result[0].properties['carmen:intersections'], [null, ['Georgia Avenue Northwest', 'Us 29']]);
+            t.deepEqual(result[0].properties['carmen:parityl'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:ltohn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:lfromhn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:parityr'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:rtohn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:rfromhn'], [[], null]);
+            t.deepEqual(result[0].properties['carmen:addressnumber'], undefined);
+
+            t.deepEqual(result[1].properties['carmen:text'], 'Georgia Avenue Northwest,Us 29');
+            t.deepEqual(result[1].properties['carmen:intersections'], [null, ['Hobart Place Northwest']]);
+            t.deepEqual(result[1].properties['carmen:parityl'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:ltohn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:lfromhn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:parityr'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:rtohn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:rfromhn'], [[], null]);
+            t.deepEqual(result[1].properties['carmen:addressnumber'], undefined);
+
+            tt.end();
+        });
+    });
+
+    t.test('Should not omit intersections by default', (tt) => {
+        outputBuffer = '';
+
+        const pool = db.get();
+        const orphan = new Orphan(pool, {}, output);
+
+        orphan.network((err) => {
+            t.error(err);
+            pool.end();
+            const result = outputBuffer.split('\n').filter((v) => v.length > 0).map(JSON.parse);
+            t.equal(result.length, 2);
+
+            t.deepEqual(result[0].properties['carmen:text'], 'Hobart Place Northwest');
+            t.deepEqual(result[0].properties['carmen:intersections'], undefined);
+            t.deepEqual(result[0].properties['carmen:parityl'], [[]]);
+            t.deepEqual(result[0].properties['carmen:ltohn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:lfromhn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:parityr'], [[]]);
+            t.deepEqual(result[0].properties['carmen:rtohn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:rfromhn'], [[]]);
+            t.deepEqual(result[0].properties['carmen:addressnumber'], undefined);
+
+            t.deepEqual(result[1].properties['carmen:text'], 'Georgia Avenue Northwest,Us 29');
+            t.deepEqual(result[0].properties['carmen:intersections'], undefined);
+            t.deepEqual(result[1].properties['carmen:parityl'], [[]]);
+            t.deepEqual(result[1].properties['carmen:ltohn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:lfromhn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:parityr'], [[]]);
+            t.deepEqual(result[1].properties['carmen:rtohn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:rfromhn'], [[]]);
+            t.deepEqual(result[1].properties['carmen:addressnumber'], undefined);
+
+            tt.end();
+        });
+    });
+
+    t.end();
+});
+
 
 db.init(test);
