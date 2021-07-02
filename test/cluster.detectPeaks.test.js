@@ -105,3 +105,73 @@ test('Assert multiple peaks detection', (t) => {
     t.deepEquals(breaks, [8]);
     t.end();
 });
+
+test('Moving Average', (t) => {
+    let vals = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5].map((v, i) => [i, v]);
+    let avg = Cluster.movingAverage(vals, 5);
+    t.deepEqual(avg, [
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5,
+        5
+    ]);
+
+    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 5);
+    t.deepEqual(avg,[
+        1,
+        1.5,
+        2,
+        2.5,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+    ]);
+
+    vals = [1, 2, 3, 4, 1, 6, 7, 8, 900, 10].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 5);
+    t.deepEqual(avg, [
+        1,
+        1.5,
+        2,
+        2.5,
+        2.2,
+        3.2,
+        4.2,
+        5.2,
+        184.4,
+        186.2
+    ]);
+
+    vals = [1].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 1);
+    t.deepEqual(avg, [1], 'Single value input');
+
+    vals = [1].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 10);
+    t.deepEqual(avg, [1], 'Overly large window');
+
+    vals = [].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 1);
+    t.deepEqual(avg, [], 'Empty input, empty output.');
+
+    vals = [1, 1, 1, -1, -1, 1, 1, 1, 1, 1].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 1);
+    t.deepEqual(avg, [1, 1, 1, -1, -1, 1, 1, 1, 1, 1]);
+
+    vals = [1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1].map((v, i) => [i, v]);
+    avg = Cluster.movingAverage(vals, 2);
+    t.deepEqual(avg,[1, 1, 1, 1, 1, 1, 0, -1, -1, -1, -1, -1, -1, 0, 1, 1, 1, 1, 1, 1]);
+
+    t.end();
+});
+
